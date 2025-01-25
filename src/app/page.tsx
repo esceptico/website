@@ -1,101 +1,84 @@
-import Image from "next/image";
+'use client';
+
+import { motion } from 'framer-motion';
+import { useThemeStore } from '@/store/theme';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const { setMode } = useThemeStore();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  return (
+    <div className="min-h-[calc(100vh-4rem)] flex items-center">
+      <div className="w-full max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-16 md:gap-24">
+        {/* MLE Section */}
+        <motion.section
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          onClick={() => setMode('mle')}
+          className="group cursor-pointer space-y-4"
+        >
+          <div className="overflow-hidden">
+            <motion.h2 
+              className="text-3xl md:text-4xl font-light tracking-tight text-indigo-950"
+              whileHover={{ x: 10 }}
+              transition={{ duration: 0.2 }}
+            >
+              Machine Learning
+              <span className="block font-normal">Engineer</span>
+            </motion.h2>
+          </div>
+          <p className="text-gray-600 text-sm md:text-base leading-relaxed max-w-md">
+            Developing intelligent systems and algorithms that push the boundaries 
+            of artificial intelligence. Specializing in computer vision and natural 
+            language processing.
+          </p>
+          <motion.div 
+            className="inline-flex items-center text-indigo-600 text-sm"
+            whileHover={{ x: 5 }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            View Projects
+            <svg className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 8H15M15 8L8 1M15 8L8 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </motion.div>
+        </motion.section>
+
+        {/* Divider */}
+        <div className="hidden md:block absolute left-1/2 top-1/4 bottom-1/4 w-px bg-gray-200" />
+
+        {/* Photography Section */}
+        <motion.section
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          onClick={() => setMode('photography')}
+          className="group cursor-pointer space-y-4"
+        >
+          <div className="overflow-hidden">
+            <motion.h2 
+              className="text-3xl md:text-4xl font-light tracking-tight text-amber-950"
+              whileHover={{ x: 10 }}
+              transition={{ duration: 0.2 }}
+            >
+              Visual Stories
+              <span className="block font-normal">Photography</span>
+            </motion.h2>
+          </div>
+          <p className="text-gray-600 text-sm md:text-base leading-relaxed max-w-md">
+            Capturing moments and emotions through the lens, specializing in portrait 
+            and landscape photography. Creating visual narratives that resonate.
+          </p>
+          <motion.div 
+            className="inline-flex items-center text-amber-600 text-sm"
+            whileHover={{ x: 5 }}
           >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            View Portfolio
+            <svg className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 8H15M15 8L8 1M15 8L8 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </motion.div>
+        </motion.section>
+      </div>
     </div>
   );
 }

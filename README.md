@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dual-Mode Personal Website
+
+A modern, responsive website built with Next.js 13 that showcases two distinct professional identities: Machine Learning Engineer and Photographer. The website features a seamless mode switch that transforms the content and styling based on the selected persona.
+
+## Features
+
+- **Dual Mode Toggle**: Switch between Machine Learning Engineer and Photography modes
+- **Responsive Design**: Mobile-first approach that looks great on all devices
+- **Modern UI**: Clean, minimalist design with smooth animations
+- **Mode-Specific Content**: Different navigation items and content based on the selected mode
+- **Interactive Components**: Image lightbox for photography portfolio, project cards for ML work
+
+## Tech Stack
+
+- Next.js 13 (App Router)
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- Headless UI
+- Heroicons
+- Zustand (State Management)
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd <repository-name>
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Project Structure
+
+```
+src/
+├── app/                    # Next.js 13 app directory
+│   ├── about/             # About page (shows different content based on mode)
+│   ├── portfolio/         # Photography portfolio page
+│   ├── projects/          # ML projects page
+│   ├── layout.tsx         # Root layout with navigation
+│   └── page.tsx           # Homepage with mode selection
+├── components/            # Reusable components
+│   ├── Navigation.tsx     # Main navigation bar with mode toggle
+│   └── ThemeToggle.tsx    # Mode toggle component
+└── store/                 # State management
+    └── theme.ts           # Theme/mode state using Zustand
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Customization
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Content
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **ML Engineer Content**:
+   - Update the projects array in `src/app/projects/page.tsx`
+   - Modify the MLEContent component in `src/app/about/page.tsx`
 
-## Learn More
+2. **Photography Content**:
+   - Update the photos array in `src/app/portfolio/page.tsx`
+   - Modify the PhotographyContent component in `src/app/about/page.tsx`
 
-To learn more about Next.js, take a look at the following resources:
+### Styling
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Colors**:
+   - ML Engineer mode uses indigo as the primary color
+   - Photography mode uses amber as the primary color
+   - Modify these in the respective components or create a theme configuration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Layout**:
+   - Adjust the max-width, padding, and grid layouts in the components
+   - Modify the Tailwind configuration in `tailwind.config.ts`
 
-## Deploy on Vercel
+### Navigation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Update the navigation links in `src/components/Navigation.tsx`
+- Modify the `mleLinks` and `photographyLinks` arrays to add/remove pages
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+
+1. Build the project:
+   ```bash
+   npm run build
+   ```
+
+2. Deploy to your preferred hosting platform (Vercel recommended for Next.js):
+   ```bash
+   vercel deploy
+   ```
+
+## SEO
+
+- Update the metadata in `src/app/layout.tsx`
+- Add page-specific metadata in each page component
+- Consider adding a sitemap for better search engine indexing
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a pull request
+
+## License
+
+MIT License - feel free to use this project as a template for your own personal website.
+
+## Support
+
+For questions or issues, please open an issue in the GitHub repository.
