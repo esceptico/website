@@ -2,26 +2,44 @@
 
 import { motion } from 'framer-motion';
 import { useThemeStore } from '@/store/theme';
+import { useRouter } from 'next/navigation';
+
+const pageTransition = {
+  duration: 0.4,
+  ease: [0.43, 0.13, 0.23, 0.96]
+};
 
 export default function Home() {
   const { setMode } = useThemeStore();
+  const router = useRouter();
+
+  const handleModeChange = (mode: 'mle' | 'photography') => {
+    setMode(mode);
+    router.push(mode === 'mle' ? '/projects' : '/portfolio');
+  };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center">
+    <motion.div 
+      className="min-h-screen flex items-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={pageTransition}
+    >
       <div className="w-full max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-16 md:gap-24">
         {/* MLE Section */}
         <motion.section
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          onClick={() => setMode('mle')}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          whileHover={{ scale: 1.02 }}
+          transition={pageTransition}
+          onClick={() => handleModeChange('mle')}
           className="group cursor-pointer space-y-4"
         >
           <div className="overflow-hidden">
             <motion.h2 
               className="text-3xl md:text-4xl font-light tracking-tight text-indigo-950"
               whileHover={{ x: 10 }}
-              transition={{ duration: 0.2 }}
+              transition={pageTransition}
             >
               Machine Learning
               <span className="block font-normal">Engineer</span>
@@ -32,9 +50,10 @@ export default function Home() {
             of artificial intelligence. Specializing in computer vision and natural 
             language processing.
           </p>
-          <motion.div 
+          <motion.div
             className="inline-flex items-center text-indigo-600 text-sm"
             whileHover={{ x: 5 }}
+            transition={pageTransition}
           >
             View Projects
             <svg className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -44,21 +63,30 @@ export default function Home() {
         </motion.section>
 
         {/* Divider */}
-        <div className="hidden md:block absolute left-1/2 top-1/4 bottom-1/4 w-px bg-gray-200" />
+        <motion.div 
+          className="hidden md:block absolute left-1/2 top-1/4 bottom-1/4 w-px"
+          initial={{ scaleY: 0 }}
+          animate={{ scaleY: 1 }}
+          transition={pageTransition}
+          style={{
+            background: 'linear-gradient(to bottom, transparent, rgb(229, 231, 235), transparent)'
+          }}
+        />
 
         {/* Photography Section */}
         <motion.section
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          onClick={() => setMode('photography')}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          whileHover={{ scale: 1.02 }}
+          transition={pageTransition}
+          onClick={() => handleModeChange('photography')}
           className="group cursor-pointer space-y-4"
         >
           <div className="overflow-hidden">
             <motion.h2 
               className="text-3xl md:text-4xl font-light tracking-tight text-amber-950"
               whileHover={{ x: 10 }}
-              transition={{ duration: 0.2 }}
+              transition={pageTransition}
             >
               Visual Stories
               <span className="block font-normal">Photography</span>
@@ -68,9 +96,10 @@ export default function Home() {
             Capturing moments and emotions through the lens, specializing in portrait 
             and landscape photography. Creating visual narratives that resonate.
           </p>
-          <motion.div 
+          <motion.div
             className="inline-flex items-center text-amber-600 text-sm"
             whileHover={{ x: 5 }}
+            transition={pageTransition}
           >
             View Portfolio
             <svg className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -79,6 +108,6 @@ export default function Home() {
           </motion.div>
         </motion.section>
       </div>
-    </div>
+    </motion.div>
   );
 }
