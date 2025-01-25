@@ -1,8 +1,31 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { BeakerIcon, CameraIcon } from '@heroicons/react/24/outline';
 import { useThemeStore } from '@/store/theme';
+
+const itemVariants = {
+  initial: { 
+    opacity: 0,
+    y: 10,
+  },
+  animate: { 
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.3,
+      ease: [0.22, 1, 0.36, 1],
+    }
+  },
+  exit: { 
+    opacity: 0,
+    y: -10,
+    transition: {
+      duration: 0.2,
+      ease: [0.22, 1, 0.36, 1],
+    }
+  },
+};
 
 export default function ThemeToggle() {
   const { mode, toggleMode } = useThemeStore();
@@ -11,30 +34,41 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleMode}
-      className="relative flex items-center gap-2 px-4 py-2 rounded-full transition-colors"
+      className="relative h-8 px-3"
     >
-      <div className="relative flex items-center">
-        <motion.div
-          className={`absolute inset-0 rounded-full ${isMLE ? 'bg-indigo-50' : 'bg-amber-50'}`}
-          layoutId="pill"
-          transition={{ type: "spring", duration: 0.5 }}
-        />
-        <motion.div
-          className="relative flex items-center gap-2 px-3 py-1.5"
-          animate={{ color: isMLE ? 'rgb(79, 70, 229)' : 'rgb(217, 119, 6)' }}
-        >
-          {isMLE ? (
-            <>
-              <BeakerIcon className="h-4 w-4" />
-              <span className="text-sm font-medium">ML</span>
-            </>
-          ) : (
-            <>
-              <CameraIcon className="h-4 w-4" />
-              <span className="text-sm font-medium">Photo</span>
-            </>
-          )}
-        </motion.div>
+      <div 
+        className="absolute inset-0 rounded-full transition-colors duration-300"
+        style={{
+          backgroundColor: isMLE 
+            ? 'rgb(238, 242, 255)' // indigo-50
+            : 'rgb(255, 251, 235)', // amber-50
+        }}
+      />
+      <div className="relative flex items-center h-full">
+        <div className="w-16 flex justify-start overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={mode}
+              variants={itemVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="flex items-center gap-2"
+            >
+              {isMLE ? (
+                <>
+                  <BeakerIcon className="w-4 h-4 text-indigo-600" />
+                  <span className="text-sm font-light text-indigo-600">ML</span>
+                </>
+              ) : (
+                <>
+                  <CameraIcon className="w-4 h-4 text-amber-600" />
+                  <span className="text-sm font-light text-amber-600">Photo</span>
+                </>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </button>
   );
