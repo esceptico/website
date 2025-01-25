@@ -70,7 +70,7 @@ export default function Home() {
 
         {/* Divider */}
         <motion.div 
-          className="hidden md:block absolute left-1/2 h-32 top-1/2 -translate-y-1/2 w-px"
+          className="hidden md:block absolute left-1/2 h-24 top-[4.5rem] -translate-x-px w-px"
           style={{
             background: 'linear-gradient(to bottom, transparent, currentColor, transparent)',
             color: hoveredSide === 'mle' 
@@ -80,8 +80,8 @@ export default function Home() {
               : 'rgb(229, 231, 235)'
           }}
           animate={{ 
-            scaleY: hoveredSide ? 1.2 : 1,
-            opacity: hoveredSide ? 0.3 : 0.7
+            scaleY: hoveredSide ? 1.1 : 1,
+            opacity: hoveredSide ? 0.3 : 0.5
           }}
           transition={{ duration: 0.4 }}
         />
