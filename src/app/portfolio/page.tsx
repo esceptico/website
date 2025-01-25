@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useThemeStore } from '@/store/theme';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 // Sample photo data - replace with your actual photos
 const photos = [
@@ -80,55 +80,85 @@ const Lightbox = ({ photo, onClose }: { photo: typeof photos[0]; onClose: () => 
   </motion.div>
 );
 
+const pageVariants = {
+  initial: { opacity: 0 },
+  animate: { 
+    opacity: 1,
+    transition: { duration: 0.3 }
+  },
+  exit: { 
+    opacity: 0,
+    transition: { duration: 0.2 }
+  }
+};
+
 export default function Portfolio() {
   const { mode } = useThemeStore();
   const router = useRouter();
+  const pathname = usePathname();
   const [selectedPhoto, setSelectedPhoto] = useState<typeof photos[0] | null>(null);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
-  // Redirect if in MLE mode
-  if (mode === 'mle') {
-    router.push('/projects');
-    return null;
-  }
+  useEffect(() => {
+    if (mode === 'mle' && !shouldRedirect) {
+      setShouldRedirect(true);
+    }
+  }, [mode, shouldRedirect]);
+
+  useEffect(() => {
+    if (shouldRedirect) {
+      const timeout = setTimeout(() => {
+        if (pathname !== '/about') {
+          router.push('/');
+        }
+      }, 300);
+      return () => clearTimeout(timeout);
+    }
+  }, [shouldRedirect, router, pathname]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-8"
-      >
-        <div>
-          <h1 className="text-4xl font-bold text-amber-600 mb-4">Photography Portfolio</h1>
-          <p className="text-gray-600 max-w-3xl">
-            A collection of my favorite photographs capturing moments of beauty in landscapes,
-            portraits, and street photography. Click on any image to view it in detail.
-          </p>
-        </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key="portfolio-content"
+          variants={pageVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          className="space-y-8"
+        >
+          <div>
+            <h1 className="text-4xl font-bold text-amber-600 mb-4">Photography Portfolio</h1>
+            <p className="text-gray-600 max-w-3xl">
+              A collection of my favorite photographs capturing moments of beauty in landscapes,
+              portraits, and street photography. Click on any image to view it in detail.
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {photos.map((photo) => (
-            <motion.div
-              key={photo.id}
-              whileHover={{ scale: 1.02 }}
-              className="cursor-pointer"
-              onClick={() => setSelectedPhoto(photo)}
-            >
-              <div className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden">
-                <img
-                  src={photo.src}
-                  alt={photo.alt}
-                  className="w-full h-full object-cover transform transition hover:scale-105"
-                />
-              </div>
-              <div className="mt-2">
-                <h3 className="text-lg font-medium text-gray-900">{photo.title}</h3>
-                <p className="text-sm text-gray-500">{photo.category}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {photos.map((photo) => (
+              <motion.div
+                key={photo.id}
+                whileHover={{ scale: 1.02 }}
+                className="cursor-pointer"
+                onClick={() => setSelectedPhoto(photo)}
+              >
+                <div className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden">
+                  <img
+                    src={photo.src}
+                    alt={photo.alt}
+                    className="w-full h-full object-cover transform transition hover:scale-105"
+                  />
+                </div>
+                <div className="mt-2">
+                  <h3 className="text-lg font-medium text-gray-900">{photo.title}</h3>
+                  <p className="text-sm text-gray-500">{photo.category}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </AnimatePresence>
 
       <AnimatePresence>
         {selectedPhoto && (
