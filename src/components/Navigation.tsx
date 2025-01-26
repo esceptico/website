@@ -6,9 +6,9 @@ import { useThemeStore } from '@/store/theme';
 
 export default function Navigation() {
   const { mode, colorScheme } = useThemeStore();
-  const pathname = usePathname();
   const isDark = colorScheme === 'dark';
-  
+  const pathname = usePathname();
+
   if (pathname === '/') return null;
 
   const links = mode === 'mle' 
@@ -16,44 +16,36 @@ export default function Navigation() {
     : [{ href: '/portfolio', label: 'Portfolio' }, { href: '/about', label: 'About' }];
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 ${
-      isDark 
-        ? 'bg-gray-950/80 border-gray-800' 
-        : 'bg-white/80 border-gray-200'
-    } backdrop-blur-sm border-b`}>
-      <div className="max-w-screen-xl mx-auto px-4 py-3">
-        <ul className="flex items-center gap-6">
-          <li>
-            <Link 
-              href="/" 
-              className={`text-sm transition-colors duration-200 ${
-                isDark
-                  ? 'text-gray-400 hover:text-gray-200'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              ← Home
-            </Link>
-          </li>
-          {links.map(({ href, label }) => (
-            <li key={href}>
+    <nav className="sticky top-0 z-50 backdrop-blur-sm border-b border-[var(--theme-border)]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex">
+            <div className="flex space-x-8">
               <Link
+                href="/"
+                className="inline-flex items-center px-3 py-2 text-sm font-medium text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors"
+              >
+                ← Home
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            {links.map(({ href, label }) => (
+              <Link
+                key={href}
                 href={href}
-                className={`text-sm transition-colors duration-200 ${
+                className={`px-3 py-2 text-sm font-medium transition-colors ${
                   pathname === href
-                    ? mode === 'mle'
-                      ? isDark ? 'text-indigo-400' : 'text-indigo-600'
-                      : isDark ? 'text-orange-400' : 'text-orange-600'
-                    : isDark
-                      ? 'text-gray-400 hover:text-gray-200'
-                      : 'text-gray-500 hover:text-gray-900'
+                    ? 'text-[var(--theme-accent-primary)]'
+                    : 'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]'
                 }`}
               >
                 {label}
               </Link>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </div>
+        </div>
       </div>
     </nav>
   );

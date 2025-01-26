@@ -99,12 +99,14 @@ export default function Home() {
 
         {/* Divider */}
         <motion.div 
-          className="hidden md:block absolute left-1/2 h-24 top-[4.5rem] -translate-x-px w-px"
+          className="hidden md:block absolute left-1/2 -translate-x-px w-px"
           style={{
             background: 'linear-gradient(to bottom, transparent, currentColor, transparent)',
+            height: '3rem',
+            top: '1.5rem'
           }}
           animate={{ 
-            scaleY: hoveredSide ? 1.1 : 1,
+            scaleY: hoveredSide ? 6 : 1,
             opacity: hoveredSide ? 0.4 : 0.2,
             x: hoveredSide === 'mle' 
               ? 20
@@ -115,9 +117,13 @@ export default function Home() {
               ? isDark ? 'rgb(129, 140, 248)' : 'rgb(67, 56, 202)'
               : hoveredSide === 'photography'
               ? isDark ? 'rgb(251, 146, 60)' : 'rgb(217, 119, 6)'
-              : isDark ? 'rgb(75, 85, 99)' : 'rgb(156, 163, 175)'
+              : isDark ? 'rgb(75, 85, 99)' : 'rgb(156, 163, 175)',
+            transformOrigin: 'center'
           }}
-          transition={transition}
+          transition={{
+            ...transition,
+            scaleY: { duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }
+          }}
         />
 
         {/* Photography Section */}
