@@ -1,9 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useThemeStore } from '@/store/theme';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { pageTransition, gradientConfig } from '@/constants/animation';
 import { textColors } from '@/constants/colors';
 import { Mode } from '@/types/theme';
@@ -12,24 +12,54 @@ export default function Home() {
   const { setMode, colorScheme } = useThemeStore();
   const router = useRouter();
   const [hoveredSide, setHoveredSide] = useState<Mode | null>(null);
+  const [selectedSide, setSelectedSide] = useState<Mode | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const isDark = colorScheme === 'dark';
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const handleModeChange = (mode: Mode) => {
-    setMode(mode);
-    router.push(mode === 'mle' ? '/projects' : '/portfolio');
+    if (isMobile) {
+      if (selectedSide === mode) {
+        setMode(mode);
+        router.push(mode === 'mle' ? '/projects' : '/portfolio');
+      } else {
+        setSelectedSide(mode);
+        setHoveredSide(mode);
+      }
+    } else {
+      setMode(mode);
+      router.push(mode === 'mle' ? '/projects' : '/portfolio');
+    }
+  };
+
+  const handleHover = (mode: Mode | null) => {
+    if (!isMobile) {
+      setHoveredSide(mode);
+    }
   };
 
   const getGradientBackground = () => {
     if (!hoveredSide) return 'radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 0%, transparent 0%)';
     
     const config = hoveredSide === 'mle' ? gradientConfig.mle : gradientConfig.photography;
-    const position = hoveredSide === 'mle' ? '25% 50%' : '75% 50%';
+    const position = isMobile 
+      ? hoveredSide === 'mle' ? '50% 25%' : '50% 75%'
+      : hoveredSide === 'mle' ? '35% 50%' : '65% 50%';
     return `radial-gradient(circle at ${position}, ${isDark ? config.dark : config.light} 0%, transparent 50%)`;
   };
 
   return (
     <motion.div 
-      className="min-h-screen flex items-center relative overflow-hidden"
+      className="min-h-screen flex items-center relative overflow-hidden py-12 md:py-0"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ ...pageTransition, delay: 0.1 }}
@@ -45,26 +75,32 @@ export default function Home() {
         transition={pageTransition}
       />
 
-      <div className="w-full max-w-5xl mx-auto grid md:grid-cols-2 relative">
+      <div className="w-full max-w-5xl mx-auto grid md:grid-cols-2 gap-16 md:gap-0 relative">
         {/* MLE Section */}
-        <div 
-          className="relative px-12"
-          onMouseEnter={() => setHoveredSide('mle')}
-          onMouseLeave={() => setHoveredSide(null)}
+        <motion.div 
+          className="relative px-6 md:px-12 text-center"
+          onMouseEnter={() => handleHover('mle')}
+          onMouseLeave={() => handleHover(null)}
           onClick={() => handleModeChange('mle')}
+          initial={isMobile ? { opacity: 0.8 } : undefined}
+          whileTap={isMobile ? { scale: 0.98 } : undefined}
         >
           <motion.div 
-            className="cursor-pointer"
+            className="cursor-pointer mx-auto max-w-md"
             animate={{ 
-              x: hoveredSide === 'mle' ? 40 : hoveredSide === 'photography' ? -16 : 0,
-              opacity: hoveredSide === 'photography' ? 0.3 : 1
+              x: !isMobile ? (hoveredSide === 'mle' ? 40 : hoveredSide === 'photography' ? -16 : 0) : 0,
+              y: isMobile ? (hoveredSide === 'mle' ? -20 : hoveredSide === 'photography' ? 8 : 0) : 0,
+              opacity: isMobile 
+                ? (selectedSide === null || selectedSide === 'mle' ? 1 : 0.3)
+                : (hoveredSide === 'photography' ? 0.3 : 1),
+              scale: isMobile && selectedSide === 'mle' ? 1.05 : 1
             }}
             transition={pageTransition}
           >
             <motion.h2 
-              className="text-4xl font-light tracking-tight"
+              className="text-3xl md:text-4xl font-light tracking-tight"
               animate={{ 
-                color: hoveredSide === 'mle' 
+                color: (hoveredSide === 'mle' || selectedSide === 'mle')
                   ? isDark ? gradientConfig.mle.textDark : gradientConfig.mle.textLight
                   : isDark ? textColors.primary.dark : textColors.primary.light
               }}
@@ -72,7 +108,7 @@ export default function Home() {
             >
               Machine Learning
               <motion.span 
-                className="block text-xl mt-2"
+                className="block text-lg md:text-xl mt-1 md:mt-2"
                 animate={{ 
                   color: isDark ? gradientConfig.mle.textDark : gradientConfig.mle.textLight
                 }}
@@ -83,7 +119,7 @@ export default function Home() {
             </motion.h2>
 
             <motion.p
-              className="max-w-md mt-4"
+              className="max-w-md mx-auto mt-3 md:mt-4 text-sm md:text-base"
               initial={{ opacity: 0, y: -20 }}
               animate={{ 
                 opacity: hoveredSide === 'mle' ? 1 : 0,
@@ -97,7 +133,7 @@ export default function Home() {
               language processing.
             </motion.p>
           </motion.div>
-        </div>
+        </motion.div>
 
         {/* Divider */}
         <motion.div 
@@ -129,24 +165,30 @@ export default function Home() {
         />
 
         {/* Photography Section */}
-        <div 
-          className="relative px-12"
-          onMouseEnter={() => setHoveredSide('photography')}
-          onMouseLeave={() => setHoveredSide(null)}
+        <motion.div 
+          className="relative px-6 md:px-12 text-center"
+          onMouseEnter={() => handleHover('photography')}
+          onMouseLeave={() => handleHover(null)}
           onClick={() => handleModeChange('photography')}
+          initial={isMobile ? { opacity: 0.8 } : undefined}
+          whileTap={isMobile ? { scale: 0.98 } : undefined}
         >
           <motion.div 
-            className="cursor-pointer text-right"
+            className="cursor-pointer mx-auto max-w-md"
             animate={{ 
-              x: hoveredSide === 'photography' ? -40 : hoveredSide === 'mle' ? 16 : 0,
-              opacity: hoveredSide === 'mle' ? 0.3 : 1
+              x: !isMobile ? (hoveredSide === 'photography' ? -40 : hoveredSide === 'mle' ? 16 : 0) : 0,
+              y: isMobile ? (hoveredSide === 'photography' ? -20 : hoveredSide === 'mle' ? 8 : 0) : 0,
+              opacity: isMobile 
+                ? (selectedSide === null || selectedSide === 'photography' ? 1 : 0.3)
+                : (hoveredSide === 'mle' ? 0.3 : 1),
+              scale: isMobile && selectedSide === 'photography' ? 1.05 : 1
             }}
             transition={pageTransition}
           >
             <motion.h2 
-              className="text-4xl font-light tracking-tight"
+              className="text-3xl md:text-4xl font-light tracking-tight"
               animate={{ 
-                color: hoveredSide === 'photography' 
+                color: (hoveredSide === 'photography' || selectedSide === 'photography')
                   ? isDark ? gradientConfig.photography.textDark : gradientConfig.photography.textLight
                   : isDark ? textColors.primary.dark : textColors.primary.light
               }}
@@ -154,7 +196,7 @@ export default function Home() {
             >
               Visual Stories
               <motion.span 
-                className="block text-xl mt-2"
+                className="block text-lg md:text-xl mt-1 md:mt-2"
                 animate={{ 
                   color: isDark ? gradientConfig.photography.textDark : gradientConfig.photography.textLight
                 }}
@@ -165,7 +207,7 @@ export default function Home() {
             </motion.h2>
 
             <motion.p
-              className="max-w-md mt-4 ml-auto"
+              className="max-w-md mx-auto mt-3 md:mt-4 text-sm md:text-base"
               initial={{ opacity: 0, y: -20 }}
               animate={{ 
                 opacity: hoveredSide === 'photography' ? 1 : 0,
@@ -178,7 +220,7 @@ export default function Home() {
               and landscape photography. Creating visual narratives that resonate.
             </motion.p>
           </motion.div>
-        </div>
+        </motion.div>
       </div>
     </motion.div>
   );
