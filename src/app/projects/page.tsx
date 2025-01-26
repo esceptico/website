@@ -39,8 +39,7 @@ export default function Projects() {
   const isDark = colorScheme === 'dark';
 
   return (
-    <div className={`min-h-screen p-8 ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
-      {/* Content */}
+    <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="space-y-4">
           <h1 className="text-4xl font-light text-[var(--theme-text-primary)]">

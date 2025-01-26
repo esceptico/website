@@ -128,7 +128,7 @@ export default function About() {
   const isDark = colorScheme === 'dark';
 
   return (
-    <div className={`min-h-screen p-8 ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
+    <div className="min-h-screen p-8">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
