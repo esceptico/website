@@ -5,8 +5,10 @@ export type ThemeMode = 'mle' | 'photography';
 
 interface ThemeState {
   mode: ThemeMode;
+  colorScheme: 'light' | 'dark';
   setMode: (mode: ThemeMode) => void;
   toggleMode: () => void;
+  toggleColorScheme: () => void;
   backgroundColors: {
     mle: {
       primary: string;
@@ -25,8 +27,12 @@ export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
       mode: 'mle',
+      colorScheme: 'dark',
       setMode: (mode) => set({ mode }),
       toggleMode: () => set((state) => ({ mode: state.mode === 'mle' ? 'photography' : 'mle' })),
+      toggleColorScheme: () => set((state) => ({ 
+        colorScheme: state.colorScheme === 'light' ? 'dark' : 'light' 
+      })),
       backgroundColors: {
         mle: {
           primary: '#E0E7FF',   // indigo-100

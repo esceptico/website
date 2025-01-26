@@ -5,8 +5,9 @@ import { usePathname } from 'next/navigation';
 import { useThemeStore } from '@/store/theme';
 
 export default function Navigation() {
-  const { mode } = useThemeStore();
+  const { mode, colorScheme } = useThemeStore();
   const pathname = usePathname();
+  const isDark = colorScheme === 'dark';
   
   if (pathname === '/') return null;
 
@@ -15,13 +16,21 @@ export default function Navigation() {
     : [{ href: '/portfolio', label: 'Portfolio' }, { href: '/about', label: 'About' }];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-950/80 backdrop-blur-sm border-b border-gray-800">
+    <nav className={`fixed top-0 left-0 right-0 z-50 ${
+      isDark 
+        ? 'bg-gray-950/80 border-gray-800' 
+        : 'bg-white/80 border-gray-200'
+    } backdrop-blur-sm border-b`}>
       <div className="max-w-screen-xl mx-auto px-4 py-3">
         <ul className="flex items-center gap-6">
           <li>
             <Link 
               href="/" 
-              className="text-sm text-gray-400 transition-colors duration-200 hover:text-gray-200"
+              className={`text-sm transition-colors duration-200 ${
+                isDark
+                  ? 'text-gray-400 hover:text-gray-200'
+                  : 'text-gray-500 hover:text-gray-900'
+              }`}
             >
               ← Home
             </Link>
@@ -33,9 +42,11 @@ export default function Navigation() {
                 className={`text-sm transition-colors duration-200 ${
                   pathname === href
                     ? mode === 'mle'
-                      ? 'text-indigo-400'
-                      : 'text-orange-400'
-                    : 'text-gray-400 hover:text-gray-200'
+                      ? isDark ? 'text-indigo-400' : 'text-indigo-600'
+                      : isDark ? 'text-orange-400' : 'text-orange-600'
+                    : isDark
+                      ? 'text-gray-400 hover:text-gray-200'
+                      : 'text-gray-500 hover:text-gray-900'
                 }`}
               >
                 {label}

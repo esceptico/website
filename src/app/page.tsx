@@ -11,9 +11,10 @@ const transition = {
 };
 
 export default function Home() {
-  const { setMode } = useThemeStore();
+  const { setMode, colorScheme } = useThemeStore();
   const router = useRouter();
   const [hoveredSide, setHoveredSide] = useState<'mle' | 'photography' | null>(null);
+  const isDark = colorScheme === 'dark';
 
   const handleModeChange = (mode: 'mle' | 'photography') => {
     setMode(mode);
@@ -21,20 +22,22 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex items-center relative overflow-hidden bg-gray-950">
+    <motion.div 
+      className="min-h-screen flex items-center relative overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ ...transition, delay: 0.1 }}
+    >
       {/* Background gradients */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
-        initial={{ 
-          opacity: 0,
-          background: 'radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 0%, transparent 0%)'
-        }}
+        initial={false}
         animate={{ 
           opacity: hoveredSide ? 1 : 0,
           background: hoveredSide === 'mle' 
-            ? 'radial-gradient(circle at 25% 50%, rgba(79, 70, 229, 0.15) 0%, transparent 50%)' 
+            ? `radial-gradient(circle at 25% 50%, ${isDark ? 'rgba(79, 70, 229, 0.15)' : 'rgba(79, 70, 229, 0.1)'} 0%, transparent 50%)` 
             : hoveredSide === 'photography'
-            ? 'radial-gradient(circle at 75% 50%, rgba(217, 119, 6, 0.15) 0%, transparent 50%)'
+            ? `radial-gradient(circle at 75% 50%, ${isDark ? 'rgba(217, 119, 6, 0.15)' : 'rgba(217, 119, 6, 0.1)'} 0%, transparent 50%)`
             : 'radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 0%, transparent 0%)'
         }}
         transition={transition}
@@ -57,22 +60,33 @@ export default function Home() {
             transition={transition}
           >
             <motion.h2 
-              className="text-4xl font-light tracking-tight text-gray-200"
+              className="text-4xl font-light tracking-tight"
               animate={{ 
-                color: hoveredSide === 'mle' ? 'rgb(129, 140, 248)' : 'rgb(229, 231, 235)'
+                color: hoveredSide === 'mle' 
+                  ? isDark ? 'rgb(129, 140, 248)' : 'rgb(67, 56, 202)'
+                  : isDark ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
               }}
               transition={transition}
             >
               Machine Learning
-              <span className="block text-xl mt-2 text-indigo-400">Engineer</span>
+              <motion.span 
+                className="block text-xl mt-2"
+                animate={{ 
+                  color: isDark ? 'rgb(129, 140, 248)' : 'rgb(67, 56, 202)'
+                }}
+                transition={transition}
+              >
+                Engineer
+              </motion.span>
             </motion.h2>
 
             <motion.p
-              className="text-gray-400 max-w-md mt-4"
+              className="max-w-md mt-4"
               initial={{ opacity: 0, y: -20 }}
               animate={{ 
                 opacity: hoveredSide === 'mle' ? 1 : 0,
-                y: hoveredSide === 'mle' ? 0 : -20
+                y: hoveredSide === 'mle' ? 0 : -20,
+                color: isDark ? 'rgb(156, 163, 175)' : 'rgb(75, 85, 99)'
               }}
               transition={transition}
             >
@@ -88,11 +102,6 @@ export default function Home() {
           className="hidden md:block absolute left-1/2 h-24 top-[4.5rem] -translate-x-px w-px"
           style={{
             background: 'linear-gradient(to bottom, transparent, currentColor, transparent)',
-            color: hoveredSide === 'mle' 
-              ? 'rgb(129, 140, 248)' 
-              : hoveredSide === 'photography'
-              ? 'rgb(251, 146, 60)'
-              : 'rgb(75, 85, 99)'
           }}
           animate={{ 
             scaleY: hoveredSide ? 1.1 : 1,
@@ -101,7 +110,12 @@ export default function Home() {
               ? 20
               : hoveredSide === 'photography'
               ? -20
-              : 0
+              : 0,
+            color: hoveredSide === 'mle' 
+              ? isDark ? 'rgb(129, 140, 248)' : 'rgb(67, 56, 202)'
+              : hoveredSide === 'photography'
+              ? isDark ? 'rgb(251, 146, 60)' : 'rgb(217, 119, 6)'
+              : isDark ? 'rgb(75, 85, 99)' : 'rgb(156, 163, 175)'
           }}
           transition={transition}
         />
@@ -122,22 +136,33 @@ export default function Home() {
             transition={transition}
           >
             <motion.h2 
-              className="text-4xl font-light tracking-tight text-gray-200"
+              className="text-4xl font-light tracking-tight"
               animate={{ 
-                color: hoveredSide === 'photography' ? 'rgb(251, 146, 60)' : 'rgb(229, 231, 235)'
+                color: hoveredSide === 'photography' 
+                  ? isDark ? 'rgb(251, 146, 60)' : 'rgb(217, 119, 6)'
+                  : isDark ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
               }}
               transition={transition}
             >
               Visual Stories
-              <span className="block text-xl mt-2 text-orange-400">Photography</span>
+              <motion.span 
+                className="block text-xl mt-2"
+                animate={{ 
+                  color: isDark ? 'rgb(251, 146, 60)' : 'rgb(217, 119, 6)'
+                }}
+                transition={transition}
+              >
+                Photography
+              </motion.span>
             </motion.h2>
 
             <motion.p
-              className="text-gray-400 max-w-md mt-4 ml-auto"
+              className="max-w-md mt-4 ml-auto"
               initial={{ opacity: 0, y: -20 }}
               animate={{ 
                 opacity: hoveredSide === 'photography' ? 1 : 0,
-                y: hoveredSide === 'photography' ? 0 : -20
+                y: hoveredSide === 'photography' ? 0 : -20,
+                color: isDark ? 'rgb(156, 163, 175)' : 'rgb(75, 85, 99)'
               }}
               transition={transition}
             >
@@ -147,6 +172,6 @@ export default function Home() {
           </motion.div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
