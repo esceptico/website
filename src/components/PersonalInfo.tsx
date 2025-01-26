@@ -35,7 +35,7 @@ export const PersonalInfo = ({ hoveredSide, isDark }: PersonalInfoProps) => (
       transition={{ duration: 0.8, delay: 0.4 }}
       className="text-lg text-[var(--theme-text-secondary)] max-w-2xl mx-auto px-4 leading-relaxed"
     >
-      Based in San Francisco Bay Area
+      Based in Yerevan
     </motion.p>
   </motion.div>
 ); 
