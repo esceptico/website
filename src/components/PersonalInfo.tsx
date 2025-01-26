@@ -9,27 +9,33 @@ interface PersonalInfoProps {
 }
 
 export const PersonalInfo = ({ hoveredSide, isDark }: PersonalInfoProps) => (
-  <motion.div
-    initial={{ opacity: 0, y: -20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ ...pageTransition, delay: 0.2 }}
+  <motion.div 
     className={`text-center mb-16 relative ${hoveredSide ? 'opacity-50' : 'opacity-100'} transition-opacity duration-300`}
   >
     <motion.h1 
-      className="text-5xl font-light tracking-wide mb-4"
+      initial={{ opacity: 0, y: 20, scale: 0.98 }}
       animate={{ 
+        opacity: 1, 
+        y: 0, 
+        scale: 1,
         color: hoveredSide === 'mle' 
           ? isDark ? gradientConfig.mle.textDark : gradientConfig.mle.textLight
           : hoveredSide === 'photography'
             ? isDark ? gradientConfig.photography.textDark : gradientConfig.photography.textLight
             : isDark ? textColors.primary.dark : textColors.primary.light
       }}
-      transition={pageTransition}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="text-5xl font-light tracking-wide mb-4"
     >
       Timur Ganiev
     </motion.h1>
-    <p className="text-lg text-[var(--theme-text-secondary)] max-w-2xl mx-auto px-4 leading-relaxed">
+    <motion.p 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8, delay: 0.4 }}
+      className="text-lg text-[var(--theme-text-secondary)] max-w-2xl mx-auto px-4 leading-relaxed"
+    >
       Based in San Francisco Bay Area
-    </p>
+    </motion.p>
   </motion.div>
 ); 

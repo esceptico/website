@@ -47,9 +47,18 @@ export default function Home() {
   return (
     <motion.div 
       className="min-h-screen flex flex-col justify-center relative overflow-hidden py-12 md:py-0"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ ...pageTransition, delay: 0.1 }}
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: { opacity: 0 },
+        visible: { 
+          opacity: 1,
+          transition: {
+            duration: 0.4,
+            when: "beforeChildren"
+          }
+        }
+      }}
     >
       <Background 
         hoveredSide={hoveredSide}
