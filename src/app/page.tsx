@@ -4,21 +4,27 @@ import { motion } from 'framer-motion';
 import { useThemeStore } from '@/store/theme';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-
-const transition = {
-  duration: 0.4,
-  ease: [0.43, 0.13, 0.23, 0.96]
-};
+import { pageTransition, gradientConfig } from '@/constants/animation';
+import { textColors } from '@/constants/colors';
+import { Mode } from '@/types/theme';
 
 export default function Home() {
   const { setMode, colorScheme } = useThemeStore();
   const router = useRouter();
-  const [hoveredSide, setHoveredSide] = useState<'mle' | 'photography' | null>(null);
+  const [hoveredSide, setHoveredSide] = useState<Mode | null>(null);
   const isDark = colorScheme === 'dark';
 
-  const handleModeChange = (mode: 'mle' | 'photography') => {
+  const handleModeChange = (mode: Mode) => {
     setMode(mode);
     router.push(mode === 'mle' ? '/projects' : '/portfolio');
+  };
+
+  const getGradientBackground = () => {
+    if (!hoveredSide) return 'radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 0%, transparent 0%)';
+    
+    const config = hoveredSide === 'mle' ? gradientConfig.mle : gradientConfig.photography;
+    const position = hoveredSide === 'mle' ? '25% 50%' : '75% 50%';
+    return `radial-gradient(circle at ${position}, ${isDark ? config.dark : config.light} 0%, transparent 50%)`;
   };
 
   return (
@@ -26,7 +32,7 @@ export default function Home() {
       className="min-h-screen flex items-center relative overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ ...transition, delay: 0.1 }}
+      transition={{ ...pageTransition, delay: 0.1 }}
     >
       {/* Background gradients */}
       <motion.div
@@ -34,13 +40,9 @@ export default function Home() {
         initial={false}
         animate={{ 
           opacity: hoveredSide ? 1 : 0,
-          background: hoveredSide === 'mle' 
-            ? `radial-gradient(circle at 25% 50%, ${isDark ? 'rgba(79, 70, 229, 0.15)' : 'rgba(79, 70, 229, 0.1)'} 0%, transparent 50%)` 
-            : hoveredSide === 'photography'
-            ? `radial-gradient(circle at 75% 50%, ${isDark ? 'rgba(217, 119, 6, 0.15)' : 'rgba(217, 119, 6, 0.1)'} 0%, transparent 50%)`
-            : 'radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 0%, transparent 0%)'
+          background: getGradientBackground()
         }}
-        transition={transition}
+        transition={pageTransition}
       />
 
       <div className="w-full max-w-5xl mx-auto grid md:grid-cols-2 relative">
@@ -55,26 +57,26 @@ export default function Home() {
             className="cursor-pointer"
             animate={{ 
               x: hoveredSide === 'mle' ? 40 : hoveredSide === 'photography' ? -16 : 0,
-              opacity: hoveredSide === 'photography' ? 0.5 : 1
+              opacity: hoveredSide === 'photography' ? 0.3 : 1
             }}
-            transition={transition}
+            transition={pageTransition}
           >
             <motion.h2 
               className="text-4xl font-light tracking-tight"
               animate={{ 
                 color: hoveredSide === 'mle' 
-                  ? isDark ? 'rgb(129, 140, 248)' : 'rgb(67, 56, 202)'
-                  : isDark ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+                  ? isDark ? gradientConfig.mle.textDark : gradientConfig.mle.textLight
+                  : isDark ? textColors.primary.dark : textColors.primary.light
               }}
-              transition={transition}
+              transition={pageTransition}
             >
               Machine Learning
               <motion.span 
                 className="block text-xl mt-2"
                 animate={{ 
-                  color: isDark ? 'rgb(129, 140, 248)' : 'rgb(67, 56, 202)'
+                  color: isDark ? gradientConfig.mle.textDark : gradientConfig.mle.textLight
                 }}
-                transition={transition}
+                transition={pageTransition}
               >
                 Engineer
               </motion.span>
@@ -86,9 +88,9 @@ export default function Home() {
               animate={{ 
                 opacity: hoveredSide === 'mle' ? 1 : 0,
                 y: hoveredSide === 'mle' ? 0 : -20,
-                color: isDark ? 'rgb(156, 163, 175)' : 'rgb(75, 85, 99)'
+                color: isDark ? textColors.secondary.dark : textColors.secondary.light
               }}
-              transition={transition}
+              transition={pageTransition}
             >
               Developing intelligent systems and algorithms that push the boundaries 
               of artificial intelligence. Specializing in computer vision and natural 
@@ -114,14 +116,14 @@ export default function Home() {
               ? -20
               : 0,
             color: hoveredSide === 'mle' 
-              ? isDark ? 'rgb(129, 140, 248)' : 'rgb(67, 56, 202)'
+              ? isDark ? gradientConfig.mle.textDark : gradientConfig.mle.textLight
               : hoveredSide === 'photography'
-              ? isDark ? 'rgb(251, 146, 60)' : 'rgb(217, 119, 6)'
-              : isDark ? 'rgb(75, 85, 99)' : 'rgb(156, 163, 175)',
+              ? isDark ? gradientConfig.photography.textDark : gradientConfig.photography.textLight
+              : isDark ? textColors.muted.dark : textColors.muted.light,
             transformOrigin: 'center'
           }}
           transition={{
-            ...transition,
+            ...pageTransition,
             scaleY: { duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }
           }}
         />
@@ -137,26 +139,26 @@ export default function Home() {
             className="cursor-pointer text-right"
             animate={{ 
               x: hoveredSide === 'photography' ? -40 : hoveredSide === 'mle' ? 16 : 0,
-              opacity: hoveredSide === 'mle' ? 0.5 : 1
+              opacity: hoveredSide === 'mle' ? 0.3 : 1
             }}
-            transition={transition}
+            transition={pageTransition}
           >
             <motion.h2 
               className="text-4xl font-light tracking-tight"
               animate={{ 
                 color: hoveredSide === 'photography' 
-                  ? isDark ? 'rgb(251, 146, 60)' : 'rgb(217, 119, 6)'
-                  : isDark ? 'rgb(229, 231, 235)' : 'rgb(17, 24, 39)'
+                  ? isDark ? gradientConfig.photography.textDark : gradientConfig.photography.textLight
+                  : isDark ? textColors.primary.dark : textColors.primary.light
               }}
-              transition={transition}
+              transition={pageTransition}
             >
               Visual Stories
               <motion.span 
                 className="block text-xl mt-2"
                 animate={{ 
-                  color: isDark ? 'rgb(251, 146, 60)' : 'rgb(217, 119, 6)'
+                  color: isDark ? gradientConfig.photography.textDark : gradientConfig.photography.textLight
                 }}
-                transition={transition}
+                transition={pageTransition}
               >
                 Photography
               </motion.span>
@@ -168,9 +170,9 @@ export default function Home() {
               animate={{ 
                 opacity: hoveredSide === 'photography' ? 1 : 0,
                 y: hoveredSide === 'photography' ? 0 : -20,
-                color: isDark ? 'rgb(156, 163, 175)' : 'rgb(75, 85, 99)'
+                color: isDark ? textColors.secondary.dark : textColors.secondary.light
               }}
-              transition={transition}
+              transition={pageTransition}
             >
               Capturing moments and emotions through the lens, specializing in portrait 
               and landscape photography. Creating visual narratives that resonate.

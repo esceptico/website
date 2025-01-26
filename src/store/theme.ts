@@ -1,12 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { Mode, ColorScheme } from '@/types/theme';
 
 export type ThemeMode = 'mle' | 'photography';
 
 interface ThemeState {
-  mode: ThemeMode;
-  colorScheme: 'light' | 'dark';
-  setMode: (mode: ThemeMode) => void;
+  mode: Mode;
+  colorScheme: ColorScheme;
+  setMode: (mode: Mode) => void;
   toggleMode: () => void;
   toggleColorScheme: () => void;
   backgroundColors: {
@@ -29,9 +30,11 @@ export const useThemeStore = create<ThemeState>()(
       mode: 'mle',
       colorScheme: 'dark',
       setMode: (mode) => set({ mode }),
-      toggleMode: () => set((state) => ({ mode: state.mode === 'mle' ? 'photography' : 'mle' })),
+      toggleMode: () => set((state) => ({ 
+        mode: state.mode === 'mle' ? 'photography' : 'mle' 
+      })),
       toggleColorScheme: () => set((state) => ({ 
-        colorScheme: state.colorScheme === 'light' ? 'dark' : 'light' 
+        colorScheme: state.colorScheme === 'dark' ? 'light' : 'dark' 
       })),
       backgroundColors: {
         mle: {
