@@ -5,6 +5,7 @@ import { useThemeStore } from '@/store/theme';
 import { useRouter, usePathname } from 'next/navigation';
 import Navigation from "@/components/Navigation";
 import ColorSchemeToggle from "@/components/ColorSchemeToggle";
+import Footer from "@/components/Footer";
 import { motion } from 'framer-motion';
 import { pageTransition, gradientConfig } from '@/constants/animation';
 import { getThemeColors } from '@/constants/theme';
@@ -53,6 +54,7 @@ export default function ClientLayout({
         style={getThemeColors(isDark, mode) as React.CSSProperties}
       >
         <Navigation />
+        <ColorSchemeToggle />
         <motion.main
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -60,7 +62,7 @@ export default function ClientLayout({
         >
           {children}
         </motion.main>
-        <ColorSchemeToggle />
+        <Footer />
       </motion.div>
     </>
   );
