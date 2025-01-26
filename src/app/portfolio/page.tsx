@@ -55,13 +55,13 @@ const Lightbox = ({ photo, onClose }: { photo: typeof photos[0]; onClose: () => 
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
-    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-    className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+    transition={{ duration: 0.3 }}
+    className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"
     onClick={onClose}
   >
     <button
       onClick={onClose}
-      className="absolute top-4 right-4 text-white hover:text-gray-300"
+      className="absolute top-4 right-4 text-gray-400 hover:text-gray-200"
     >
       <XMarkIcon className="h-6 w-6" />
     </button>
@@ -71,9 +71,9 @@ const Lightbox = ({ photo, onClose }: { photo: typeof photos[0]; onClose: () => 
         alt={photo.alt}
         className="w-full h-auto rounded-lg"
       />
-      <div className="mt-4 text-white">
+      <div className="mt-4 text-gray-200">
         <h3 className="text-xl font-bold">{photo.title}</h3>
-        <p className="text-gray-300">{photo.category}</p>
+        <p className="text-gray-400">{photo.category}</p>
       </div>
     </div>
   </motion.div>
@@ -83,20 +83,15 @@ export default function Portfolio() {
   const [selectedPhoto, setSelectedPhoto] = useState<typeof photos[0] | null>(null);
 
   return (
-    <motion.div 
-      className="min-h-screen p-8 bg-gradient-to-bl from-amber-50 via-white to-amber-50"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-    >
+    <div className="min-h-screen p-8 bg-gray-950">
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="space-y-4">
-          <h1 className="text-4xl font-light text-amber-900">
+          <h1 className="text-4xl font-light text-gray-200">
             Photography
-            <span className="block text-xl text-amber-600 mt-2">Capturing Moments in Time</span>
+            <span className="block text-xl mt-2 text-orange-400">Capturing Moments in Time</span>
           </h1>
-          <p className="text-gray-600 max-w-3xl">
+          <p className="text-gray-400 max-w-3xl">
             A collection of my favorite photographs, capturing moments and scenes
             that tell unique stories. Each image represents a blend of technical
             skill and artistic vision.
@@ -105,10 +100,13 @@ export default function Portfolio() {
 
         <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {photos.map((photo) => (
-            <div
+            <motion.div
               key={photo.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
               onClick={() => setSelectedPhoto(photo)}
-              className="relative aspect-w-16 aspect-h-9 group cursor-pointer hover:-translate-y-1 transition-transform duration-200"
+              className="relative aspect-w-16 aspect-h-9 group cursor-pointer"
             >
               <img
                 src={photo.src}
@@ -116,15 +114,15 @@ export default function Portfolio() {
                 className="w-full h-full object-cover rounded-lg shadow-lg"
               />
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-75 transition-opacity duration-300 rounded-lg flex items-center justify-center">
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-center p-4">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-gray-200 text-center p-4">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <CameraIcon className="h-5 w-5" />
                     <h3 className="text-lg font-semibold">{photo.title}</h3>
                   </div>
-                  <p className="text-sm">{photo.category}</p>
+                  <p className="text-sm text-gray-400">{photo.category}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -134,6 +132,6 @@ export default function Portfolio() {
           <Lightbox photo={selectedPhoto} onClose={() => setSelectedPhoto(null)} />
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 } 

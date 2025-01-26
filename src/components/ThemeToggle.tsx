@@ -9,13 +9,13 @@ const ToggleContent = ({ mode }: { mode: 'mle' | 'photography' }) => {
   return (
     <>
       {isMLE ? (
-        <BeakerIcon className="w-4 h-4 text-indigo-600" />
+        <BeakerIcon className="w-4 h-4 text-indigo-400" />
       ) : (
-        <CameraIcon className="w-4 h-4 text-amber-600" />
+        <CameraIcon className="w-4 h-4 text-orange-400" />
       )}
       <span 
         className={`text-sm font-light ${
-          isMLE ? 'text-indigo-600' : 'text-amber-600'
+          isMLE ? 'text-indigo-400' : 'text-orange-400'
         }`}
       >
         {isMLE ? 'ML' : 'Photo'}
@@ -36,8 +36,8 @@ export default function ThemeToggle() {
         className="absolute inset-0 rounded-full transition-colors duration-300"
         style={{
           backgroundColor: mode === 'mle' 
-            ? 'rgb(238, 242, 255)' // indigo-50
-            : 'rgb(255, 251, 235)', // amber-50
+            ? 'rgb(49, 46, 129, 0.3)' // indigo-900 with opacity
+            : 'rgb(124, 45, 18, 0.3)', // orange-900 with opacity
         }}
       />
       <div className="relative flex items-center h-full">
