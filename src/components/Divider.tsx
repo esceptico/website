@@ -13,11 +13,11 @@ export const Divider = ({ hoveredSide, isDark }: DividerProps) => (
     className="hidden md:block absolute left-1/2 -translate-x-px w-px"
     style={{
       background: 'linear-gradient(to bottom, transparent, currentColor, transparent)',
-      height: '3rem',
-      top: '1.5rem'
+      height: '2rem',
+      top: '3rem'
     }}
     animate={{ 
-      scaleY: hoveredSide ? 6 : 1,
+      scaleY: hoveredSide ? 4 : 1,
       opacity: hoveredSide ? 0.4 : 0.2,
       x: hoveredSide === 'mle' 
         ? 20
