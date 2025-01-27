@@ -7,9 +7,6 @@ import { BeakerIcon, CameraIcon, CodeBracketIcon } from '@heroicons/react/24/out
 const MLEContent = ({ isDark }: { isDark: boolean }) => (
   <div className="space-y-6">
     <section>
-      <h2 className="text-2xl font-bold mb-4 text-[var(--theme-text-primary)]">
-        Background
-      </h2>
       <p className="text-[var(--theme-text-secondary)]">
         As a Machine Learning Engineer specializing in Natural Language Processing, I focus on developing 
         and deploying large language models and generative AI solutions. With extensive experience in 
@@ -19,7 +16,7 @@ const MLEContent = ({ isDark }: { isDark: boolean }) => (
     </section>
 
     <section>
-      <h2 className="text-2xl font-light mb-8 text-[var(--theme-text-primary)]">Experience</h2>
+      <h2 className="text-2xl font-bold mb-4 text-[var(--theme-text-primary)]">Experience</h2>
       <div className="space-y-12">
         <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-[var(--theme-text-secondary)] before:opacity-20">
           <div className="relative mb-4">
