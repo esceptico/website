@@ -18,7 +18,7 @@ export default function About() {
         className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8"
       >
         <div className="mb-12">
-          <SectionHeader title="About Me" as="h1" variant="primary" />
+          <SectionHeader title="About Me" as="h1" variant="primary" useAccentColor />
         </div>
         {mode === 'mle' ? <MLEContent isDark={isDark} /> : <PhotographyContent isDark={isDark} />}
       </motion.div>
