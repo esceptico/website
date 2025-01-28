@@ -11,8 +11,8 @@ export default function Navigation() {
   if (pathname === '/') return null;
 
   const modeLinks = mode === 'mle' 
-    ? [{ href: '/projects', label: 'Projects' }, { href: '/about', label: 'About' }]
-    : [{ href: '/portfolio', label: 'Portfolio' }, { href: '/about', label: 'About' }];
+    ? [{ href: '/projects', label: 'Projects' }, { href: '/blog', label: 'Blog' }, { href: '/about', label: 'About' }]
+    : [{ href: '/portfolio', label: 'Portfolio' }, { href: '/blog', label: 'Blog' }, { href: '/about', label: 'About' }];
 
   return (
     <nav className="sticky top-0 z-50 backdrop-blur-sm border-b border-[var(--theme-border)]">
