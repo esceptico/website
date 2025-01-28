@@ -5,8 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useThemeStore } from '@/store/theme';
 
 export default function Navigation() {
-  const { mode, colorScheme } = useThemeStore();
-  const isDark = colorScheme === 'dark';
+  const mode = useThemeStore(state => state.mode);
   const pathname = usePathname();
 
   if (pathname === '/') return null;
