@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { SectionHeader } from './SectionHeader';
 
 export const MLEContent = ({ isDark }: { isDark: boolean }) => (
   <div className="space-y-4">
@@ -14,15 +15,7 @@ export const MLEContent = ({ isDark }: { isDark: boolean }) => (
     </section>
 
     <section>
-      <div className="relative group">
-        <motion.div
-          className="relative"
-          initial={{ opacity: 0.8 }}
-          whileHover={{ opacity: 1 }}
-        >
-          <h2 className="text-2xl font-bold mb-3 text-[var(--theme-text-primary)] group-hover:text-[var(--theme-accent-primary)] transition-colors duration-200">Experience</h2>
-        </motion.div>
-      </div>
+      <SectionHeader title="Experience" />
       <div className="space-y-8">
         <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-[var(--theme-text-secondary)] before:opacity-20 group hover:before:bg-[var(--theme-accent-primary)] before:transition-colors duration-200">
           <motion.div 
@@ -164,15 +157,7 @@ export const MLEContent = ({ isDark }: { isDark: boolean }) => (
     </section>
 
     <section>
-      <div className="relative group">
-        <motion.div
-          className="relative"
-          initial={{ opacity: 0.8 }}
-          whileHover={{ opacity: 1 }}
-        >
-          <h2 className="text-2xl font-bold mb-3 text-[var(--theme-text-primary)] group-hover:text-[var(--theme-accent-primary)] transition-colors duration-200">Skills</h2>
-        </motion.div>
-      </div>
+      <SectionHeader title="Skills" />
       <div className="grid grid-cols-2 gap-3">
         <div>
           <h3 className="font-semibold mb-1.5 text-[var(--theme-text-primary)]">Core</h3>

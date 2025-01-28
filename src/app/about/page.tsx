@@ -2,8 +2,9 @@
 
 import { motion } from 'framer-motion';
 import { useThemeStore } from '@/store/theme';
-import { MLEContent } from './components/MLEContent';
-import { PhotographyContent } from './components/PhotographyContent';
+import { MLEContent } from '@/components/MLEContent';
+import { PhotographyContent } from '@/components/PhotographyContent';
+import { SectionHeader } from '@/components/SectionHeader';
 
 export default function About() {
   const { mode, colorScheme } = useThemeStore();
@@ -17,17 +18,7 @@ export default function About() {
         className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8"
       >
         <div className="mb-12">
-          <div className="relative group">
-            <motion.div
-              className="relative"
-              initial={{ opacity: 0.8 }}
-              whileHover={{ opacity: 1 }}
-            >
-              <h1 className="text-4xl font-light text-[var(--theme-text-primary)] group-hover:text-[var(--theme-accent-primary)] transition-colors duration-200">
-                About Me
-              </h1>
-            </motion.div>
-          </div>
+          <SectionHeader title="About Me" as="h1" variant="primary" />
         </div>
         {mode === 'mle' ? <MLEContent isDark={isDark} /> : <PhotographyContent isDark={isDark} />}
       </motion.div>

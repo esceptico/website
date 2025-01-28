@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { SectionHeader } from './SectionHeader';
 
 export const PhotographyContent = ({ isDark }: { isDark: boolean }) => (
   <div className="space-y-4">
@@ -13,15 +14,7 @@ export const PhotographyContent = ({ isDark }: { isDark: boolean }) => (
     </section>
 
     <section>
-      <div className="relative group">
-        <motion.div
-          className="relative"
-          initial={{ opacity: 0.8 }}
-          whileHover={{ opacity: 1 }}
-        >
-          <h2 className="text-2xl font-bold mb-3 text-[var(--theme-text-primary)] group-hover:text-[var(--theme-accent-primary)] transition-colors duration-200">Equipment</h2>
-        </motion.div>
-      </div>
+      <SectionHeader title="Equipment" />
       <div className="space-y-8 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
         <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-[var(--theme-text-secondary)] before:opacity-20 group hover:before:bg-[var(--theme-accent-primary)] before:transition-colors duration-200">
           <motion.div 
@@ -66,15 +59,7 @@ export const PhotographyContent = ({ isDark }: { isDark: boolean }) => (
     </section>
 
     <section>
-      <div className="relative group">
-        <motion.div
-          className="relative"
-          initial={{ opacity: 0.8 }}
-          whileHover={{ opacity: 1 }}
-        >
-          <h2 className="text-2xl font-bold mb-3 text-[var(--theme-text-primary)] group-hover:text-[var(--theme-accent-primary)] transition-colors duration-200">Style & Approach</h2>
-        </motion.div>
-      </div>
+      <SectionHeader title="Style & Approach" />
       <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-[var(--theme-text-secondary)] before:opacity-20 group hover:before:bg-[var(--theme-accent-primary)] before:transition-colors duration-200">
         <motion.div 
           className="relative mb-2"
