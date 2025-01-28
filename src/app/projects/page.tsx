@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion';
 import { ArrowTopRightOnSquareIcon, BeakerIcon } from '@heroicons/react/24/outline';
 import { useThemeStore } from '@/store/theme';
+import { SectionHeader } from '@/components/SectionHeader';
+import { HackerText } from '@/components/HackerText';
 
 const projects = [
   {
@@ -39,15 +41,18 @@ export default function Projects() {
   const isDark = colorScheme === 'dark';
 
   return (
-    <div className="min-h-screen p-8">
+    <div className="min-h-screen p-8 bg-[var(--theme-bg-primary)]">
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mb-12">
+          <SectionHeader 
+            title={<HackerText text="ML Projects" duration={100} />}
+            as="h1" 
+            variant="primary" 
+            useAccentColor 
+          />
+        </div>
+
         <div className="space-y-4">
-          <h1 className="text-4xl font-light text-[var(--theme-text-primary)]">
-            ML Projects
-            <span className="block text-xl mt-2 text-[var(--theme-accent-primary)]">
-              Exploring the Frontiers of AI
-            </span>
-          </h1>
           <p className="text-[var(--theme-text-secondary)] max-w-3xl">
             A collection of machine learning projects, ranging from computer vision
             to natural language processing. Each project includes detailed documentation

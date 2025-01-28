@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { SectionHeader } from './SectionHeader';
+import { HackerText } from './HackerText';
 
 export const PhotographyContent = ({ isDark }: { isDark: boolean }) => (
   <div className="space-y-4">
@@ -14,7 +15,7 @@ export const PhotographyContent = ({ isDark }: { isDark: boolean }) => (
     </section>
 
     <section>
-      <SectionHeader title="Equipment" />
+      <SectionHeader title={<HackerText text="Equipment" duration={75} />} />
       <div className="space-y-8 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
         <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-[var(--theme-text-secondary)] before:opacity-20 group hover:before:bg-[var(--theme-accent-primary)] before:transition-colors duration-200">
           <motion.div 
@@ -59,7 +60,7 @@ export const PhotographyContent = ({ isDark }: { isDark: boolean }) => (
     </section>
 
     <section>
-      <SectionHeader title="Style & Approach" />
+      <SectionHeader title={<HackerText text="Style & Approach" duration={75} />} />
       <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-[var(--theme-text-secondary)] before:opacity-20 group hover:before:bg-[var(--theme-accent-primary)] before:transition-colors duration-200">
         <motion.div 
           className="relative mb-2"

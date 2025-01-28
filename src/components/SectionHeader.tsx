@@ -1,9 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { ReactNode } from 'react';
 
 interface SectionHeaderProps {
-  title: string;
+  title: ReactNode;
   as?: 'h1' | 'h2' | 'h3';
   variant?: 'primary' | 'secondary';
   useAccentColor?: boolean;

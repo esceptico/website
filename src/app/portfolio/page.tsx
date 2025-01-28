@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useThemeStore } from '@/store/theme';
 import { SectionHeader } from '@/components/SectionHeader';
+import { HackerText } from '@/components/HackerText';
 
 // Sample photo data - replace with your actual photos
 const photos = [
@@ -125,7 +126,12 @@ export default function Portfolio() {
     <div className="min-h-screen p-8 bg-[var(--theme-bg-primary)]">
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-12">
-          <SectionHeader title="Photography" as="h1" variant="primary" useAccentColor />
+          <SectionHeader 
+            title={<HackerText text="Photography" duration={100} />} 
+            as="h1" 
+            variant="primary" 
+            useAccentColor 
+          />
         </div>
 
         <motion.div 
