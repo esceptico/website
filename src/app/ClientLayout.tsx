@@ -23,8 +23,7 @@ export default function ClientLayout({
   useEffect(() => {
     if (pathname === '/about' || pathname === '/') return;
     
-    if ((mode === 'mle' && pathname.includes('portfolio')) ||
-        (mode === 'photography' && pathname.includes('projects'))) {
+    if (mode === 'photography' && pathname.includes('projects')) {
       router.push('/');
     }
   }, [mode, pathname, router]);

@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CameraIcon, XMarkIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useThemeStore } from '@/store/theme';
+import { SectionHeader } from '@/components/SectionHeader';
 
 // Sample photo data - replace with your actual photos
 const photos = [
@@ -11,42 +12,42 @@ const photos = [
     id: 1,
     title: 'Mountain Sunrise',
     category: 'Landscape',
-    src: 'https://source.unsplash.com/random/800x600?mountain',
+    src: 'https://picsum.photos/1200?random=1',
     alt: 'Mountain sunrise landscape',
   },
   {
     id: 2,
     title: 'Urban Portrait',
     category: 'Portrait',
-    src: 'https://source.unsplash.com/random/800x600?portrait',
+    src: 'https://picsum.photos/1200?random=2',
     alt: 'Urban portrait photography',
   },
   {
     id: 3,
     title: 'Ocean Waves',
     category: 'Seascape',
-    src: 'https://source.unsplash.com/random/800x600?ocean',
+    src: 'https://picsum.photos/1200?random=3',
     alt: 'Ocean waves at sunset',
   },
   {
     id: 4,
     title: 'Street Life',
     category: 'Street',
-    src: 'https://source.unsplash.com/random/800x600?street',
+    src: 'https://picsum.photos/1200?random=4',
     alt: 'Street photography scene',
   },
   {
     id: 5,
     title: 'Forest Path',
     category: 'Nature',
-    src: 'https://source.unsplash.com/random/800x600?forest',
+    src: 'https://picsum.photos/1200?random=5',
     alt: 'Path through a forest',
   },
   {
     id: 6,
     title: 'City Lights',
     category: 'Urban',
-    src: 'https://source.unsplash.com/random/800x600?city',
+    src: 'https://picsum.photos/1200?random=6',
     alt: 'City lights at night',
   },
 ];
@@ -87,78 +88,57 @@ const Lightbox = ({ photo, onClose }: { photo: typeof photos[0]; onClose: () => 
   );
 };
 
+const PortfolioImage = ({ photo, index, onClick }: { 
+  photo: typeof photos[0]; 
+  index: number;
+  onClick: () => void;
+}) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.1 }}
+      className="relative mb-4 break-inside-avoid"
+      onClick={onClick}
+    >
+      <div className="group relative cursor-pointer overflow-hidden rounded-lg">
+        <img
+          src={photo.src}
+          alt={photo.alt}
+          loading="lazy"
+          className="w-full h-auto transform transition-transform duration-500 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute inset-x-0 bottom-0 p-4">
+            <h3 className="text-white text-lg font-light">{photo.title}</h3>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 export default function Portfolio() {
   const [selectedPhoto, setSelectedPhoto] = useState<typeof photos[0] | null>(null);
-  const { colorScheme } = useThemeStore();
-  const isDark = colorScheme === 'dark';
 
   return (
-    <div className="min-h-screen p-8">
+    <div className="min-h-screen p-8 bg-[var(--theme-bg-primary)]">
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <div className="space-y-4">
-          <h1 className="text-4xl font-light text-[var(--theme-text-primary)]">
-            Photography Portfolio
-            <span className="block text-xl mt-2 text-[var(--theme-accent-primary)]">
-              Capturing Moments in Time
-            </span>
-          </h1>
-          <p className="text-[var(--theme-text-secondary)] max-w-3xl">
-            A selection of my favorite photographs, showcasing a mix of landscapes,
-            street photography, and portraits. Each image tells its own story and
-            captures a unique moment in time.
-          </p>
+        <div className="mb-12">
+          <SectionHeader title="Photography" as="h1" variant="primary" useAccentColor />
         </div>
 
         <motion.div 
-          className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
+          layout
+          className="columns-1 sm:columns-2 lg:columns-3 gap-4"
         >
           {photos.map((photo, index) => (
-            <motion.div
+            <PortfolioImage
               key={photo.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{
-                duration: 0.5,
-                delay: index * 0.15
-              }}
-              className="bg-[var(--theme-bg-card)] backdrop-blur-sm rounded-xl border border-[var(--theme-border)] overflow-hidden hover:-translate-y-1 transition-transform duration-200"
+              photo={photo}
+              index={index}
               onClick={() => setSelectedPhoto(photo)}
-            >
-              <div className="aspect-w-16 aspect-h-9 bg-[var(--theme-border)]">
-                <img
-                  src={photo.src}
-                  alt={photo.alt}
-                  className="w-full h-full object-cover opacity-90"
-                />
-              </div>
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <CameraIcon className="h-5 w-5 text-[var(--theme-accent-primary)]" />
-                  <h3 className="text-xl font-bold text-[var(--theme-text-primary)]">
-                    {photo.title}
-                  </h3>
-                </div>
-                <p className="text-[var(--theme-text-secondary)] mb-4">
-                  {photo.category}
-                </p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {/* Add tags here */}
-                </div>
-                <button
-                  className="inline-flex items-center text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-accent-primary)] transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedPhoto(photo);
-                  }}
-                >
-                  View Full Size
-                  <ArrowTopRightOnSquareIcon className="ml-1 h-4 w-4" />
-                </button>
-              </div>
-            </motion.div>
+            />
           ))}
         </motion.div>
 
@@ -170,4 +150,4 @@ export default function Portfolio() {
       </div>
     </div>
   );
-} 
+}
