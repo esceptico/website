@@ -11,7 +11,7 @@ export default function Navigation() {
 
   if (pathname === '/') return null;
 
-  const links = mode === 'mle' 
+  const modeLinks = mode === 'mle' 
     ? [{ href: '/projects', label: 'Projects' }, { href: '/about', label: 'About' }]
     : [{ href: '/portfolio', label: 'Portfolio' }, { href: '/about', label: 'About' }];
 
@@ -31,7 +31,7 @@ export default function Navigation() {
           </div>
 
           <div className="flex items-center space-x-4">
-            {links.map(({ href, label }) => (
+            {modeLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}

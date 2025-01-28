@@ -25,13 +25,13 @@ const Footer = () => {
             >
               <FaLinkedin className="w-6 h-6" />
             </Link>
-            <Link 
+            <a 
               href="mailto:ganiev.tmr@gmail.com"
               className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
               aria-label="Email"
             >
               <FaEnvelope className="w-6 h-6" />
-            </Link>
+            </a>
           </div>
           
           <div className="text-sm text-gray-600 dark:text-gray-400">
