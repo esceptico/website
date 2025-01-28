@@ -11,8 +11,16 @@ export default function Navigation() {
   if (pathname === '/') return null;
 
   const modeLinks = mode === 'mle' 
-    ? [{ href: '/projects', label: 'Projects' }, { href: '/blog', label: 'Blog' }, { href: '/about', label: 'About' }]
-    : [{ href: '/portfolio', label: 'Portfolio' }, { href: '/blog', label: 'Blog' }, { href: '/about', label: 'About' }];
+    ? [
+        { href: '/projects', label: 'Projects' }, 
+        { href: '/blog/mle', label: 'Blog' }, 
+        { href: '/about', label: 'About' }
+      ]
+    : [
+        { href: '/portfolio', label: 'Portfolio' }, 
+        { href: '/blog/photography', label: 'Blog' }, 
+        { href: '/about', label: 'About' }
+      ];
 
   return (
     <nav className="sticky top-0 z-50 backdrop-blur-sm border-b border-[var(--theme-border)]">
@@ -35,7 +43,7 @@ export default function Navigation() {
                 key={href}
                 href={href}
                 className={`px-3 py-2 text-sm font-medium transition-colors ${
-                  pathname === href
+                  pathname === href || (pathname.startsWith('/blog/') && href.startsWith('/blog/'))
                     ? 'text-[var(--theme-accent-primary)]'
                     : 'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]'
                 }`}

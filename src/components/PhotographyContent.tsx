@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { SectionHeader } from './SectionHeader';
 
-export const PhotographyContent = ({ isDark }: { isDark: boolean }) => (
+export const PhotographyContent = () => (
   <div className="space-y-4">
     <section>
       <p className="text-[var(--theme-text-secondary)]">

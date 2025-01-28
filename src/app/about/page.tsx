@@ -1,32 +1,23 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { useThemeStore } from '@/store/theme';
-import { MLEContent } from '@/components/MLEContent';
-import { PhotographyContent } from '@/components/PhotographyContent';
-import { SectionHeader } from '@/components/SectionHeader';
+import { useEffect, useState } from 'react';
 
 export default function About() {
-  const { mode, colorScheme } = useThemeStore();
-  const isDark = colorScheme === 'dark';
+  const [mounted, setMounted] = useState(false);
+  const router = useRouter();
+  const mode = useThemeStore((state) => state.mode);
 
-  return (
-    <div className="min-h-screen p-8">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8"
-      >
-        <div className="mb-12">
-          <SectionHeader 
-            title="About Me"
-            as="h1" 
-            variant="primary" 
-            useAccentColor 
-          />
-        </div>
-        {mode === 'mle' ? <MLEContent isDark={isDark} /> : <PhotographyContent isDark={isDark} />}
-      </motion.div>
-    </div>
-  );
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      router.replace(`/about/${mode}`);
+    }
+  }, [mode, mounted, router]);
+
+  return null;
 } 

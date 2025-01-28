@@ -5,7 +5,7 @@ import { useThemeStore } from '@/store/theme';
 import { SectionHeader } from '@/components/SectionHeader';
 import { CalendarIcon } from '@heroicons/react/24/outline';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 // This would typically come from a CMS or database
 const allPosts = {
@@ -51,60 +51,51 @@ const allPosts = {
   }
 } as const;
 
-type PostSlug = keyof typeof allPosts;
-
 export default function BlogPost() {
-  const mode = useThemeStore(state => state.mode);
-  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const params = useParams();
-  const slug = params.slug as PostSlug;
-  const post = allPosts[slug];
+  const router = useRouter();
+  const mode = useThemeStore((state) => state.mode);
+  const slug = params.slug as string;
+  const post = allPosts[slug as keyof typeof allPosts];
 
   useEffect(() => {
-    if (post && post.mode !== mode) {
-      router.push('/blog');
-    }
-  }, [post, mode, router]);
+    setMounted(true);
+  }, []);
 
-  if (!post || post.mode !== mode) {
-    return (
-      <div className="min-h-screen p-8 bg-[var(--theme-bg-primary)]">
-        <div className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-          <h1 className="text-[var(--theme-text-primary)]">Post not found</h1>
-          <p className="mt-4 text-[var(--theme-text-secondary)]">
-            This post doesn't exist or isn't available in the current mode.
-          </p>
-          <div className="mt-8">
-            <a
-              href="/blog"
-              className="inline-flex items-center text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-accent-primary)] transition-colors"
-            >
-              ← Back to blog
-            </a>
-          </div>
-        </div>
-      </div>
-    );
+  useEffect(() => {
+    if (!mounted) return;
+    if (!post) {
+      router.replace('/blog');
+      return;
+    }
+    if (post.mode !== mode) {
+      router.replace(`/blog/${mode}`);
+    }
+  }, [post, mode, router, mounted]);
+
+  if (!mounted || !post) {
+    return null;
   }
 
   return (
-    <div className="min-h-screen p-8 bg-[var(--theme-bg-primary)]">
+    <div className="p-8">
       <div className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <motion.article
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
         >
-          <div className="mb-8">
+          <div className="mb-12">
             <SectionHeader 
               title={post.title}
               as="h1" 
               variant="primary" 
               useAccentColor 
             />
-            <div className="mt-4 flex items-center gap-2 text-sm text-[var(--theme-text-secondary)]">
+            <div className="flex items-center gap-2 text-sm text-[var(--theme-text-secondary)] mt-4">
               <CalendarIcon className="h-4 w-4" />
-              <time dateTime={post.date}>
+              <time dateTime={post.date} suppressHydrationWarning>
                 {new Date(post.date).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
@@ -114,21 +105,12 @@ export default function BlogPost() {
             </div>
           </div>
 
-          <div className="prose prose-lg dark:prose-invert prose-primary max-w-none">
+          <div className="prose prose-lg dark:prose-invert">
             <p className="text-[var(--theme-text-secondary)]">
               {post.content}
             </p>
           </div>
-
-          <div className="mt-8 pt-8 border-t border-[var(--theme-border)]">
-            <a
-              href="/blog"
-              className="inline-flex items-center text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-accent-primary)] transition-colors"
-            >
-              ← Back to blog
-            </a>
-          </div>
-        </motion.article>
+        </motion.div>
       </div>
     </div>
   );

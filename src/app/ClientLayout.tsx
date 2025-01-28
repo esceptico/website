@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useThemeStore } from '@/store/theme';
 import { useRouter, usePathname } from 'next/navigation';
 import Navigation from "@/components/Navigation";
@@ -19,14 +19,30 @@ export default function ClientLayout({
   const router = useRouter();
   const pathname = usePathname();
   const isDark = colorScheme === 'dark';
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (pathname === '/about' || pathname === '/') return;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (pathname === '/') return;
+
+    const currentMode = pathname.includes('/mle/') || pathname === '/projects' ? 'mle' : 
+                       pathname.includes('/photography/') || pathname === '/portfolio' ? 'photography' : null;
     
-    if (mode === 'photography' && pathname.includes('projects')) {
-      router.push('/');
+    if (currentMode && currentMode !== mode) {
+      const redirectPath = mode === 'mle' ? 
+        pathname.replace('/photography/', '/mle/').replace('/portfolio', '/projects') :
+        pathname.replace('/mle/', '/photography/').replace('/projects', '/portfolio');
+      router.replace(redirectPath);
     }
-  }, [mode, pathname, router]);
+  }, [mode, pathname, router, mounted]);
+
+  if (!mounted) {
+    return null;
+  }
 
   const gradientBackground = mode === 'mle'
     ? `radial-gradient(circle at 25% 50%, ${isDark ? gradientConfig.mle.dark : gradientConfig.mle.light} 0%, transparent 50%)`

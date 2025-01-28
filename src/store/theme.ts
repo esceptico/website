@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { Mode, ColorScheme } from '@/types/theme';
 
 export type ThemeMode = 'mle' | 'photography';
@@ -24,10 +24,24 @@ interface ThemeState {
   };
 }
 
+function getInitialMode(): Mode {
+  if (typeof window === 'undefined') return 'mle';
+  
+  try {
+    const stored = localStorage.getItem('theme-storage');
+    if (!stored) return 'mle';
+    
+    const { state } = JSON.parse(stored);
+    return state.mode || 'mle';
+  } catch {
+    return 'mle';
+  }
+}
+
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      mode: 'mle',
+      mode: getInitialMode(),
       colorScheme: 'dark',
       setMode: (mode) => set({ mode }),
       toggleMode: () => set((state) => ({ 
@@ -51,6 +65,7 @@ export const useThemeStore = create<ThemeState>()(
     }),
     {
       name: 'theme-storage',
+      storage: createJSONStorage(() => localStorage)
     }
   )
 ); 
