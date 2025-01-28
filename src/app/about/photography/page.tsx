@@ -12,15 +12,11 @@ export default function PhotographyAbout() {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return null;
-  }
-
   return (
     <div className="min-h-screen p-8">
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={{ opacity: mounted ? 1 : 0.5 }}
         className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8"
       >
         <div className="mb-12">
