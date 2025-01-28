@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Fira_Mono } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "./ClientLayout";
 
 const inter = Inter({ subsets: ["latin"] });
+const firaMono = Fira_Mono({ 
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: '--font-fira-mono'
+});
 
 export const metadata: Metadata = {
   title: "ML Engineer & Photographer Portfolio",
@@ -16,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="antialiased">
+    <html lang="en" className={`antialiased ${firaMono.variable}`}>
       <head>
         <link rel="icon" href="/favicon.ico" />
       </head>

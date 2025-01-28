@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { ArrowTopRightOnSquareIcon, BeakerIcon } from '@heroicons/react/24/outline';
 import { useThemeStore } from '@/store/theme';
 import { SectionHeader } from '@/components/SectionHeader';
-import { HackerText } from '@/components/HackerText';
 
 const projects = [
   {
@@ -45,7 +44,7 @@ export default function Projects() {
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-12">
           <SectionHeader 
-            title={<HackerText text="ML Projects" duration={100} />}
+            title="ML Projects"
             as="h1" 
             variant="primary" 
             useAccentColor 

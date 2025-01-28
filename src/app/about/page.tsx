@@ -5,7 +5,6 @@ import { useThemeStore } from '@/store/theme';
 import { MLEContent } from '@/components/MLEContent';
 import { PhotographyContent } from '@/components/PhotographyContent';
 import { SectionHeader } from '@/components/SectionHeader';
-import { HackerText } from '@/components/HackerText';
 
 export default function About() {
   const { mode, colorScheme } = useThemeStore();
@@ -20,7 +19,7 @@ export default function About() {
       >
         <div className="mb-12">
           <SectionHeader 
-            title={<HackerText text="About Me" duration={100} />}
+            title="About Me"
             as="h1" 
             variant="primary" 
             useAccentColor 
