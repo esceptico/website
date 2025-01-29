@@ -45,8 +45,8 @@ export default function ClientLayout({
   }
 
   const gradientBackground = mode === 'mle'
-    ? `radial-gradient(circle at 25% 50%, ${isDark ? gradientConfig.mle.dark : gradientConfig.mle.light} 0%, transparent 50%)`
-    : `radial-gradient(circle at 75% 50%, ${isDark ? gradientConfig.photography.dark : gradientConfig.photography.light} 0%, transparent 50%)`;
+    ? `linear-gradient(to right, ${isDark ? gradientConfig.mle.dark : gradientConfig.mle.light} 0%, transparent 50%)`
+    : `linear-gradient(to left, ${isDark ? gradientConfig.photography.dark : gradientConfig.photography.light} 0%, transparent 50%)`;
 
   return (
     <>
