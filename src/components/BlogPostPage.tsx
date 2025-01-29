@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import { BlogPost } from '@/components/BlogPost';
 import { Posts } from '@/data/posts';
 import { Mode } from '@/types/theme';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
 
 interface BlogPostPageProps {
   mode: Mode;
@@ -33,5 +35,18 @@ export function BlogPostPage({ mode, posts }: BlogPostPageProps) {
     return null;
   }
 
-  return <BlogPost post={post} mode={mode} />;
+  return (
+    <div>
+      <BlogPost post={post} mode={mode} />
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <Link 
+          href={`/blog/${mode}`}
+          className="inline-flex items-center gap-2 text-[var(--theme-text-secondary)] hover:text-[var(--theme-accent-primary)] transition-colors"
+        >
+          <ArrowLeftIcon className="w-4 h-4" />
+          back
+        </Link>
+      </div>
+    </div>
+  );
 } 
