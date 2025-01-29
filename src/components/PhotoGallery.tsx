@@ -21,8 +21,10 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    setIsLoaded(true);
     const track = trackRef.current;
     if (!track) return;
 
@@ -142,24 +144,59 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   }, [photos.length]);
 
   return (
-    <div className="min-h-screen overflow-hidden bg-black scrollbar-hide">
+    <div className="min-h-screen overflow-hidden bg-[var(--theme-bg)] scrollbar-hide">
       {/* Main gallery */}
-      <div
+      <motion.div
         ref={trackRef}
         id="image-track"
         className="flex gap-[4vmin] absolute left-1/2 top-1/2 -translate-y-1/2 select-none"
         data-mouse-down-at="0"
         data-prev-percentage="0"
-        style={{ 
-          msOverflowStyle: 'none',  /* IE and Edge */
-          scrollbarWidth: 'none',   /* Firefox */
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        variants={{
+          hidden: {},
+          visible: {
+            transition: {
+              staggerChildren: 0.1
+            }
+          },
+          exit: {
+            transition: {
+              staggerChildren: 0.05,
+              staggerDirection: -1
+            }
+          }
         }}
       >
         {photos.map((photo, index) => (
-          <div
+          <motion.div
             key={photo.id}
             className="relative h-[56vmin] w-[40vmin] cursor-grab active:cursor-grabbing"
             onClick={() => setSelectedPhoto(photo)}
+            variants={{
+              hidden: { 
+                opacity: 0,
+                y: -50
+              },
+              visible: { 
+                opacity: 1,
+                y: 0,
+                transition: {
+                  duration: 0.6,
+                  ease: [0.43, 0.13, 0.23, 0.96]
+                }
+              },
+              exit: {
+                opacity: 0,
+                y: 50,
+                transition: {
+                  duration: 0.4,
+                  ease: [0.43, 0.13, 0.23, 0.96]
+                }
+              }
+            }}
           >
             <Image
               src={photo.src}
@@ -169,12 +206,12 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
               draggable={false}
               sizes="40vmin"
             />
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Preview strip */}
-      <div className="fixed bottom-0 left-0 right-0 h-16 bg-black/50 backdrop-blur-sm">
+      <div className="fixed bottom-0 left-0 right-0 h-16 bg-black/50 backdrop-blur-sm z-20">
         <div className="flex items-center justify-between h-full px-4 max-w-screen-xl mx-auto">
           {/* Counter */}
           <div className="text-white/70 font-light">

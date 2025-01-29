@@ -16,7 +16,7 @@ export default function ColorSchemeToggle() {
   return (
     <button
       onClick={toggleColorScheme}
-      className={`fixed bottom-6 right-6 p-3 rounded-full backdrop-blur-sm border transition-colors ${
+      className={`fixed bottom-6 right-6 p-3 rounded-full backdrop-blur-sm border z-30 transition-colors ${
         isDark 
           ? 'bg-gray-900/50 border-gray-800 hover:bg-gray-900/70' 
           : 'bg-white/50 border-gray-200 hover:bg-white/70'
