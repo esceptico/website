@@ -19,6 +19,16 @@ interface PhotoGalleryProps {
 export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const velocityRef = useRef<number>(0);
+  const animationFrameRef = useRef<number | undefined>(undefined);
+  const lastTimeRef = useRef<number>(0);
+  const isMouseDownRef = useRef<boolean>(false);
+
+  // Calculate constraints based on photos length
+  const stepPerPhoto = 100 / photos.length;
+  const centerOffset = stepPerPhoto / 2;
+  const minPercentage = -centerOffset;
+  const maxPercentage = -(100 - centerOffset);
 
   useEffect(() => {
     const track = trackRef.current;
@@ -30,40 +40,71 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
 
     const handleOnDown = (e: MouseEvent | TouchEvent) => {
       if (!track) return;
+      isMouseDownRef.current = true;
       const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
       track.dataset.mouseDownAt = clientX.toString();
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
 
     const handleOnUp = () => {
       if (!track) return;
+      isMouseDownRef.current = false;
       track.dataset.mouseDownAt = "0";
       track.dataset.prevPercentage = track.dataset.percentage || "0";
+      lastTimeRef.current = performance.now();
+      animateDeceleration();
     };
 
-    const moveTrack = (nextPercentage: number) => {
+    const moveTrack = (nextPercentage: number, velocity = 0) => {
       if (!track) return;
-
-      track.dataset.percentage = nextPercentage.toString();
+      velocityRef.current = velocity;
+      
+      const constrainedPercentage = Math.max(Math.min(nextPercentage, minPercentage), maxPercentage);
+      track.dataset.percentage = constrainedPercentage.toString();
 
       track.animate(
         {
-          transform: `translate(${nextPercentage}%, -50%)`
+          transform: `translate(${constrainedPercentage}%, -50%)`
         },
-        { duration: 1200, fill: "forwards" }
+        { duration: 1200, fill: "forwards", easing: "cubic-bezier(0.23, 1, 0.32, 1)" }
       );
 
       for (const image of track.getElementsByClassName("image")) {
         (image as HTMLElement).animate(
           {
-            objectPosition: `${100 + nextPercentage}% center`
+            objectPosition: `${100 + constrainedPercentage}% center`
           },
-          { duration: 1200, fill: "forwards" }
+          { duration: 1200, fill: "forwards", easing: "cubic-bezier(0.23, 1, 0.32, 1)" }
         );
       }
 
       const imageWidthPercentage = 100 / photos.length;
-      const newIndex = Math.round((nextPercentage * -1) / imageWidthPercentage);
+      const newIndex = Math.round((constrainedPercentage * -1) / imageWidthPercentage);
       setCurrentIndex(Math.max(0, Math.min(newIndex, photos.length - 1)));
+    };
+
+    const animateDeceleration = () => {
+      if (!track || isMouseDownRef.current) return;
+
+      const currentTime = performance.now();
+      const deltaTime = (currentTime - lastTimeRef.current) / 1000;
+      lastTimeRef.current = currentTime;
+
+      const friction = 2.2;
+      velocityRef.current *= Math.exp(-friction * deltaTime);
+
+      if (Math.abs(velocityRef.current) > 0.005) {
+        const currentPercentage = parseFloat(track.dataset.percentage || "0");
+        const nextPercentage = Math.max(
+          Math.min(currentPercentage + velocityRef.current * deltaTime * 100, -20),
+          -100
+        );
+
+        moveTrack(nextPercentage, velocityRef.current);
+        animationFrameRef.current = requestAnimationFrame(animateDeceleration);
+      }
     };
 
     const handleOnMove = (e: MouseEvent | TouchEvent) => {
@@ -76,9 +117,16 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
 
       const percentage = (mouseDelta / maxDelta) * -100;
       const nextPercentageUnconstrained = parseFloat(track.dataset.prevPercentage || "0") + percentage;
-      const nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, 0), -100);
+      const nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, -20), -100);
 
-      moveTrack(nextPercentage);
+      const currentTime = performance.now();
+      const deltaTime = (currentTime - lastTimeRef.current) / 1000;
+      if (deltaTime > 0) {
+        velocityRef.current = (percentage / deltaTime) * 0.05;
+      }
+      lastTimeRef.current = currentTime;
+
+      moveTrack(nextPercentage, velocityRef.current);
     };
 
     const handleWheel = (e: WheelEvent) => {
@@ -95,16 +143,16 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!track) return;
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         e.preventDefault();
         
         const currentPercentage = parseFloat(track.dataset.percentage || "0");
         let nextPercentage = currentPercentage;
 
-        if (e.key === 'ArrowLeft') {
-          nextPercentage = Math.min(currentPercentage + 10, 0);
-        } else if (e.key === 'ArrowRight') {
-          nextPercentage = Math.max(currentPercentage - 10, -100);
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          nextPercentage = Math.min(currentPercentage + 5, 0);
+        } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          nextPercentage = Math.max(currentPercentage - 5, -100);
         }
 
         if (nextPercentage !== currentPercentage) {
@@ -152,9 +200,12 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
           -translate-x-1/2 -translate-y-1/2
           select-none
         "
-        style={{}}
+        style={{ 
+          transform: 'translate(-10%, -50%)',  // Updated to match new constraint
+        }}
         data-mouse-down-at="0"
-        data-prev-percentage="0"
+        data-prev-percentage="-10"
+        data-percentage="-10"
         initial="hidden"
         animate="visible"
         exit="exit"
@@ -176,7 +227,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
         {photos.map((photo, index) => (
           <motion.div
             key={photo.id}
-            className="relative h-[56vmin] w-[40vmin] cursor-grab active:cursor-grabbing"
+            className="relative h-[56vmin] w-[40vmin] overflow-hidden cursor-grab active:cursor-grabbing"
             variants={{
               hidden: { 
                 opacity: 0,
@@ -204,9 +255,10 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
               src={photo.src}
               alt={photo.alt}
               fill
-              className="image object-cover object-center drag-none"
+              className="image object-cover object-center drag-none scale-[1.5]"
               draggable={false}
               sizes="40vmin"
+              style={{ objectPosition: '100% center' }}
             />
           </motion.div>
         ))}
