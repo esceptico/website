@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 interface Photo {
   id: number;
@@ -19,12 +18,9 @@ interface PhotoGalleryProps {
 
 export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    setIsLoaded(true);
     const track = trackRef.current;
     if (!track) return;
 
@@ -46,6 +42,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
 
     const moveTrack = (nextPercentage: number) => {
       if (!track) return;
+
       track.dataset.percentage = nextPercentage.toString();
 
       track.animate(
@@ -64,8 +61,8 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
         );
       }
 
-      // Update current index based on percentage
-      const newIndex = Math.round((nextPercentage * -1) / (100 / (photos.length - 1)));
+      const imageWidthPercentage = 100 / photos.length;
+      const newIndex = Math.round((nextPercentage * -1) / imageWidthPercentage);
       setCurrentIndex(Math.max(0, Math.min(newIndex, photos.length - 1)));
     };
 
@@ -98,7 +95,6 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!track) return;
-      // Prevent default only for arrow keys to avoid page scrolling
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         e.preventDefault();
         
@@ -149,7 +145,14 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       <motion.div
         ref={trackRef}
         id="image-track"
-        className="flex gap-[4vmin] absolute left-1/2 top-1/2 -translate-y-1/2 select-none"
+        className="
+          flex gap-[4vmin] 
+          absolute 
+          top-1/2 left-1/2 
+          -translate-x-1/2 -translate-y-1/2
+          select-none
+        "
+        style={{}}
         data-mouse-down-at="0"
         data-prev-percentage="0"
         initial="hidden"
@@ -174,7 +177,6 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
           <motion.div
             key={photo.id}
             className="relative h-[56vmin] w-[40vmin] cursor-grab active:cursor-grabbing"
-            onClick={() => setSelectedPhoto(photo)}
             variants={{
               hidden: { 
                 opacity: 0,
@@ -244,43 +246,6 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
           </div>
         </div>
       </div>
-
-      {/* Fullscreen view */}
-      <AnimatePresence>
-        {selectedPhoto && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center"
-            onClick={() => setSelectedPhoto(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative max-w-[90vw] max-h-[90vh]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Image
-                src={selectedPhoto.src}
-                alt={selectedPhoto.alt}
-                width={selectedPhoto.width}
-                height={selectedPhoto.height}
-                className="object-contain"
-                priority
-              />
-            </motion.div>
-            <button
-              onClick={() => setSelectedPhoto(null)}
-              className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
-            >
-              <XMarkIcon className="w-6 h-6" />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <style jsx global>{`
         /* Hide scrollbar for Chrome, Safari and Opera */
