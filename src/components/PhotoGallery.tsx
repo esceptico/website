@@ -30,13 +30,46 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const minPercentage = -centerOffset;
   const maxPercentage = -(100 - centerOffset);
 
+  const moveTrack = (nextPercentage: number, velocity = 0) => {
+    const track = trackRef.current;
+    if (!track) return;
+    velocityRef.current = velocity;
+    
+    const constrainedPercentage = Math.max(Math.min(nextPercentage, minPercentage), maxPercentage);
+    track.dataset.percentage = constrainedPercentage.toString();
+
+    track.animate(
+      {
+        transform: `translate(${constrainedPercentage}%, -50%)`
+      },
+      { duration: 1200, fill: "forwards", easing: "cubic-bezier(0.23, 1, 0.32, 1)" }
+    );
+
+    for (const image of track.getElementsByClassName("image")) {
+      (image as HTMLElement).animate(
+        {
+          objectPosition: `${100 + constrainedPercentage * 2.5}% center`
+        },
+        { duration: 1200, fill: "forwards", easing: "cubic-bezier(0.23, 1, 0.32, 1)" }
+      );
+    }
+
+    // Calculate current index based on centered position
+    const normalizedPercentage = -constrainedPercentage - centerOffset;
+    const newIndex = Math.round(normalizedPercentage / stepPerPhoto);
+    setCurrentIndex(Math.max(0, Math.min(newIndex, photos.length - 1)));
+  };
+
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
 
     track.dataset.mouseDownAt = "0";
-    track.dataset.prevPercentage = "0";
-    track.dataset.percentage = "0";
+    track.dataset.prevPercentage = (-centerOffset).toString();
+    track.dataset.percentage = (-centerOffset).toString();
+
+    // Set initial centered position
+    moveTrack(-centerOffset);
 
     const handleOnDown = (e: MouseEvent | TouchEvent) => {
       if (!track) return;
@@ -55,34 +88,6 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       track.dataset.prevPercentage = track.dataset.percentage || "0";
       lastTimeRef.current = performance.now();
       animateDeceleration();
-    };
-
-    const moveTrack = (nextPercentage: number, velocity = 0) => {
-      if (!track) return;
-      velocityRef.current = velocity;
-      
-      const constrainedPercentage = Math.max(Math.min(nextPercentage, minPercentage), maxPercentage);
-      track.dataset.percentage = constrainedPercentage.toString();
-
-      track.animate(
-        {
-          transform: `translate(${constrainedPercentage}%, -50%)`
-        },
-        { duration: 1200, fill: "forwards", easing: "cubic-bezier(0.23, 1, 0.32, 1)" }
-      );
-
-      for (const image of track.getElementsByClassName("image")) {
-        (image as HTMLElement).animate(
-          {
-            objectPosition: `${100 + constrainedPercentage}% center`
-          },
-          { duration: 1200, fill: "forwards", easing: "cubic-bezier(0.23, 1, 0.32, 1)" }
-        );
-      }
-
-      const imageWidthPercentage = 100 / photos.length;
-      const newIndex = Math.round((constrainedPercentage * -1) / imageWidthPercentage);
-      setCurrentIndex(Math.max(0, Math.min(newIndex, photos.length - 1)));
     };
 
     const animateDeceleration = () => {
@@ -277,9 +282,15 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
             {photos.map((photo, index) => (
               <div
                 key={photo.id}
-                className={`relative h-full aspect-[3/4] transition-opacity ${
-                  index === currentIndex ? 'opacity-100' : 'opacity-30'
+                className={`relative h-full aspect-[3/4] transition-all cursor-pointer ${
+                  index === currentIndex ? 'opacity-100 ring-2 ring-white' : 'opacity-30 hover:opacity-50'
                 }`}
+                onClick={() => {
+                  if (!trackRef.current) return;
+                  const nextPercentage = -(index * stepPerPhoto + centerOffset);
+                  trackRef.current.dataset.prevPercentage = nextPercentage.toString();
+                  moveTrack(nextPercentage);
+                }}
               >
                 <Image
                   src={photo.src}
