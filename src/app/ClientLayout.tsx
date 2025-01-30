@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useThemeStore } from '@/store/theme';
 import { useRouter, usePathname } from 'next/navigation';
 import Navigation from "@/components/Navigation";
@@ -40,13 +40,21 @@ export default function ClientLayout({
     }
   }, [mode, pathname, router, mounted]);
 
+  const gradientBackground = useMemo(() => 
+    mode === 'mle'
+      ? `linear-gradient(to right, ${isDark ? gradientConfig.mle.dark : gradientConfig.mle.light} 0%, transparent 50%)`
+      : `linear-gradient(to left, ${isDark ? gradientConfig.photography.dark : gradientConfig.photography.light} 0%, transparent 50%)`,
+    [mode, isDark]
+  );
+
+  const themeColors = useMemo(() => 
+    getThemeColors(isDark, mode),
+    [isDark, mode]
+  );
+
   if (!mounted) {
     return null;
   }
-
-  const gradientBackground = mode === 'mle'
-    ? `linear-gradient(to right, ${isDark ? gradientConfig.mle.dark : gradientConfig.mle.light} 0%, transparent 50%)`
-    : `linear-gradient(to left, ${isDark ? gradientConfig.photography.dark : gradientConfig.photography.light} 0%, transparent 50%)`;
 
   return (
     <>
@@ -66,7 +74,7 @@ export default function ClientLayout({
         }}
         transition={pageTransition}
         className="min-h-screen"
-        style={getThemeColors(isDark, mode) as React.CSSProperties}
+        style={themeColors as React.CSSProperties}
       >
         <Navigation />
         <ColorSchemeToggle />
