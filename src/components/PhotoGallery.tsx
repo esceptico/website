@@ -23,6 +23,8 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const animationFrameRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef<number>(0);
   const isMouseDownRef = useRef<boolean>(false);
+  const [fullscreenPhoto, setFullscreenPhoto] = useState<Photo | null>(null);
+  const [fullscreenInitialPosition, setFullscreenInitialPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
 
   // Calculate constraints based on photos length
   const stepPerPhoto = 100 / photos.length;
@@ -58,6 +60,20 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
     const normalizedPercentage = -constrainedPercentage - centerOffset;
     const newIndex = Math.round(normalizedPercentage / stepPerPhoto);
     setCurrentIndex(Math.max(0, Math.min(newIndex, photos.length - 1)));
+  };
+
+  const openFullscreen = (photo: Photo, element: HTMLElement) => {
+    const rect = element.getBoundingClientRect();
+    const currentTransform = getComputedStyle(element).transform;
+    const matrix = new DOMMatrix(currentTransform);
+    
+    setFullscreenInitialPosition({
+      x: rect.left + matrix.m41,
+      y: rect.top + matrix.m42,
+      width: rect.width,
+      height: rect.height
+    });
+    setFullscreenPhoto(photo);
   };
 
   useEffect(() => {
@@ -264,10 +280,166 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
               draggable={false}
               sizes="40vmin"
               style={{ objectPosition: '100% center' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                const element = e.currentTarget.parentElement;
+                if (element) {
+                  openFullscreen(photo, element);
+                }
+              }}
             />
           </motion.div>
         ))}
       </motion.div>
+
+      {/* Fullscreen view */}
+      <AnimatePresence>
+        {fullscreenPhoto && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-lg"
+            onClick={() => setFullscreenPhoto(null)}
+          >
+            <motion.div
+              className="absolute"
+              initial={{
+                x: fullscreenInitialPosition.x,
+                y: fullscreenInitialPosition.y,
+                width: fullscreenInitialPosition.width,
+                height: fullscreenInitialPosition.height,
+              }}
+              animate={{
+                x: 0,
+                y: 0,
+                width: '100vw',
+                height: '100vh',
+                transition: {
+                  duration: 0.6,
+                  ease: [0.43, 0.13, 0.23, 0.96]
+                }
+              }}
+              exit={{
+                x: fullscreenInitialPosition.x,
+                y: fullscreenInitialPosition.y,
+                width: fullscreenInitialPosition.width,
+                height: fullscreenInitialPosition.height,
+                transition: {
+                  duration: 0.5,
+                  ease: [0.43, 0.13, 0.23, 0.96]
+                }
+              }}
+            >
+              <motion.div
+                className="w-full h-full relative"
+                initial={{ scale: 3, objectPosition: '100% center' }}
+                animate={{ 
+                  scale: 1,
+                  transition: {
+                    duration: 0.6,
+                    ease: [0.43, 0.13, 0.23, 0.96]
+                  }
+                }}
+                exit={{ 
+                  scale: 3,
+                  transition: {
+                    duration: 0.5,
+                    ease: [0.43, 0.13, 0.23, 0.96]
+                  }
+                }}
+              >
+                <Image
+                  src={fullscreenPhoto.src}
+                  alt={fullscreenPhoto.alt}
+                  fill
+                  className="object-contain"
+                  sizes="100vw"
+                  priority
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </motion.div>
+            </motion.div>
+
+            {/* Close button */}
+            <button
+              className="absolute top-4 right-4 text-white/70 hover:text-white z-50 p-2"
+              onClick={() => setFullscreenPhoto(null)}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            {/* Navigation arrows */}
+            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4">
+              <button
+                className="p-2 text-white/70 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const currentIndex = photos.findIndex(p => p.id === fullscreenPhoto.id);
+                  if (currentIndex > 0) {
+                    setFullscreenPhoto(photos[currentIndex - 1]);
+                  }
+                }}
+                disabled={photos.findIndex(p => p.id === fullscreenPhoto.id) === 0}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+              <button
+                className="p-2 text-white/70 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const currentIndex = photos.findIndex(p => p.id === fullscreenPhoto.id);
+                  if (currentIndex < photos.length - 1) {
+                    setFullscreenPhoto(photos[currentIndex + 1]);
+                  }
+                }}
+                disabled={photos.findIndex(p => p.id === fullscreenPhoto.id) === photos.length - 1}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Preview strip */}
       <div className="fixed bottom-0 left-0 right-0 h-16 bg-black/50 backdrop-blur-sm z-20">
