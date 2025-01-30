@@ -48,7 +48,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
     for (const image of track.getElementsByClassName("image")) {
       (image as HTMLElement).animate(
         {
-          objectPosition: `${100 + constrainedPercentage * 2.5}% center`
+          objectPosition: `${100 + constrainedPercentage * 1.8}% center`
         },
         { duration: 1200, fill: "forwards", easing: "cubic-bezier(0.23, 1, 0.32, 1)" }
       );
@@ -103,8 +103,8 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       if (Math.abs(velocityRef.current) > 0.005) {
         const currentPercentage = parseFloat(track.dataset.percentage || "0");
         const nextPercentage = Math.max(
-          Math.min(currentPercentage + velocityRef.current * deltaTime * 100, -20),
-          -100
+          Math.min(currentPercentage + velocityRef.current * deltaTime * 100, minPercentage),
+          maxPercentage
         );
 
         moveTrack(nextPercentage, velocityRef.current);
@@ -260,7 +260,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
               src={photo.src}
               alt={photo.alt}
               fill
-              className="image object-cover object-center drag-none scale-[1.5]"
+              className="image object-cover object-center drag-none scale-[3]"
               draggable={false}
               sizes="40vmin"
               style={{ objectPosition: '100% center' }}
