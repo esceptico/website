@@ -8,6 +8,9 @@ interface Photo {
   id: number;
   src: string;
   alt: string;
+}
+
+interface PhotoWithDimensions extends Photo {
   width: number;
   height: number;
 }
@@ -23,14 +26,75 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const animationFrameRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef<number>(0);
   const isMouseDownRef = useRef<boolean>(false);
-  const [fullscreenPhoto, setFullscreenPhoto] = useState<Photo | null>(null);
+  const [fullscreenPhoto, setFullscreenPhoto] = useState<PhotoWithDimensions | null>(null);
   const [fullscreenInitialPosition, setFullscreenInitialPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [photosWithDimensions, setPhotosWithDimensions] = useState<PhotoWithDimensions[]>([]);
+
+  // Load image dimensions
+  useEffect(() => {
+    const loadImageDimensions = async () => {
+      const dimensionsPromises = photos.map(async (photo) => {
+        try {
+          // Create a promise that resolves with the image dimensions
+          const dimensionsPromise = new Promise<{ width: number; height: number }>((resolve, reject) => {
+            const img = document.createElement('img');
+            img.onload = () => {
+              resolve({
+                width: img.naturalWidth,
+                height: img.naturalHeight,
+              });
+            };
+            img.onerror = reject;
+            img.src = photo.src;
+          });
+
+          const dimensions = await dimensionsPromise;
+          return {
+            ...photo,
+            width: dimensions.width,
+            height: dimensions.height,
+          };
+        } catch (error) {
+          console.error(`Error loading dimensions for ${photo.src}:`, error);
+          // Fallback dimensions if loading fails
+          return {
+            ...photo,
+            width: 1000,
+            height: 1500,
+          };
+        }
+      });
+
+      const loadedPhotos = await Promise.all(dimensionsPromises);
+      setPhotosWithDimensions(loadedPhotos);
+    };
+
+    loadImageDimensions();
+  }, [photos]);
 
   // Calculate constraints based on photos length
-  const stepPerPhoto = 100 / photos.length;
+  const stepPerPhoto = 100 / photosWithDimensions.length;
   const centerOffset = stepPerPhoto / 2;
   const minPercentage = -centerOffset;
   const maxPercentage = -(100 - centerOffset);
+  const PARALLAX_MULTIPLIER = 0.2; // Match the multiplier used in animation
+
+  // Calculate the required scale for an image
+  const getImageScale = (photo: PhotoWithDimensions) => {
+    const aspectRatio = photo.width / photo.height;
+    const containerAspectRatio = 40 / 56; // w-[40vmin] / h-[56vmin]
+    
+    // Base scale needed to cover the container
+    let baseScale = aspectRatio > containerAspectRatio 
+      ? 56 / (photo.height * (40 / photo.width)) // height-constrained
+      : 40 / (photo.width * (56 / photo.height)); // width-constrained
+
+    // Add extra scale for parallax movement
+    const parallaxScale = 1 + Math.abs(PARALLAX_MULTIPLIER);
+    
+    // Add a small buffer to prevent edge cases
+    return Math.ceil(Math.max(baseScale, parallaxScale) * 100) / 100 + 0.5;
+  };
 
   const moveTrack = (nextPercentage: number, velocity = 0) => {
     const track = trackRef.current;
@@ -44,25 +108,33 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       {
         transform: `translate(${constrainedPercentage}%, -50%)`
       },
-      { duration: 1200, fill: "forwards", easing: "cubic-bezier(0.23, 1, 0.32, 1)" }
+      { 
+        duration: 2400, 
+        fill: "forwards", 
+        easing: "cubic-bezier(0.23, 1, 0.32, 1)"
+      }
     );
 
     for (const image of track.getElementsByClassName("image")) {
       (image as HTMLElement).animate(
         {
-          objectPosition: `${100 + constrainedPercentage * 1.8}% center`
+          objectPosition: `${100 + constrainedPercentage * PARALLAX_MULTIPLIER}% center`
         },
-        { duration: 1200, fill: "forwards", easing: "cubic-bezier(0.23, 1, 0.32, 1)" }
+        { 
+          duration: 2400, 
+          fill: "forwards", 
+          easing: "cubic-bezier(0.23, 1, 0.32, 1)"
+        }
       );
     }
 
     // Calculate current index based on centered position
     const normalizedPercentage = -constrainedPercentage - centerOffset;
     const newIndex = Math.round(normalizedPercentage / stepPerPhoto);
-    setCurrentIndex(Math.max(0, Math.min(newIndex, photos.length - 1)));
+    setCurrentIndex(Math.max(0, Math.min(newIndex, photosWithDimensions.length - 1)));
   };
 
-  const openFullscreen = (photo: Photo, element: HTMLElement) => {
+  const openFullscreen = (photo: PhotoWithDimensions, element: HTMLElement) => {
     const rect = element.getBoundingClientRect();
     const currentTransform = getComputedStyle(element).transform;
     const matrix = new DOMMatrix(currentTransform);
@@ -113,7 +185,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       const deltaTime = (currentTime - lastTimeRef.current) / 1000;
       lastTimeRef.current = currentTime;
 
-      const friction = 2.2;
+      const friction = 3.2; // Increased friction for smoother deceleration
       velocityRef.current *= Math.exp(-friction * deltaTime);
 
       if (Math.abs(velocityRef.current) > 0.005) {
@@ -206,7 +278,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [photos.length]);
+  }, [photosWithDimensions.length]);
 
   return (
     <div className="min-h-screen overflow-hidden bg-[var(--theme-bg)] scrollbar-hide">
@@ -245,7 +317,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
           }
         }}
       >
-        {photos.map((photo, index) => (
+        {photosWithDimensions.map((photo, index) => (
           <motion.div
             key={photo.id}
             className="relative h-[56vmin] w-[40vmin] overflow-hidden cursor-grab active:cursor-grabbing"
@@ -276,10 +348,14 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
               src={photo.src}
               alt={photo.alt}
               fill
-              className="image object-cover object-center drag-none scale-[3]"
+              className={`image object-cover object-center drag-none`}
+              style={{ 
+                objectPosition: '100% center',
+                transform: `scale(${getImageScale(photo)})`
+              }}
               draggable={false}
-              sizes="40vmin"
-              style={{ objectPosition: '100% center' }}
+              sizes="(max-width: 768px) 80vw, 40vw"
+              quality={95}
               onClick={(e) => {
                 e.stopPropagation();
                 const element = e.currentTarget.parentElement;
@@ -355,6 +431,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
                   fill
                   className="object-contain"
                   sizes="100vw"
+                  quality={100}
                   priority
                   onClick={(e) => e.stopPropagation()}
                 />
@@ -388,12 +465,12 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
                 className="p-2 text-white/70 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
                 onClick={(e) => {
                   e.stopPropagation();
-                  const currentIndex = photos.findIndex(p => p.id === fullscreenPhoto.id);
+                  const currentIndex = photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id);
                   if (currentIndex > 0) {
-                    setFullscreenPhoto(photos[currentIndex - 1]);
+                    setFullscreenPhoto(photosWithDimensions[currentIndex - 1]);
                   }
                 }}
-                disabled={photos.findIndex(p => p.id === fullscreenPhoto.id) === 0}
+                disabled={photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) === 0}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -414,12 +491,12 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
                 className="p-2 text-white/70 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
                 onClick={(e) => {
                   e.stopPropagation();
-                  const currentIndex = photos.findIndex(p => p.id === fullscreenPhoto.id);
-                  if (currentIndex < photos.length - 1) {
-                    setFullscreenPhoto(photos[currentIndex + 1]);
+                  const currentIndex = photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id);
+                  if (currentIndex < photosWithDimensions.length - 1) {
+                    setFullscreenPhoto(photosWithDimensions[currentIndex + 1]);
                   }
                 }}
-                disabled={photos.findIndex(p => p.id === fullscreenPhoto.id) === photos.length - 1}
+                disabled={photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) === photosWithDimensions.length - 1}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -446,12 +523,12 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
         <div className="flex items-center justify-between h-full px-4 max-w-screen-xl mx-auto">
           {/* Counter */}
           <div className="text-white/70 font-light">
-            {currentIndex + 1} — {photos.length}
+            {currentIndex + 1} — {photosWithDimensions.length}
           </div>
           
           {/* Thumbnails */}
           <div className="flex gap-2 h-full py-2 overflow-x-auto">
-            {photos.map((photo, index) => (
+            {photosWithDimensions.map((photo, index) => (
               <div
                 key={photo.id}
                 className={`relative h-full aspect-[3/4] transition-all cursor-pointer ${
@@ -469,7 +546,8 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
                   alt={photo.alt}
                   fill
                   className="object-cover rounded-sm"
-                  sizes="80px"
+                  sizes="120px"
+                  quality={85}
                 />
               </div>
             ))}
