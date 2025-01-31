@@ -33,6 +33,61 @@ interface FullscreenNavigationProps {
   totalPhotos: number;
 }
 
+interface MechanicalDigitProps {
+  digit: number;
+  direction: 'up' | 'down';
+}
+
+const MechanicalDigit = ({ digit, direction }: MechanicalDigitProps) => {
+  const numbers = Array.from({ length: 10 }, (_, i) => i);
+  const currentIndex = numbers.indexOf(digit);
+  
+  return (
+    <div className="relative w-4 h-6 overflow-hidden font-mono">
+      <motion.div
+        initial={false}
+        animate={{ y: -currentIndex * 24 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="absolute left-0 right-0"
+      >
+        {numbers.map((num) => (
+          <div key={num} className="h-6 flex items-center justify-center">
+            {num}
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+};
+
+const MechanicalCounter = ({ number, total }: { number: number; total: number }) => {
+  const [prevNumber, setPrevNumber] = useState(number);
+  const direction = number > prevNumber ? 'up' : 'down';
+  
+  useEffect(() => {
+    setPrevNumber(number);
+  }, [number]);
+
+  const digits = String(number + 1).padStart(2, '0').split('').map(Number);
+  const totalDigits = String(total).padStart(2, '0').split('').map(Number);
+
+  return (
+    <div className="flex items-center gap-1 text-white/70">
+      <div className="flex">
+        {digits.map((digit, idx) => (
+          <MechanicalDigit key={idx} digit={digit} direction={direction} />
+        ))}
+      </div>
+      <span>—</span>
+      <div className="flex">
+        {totalDigits.map((digit, idx) => (
+          <MechanicalDigit key={idx} digit={digit} direction="up" />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const FullscreenNavigation = ({ onClose, onNavigate, currentIndex, totalPhotos }: FullscreenNavigationProps) => (
   <>
     <button
@@ -378,8 +433,11 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
 
       <div className={`fixed bottom-0 left-0 right-0 h-20 bg-black/50 backdrop-blur-sm ${fullscreenPhoto ? 'z-[60]' : 'z-20'}`}>
         <div className="flex items-center justify-between h-full px-4 max-w-screen-xl mx-auto">
-          <div className="shrink-0 text-white/70 font-mono w-24 text-center">
-            {(fullscreenPhoto ? photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) : currentIndex) + 1} — {photosWithDimensions.length}
+          <div className="shrink-0 font-mono w-24 text-center">
+            <MechanicalCounter 
+              number={fullscreenPhoto ? photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) : currentIndex} 
+              total={photosWithDimensions.length} 
+            />
           </div>
           
           <div className="flex-1 flex justify-center mx-4">
