@@ -285,38 +285,35 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
           transition: 'opacity 0.5s ease-in-out'
         }}
       >
-        {photosWithDimensions.map((photo, index) => {
-          const isVisible = Math.abs(index - currentIndex) <= 4;
-          return (
-            <motion.div
-              key={photo.id}
-              className="relative h-[56vmin] w-[40vmin] overflow-hidden"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ 
-                duration: 1,
-                ease: "easeOut",
-                delay: index * 0.15
+        {photosWithDimensions.map((photo, index) => (
+          <motion.div
+            key={photo.id}
+            className="relative h-[56vmin] w-[40vmin] overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ 
+              duration: 1,
+              ease: "easeOut",
+              delay: index * 0.15
+            }}
+          >
+            <Image
+              src={photo.src}
+              alt={photo.alt}
+              fill
+              className="image object-cover object-center"
+              style={{ 
+                objectPosition: '50% center',
+                transform: `scale(${getImageScale(photo)})`
               }}
-            >
-              <Image
-                src={photo.src}
-                alt={photo.alt}
-                fill
-                className="image object-cover object-center"
-                style={{ 
-                  objectPosition: '50% center',
-                  transform: `scale(${getImageScale(photo)})`
-                }}
-                sizes="(max-width: 768px) 80vw, 40vw"
-                quality={90}
-                priority={index < 5}
-                loading={index < 10 ? "eager" : "lazy"}
-                onClick={() => openFullscreen(photo)}
-              />
-            </motion.div>
-          );
-        })}
+              sizes="(max-width: 768px) 80vw, 40vw"
+              quality={90}
+              priority={index < 5}
+              loading={index < 10 ? "eager" : "lazy"}
+              onClick={() => openFullscreen(photo)}
+            />
+          </motion.div>
+        ))}
       </motion.div>
 
       <AnimatePresence>
