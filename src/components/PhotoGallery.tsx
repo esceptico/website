@@ -176,122 +176,41 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
     // Set initial centered position
     moveTrack(-centerOffset);
 
-    const handleOnDown = (e: MouseEvent | TouchEvent) => {
-      if (!track) return;
-      isMouseDownRef.current = true;
-      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-      track.dataset.mouseDownAt = clientX.toString();
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-
-    const handleOnUp = () => {
-      if (!track) return;
-      isMouseDownRef.current = false;
-      track.dataset.mouseDownAt = "0";
-      track.dataset.prevPercentage = track.dataset.percentage || "0";
-      lastTimeRef.current = performance.now();
-      animateDeceleration();
-    };
-
-    const animateDeceleration = () => {
-      if (!track || isMouseDownRef.current) return;
-
-      const currentTime = performance.now();
-      const deltaTime = (currentTime - lastTimeRef.current) / 1000;
-      lastTimeRef.current = currentTime;
-
-      const friction = 3.2; // Increased friction for smoother deceleration
-      velocityRef.current *= Math.exp(-friction * deltaTime);
-
-      if (Math.abs(velocityRef.current) > 0.005) {
-        const currentPercentage = parseFloat(track.dataset.percentage || "0");
-        const nextPercentage = Math.max(
-          Math.min(currentPercentage + velocityRef.current * deltaTime * 100, minPercentage),
-          maxPercentage
-        );
-
-        moveTrack(nextPercentage, velocityRef.current);
-        animationFrameRef.current = requestAnimationFrame(animateDeceleration);
-      }
-    };
-
-    const handleOnMove = (e: MouseEvent | TouchEvent) => {
-      if (!track) return;
-      if (track.dataset.mouseDownAt === "0") return;
-
-      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-      const mouseDelta = parseFloat(track.dataset.mouseDownAt || "0") - clientX;
-      const maxDelta = window.innerWidth / 2;
-
-      const percentage = (mouseDelta / maxDelta) * -100;
-      const nextPercentageUnconstrained = parseFloat(track.dataset.prevPercentage || "0") + percentage;
-      const nextPercentage = Math.max(Math.min(nextPercentageUnconstrained, -20), -100);
-
-      const currentTime = performance.now();
-      const deltaTime = (currentTime - lastTimeRef.current) / 1000;
-      if (deltaTime > 0) {
-        velocityRef.current = (percentage / deltaTime) * 0.05;
-      }
-      lastTimeRef.current = currentTime;
-
-      moveTrack(nextPercentage, velocityRef.current);
-    };
-
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       if (!track) return;
 
       const currentPercentage = parseFloat(track.dataset.percentage || "0");
       const delta = e.deltaY || e.deltaX;
-      const nextPercentage = Math.max(Math.min(currentPercentage - delta * 0.1, 0), -100);
+      const nextPercentage = Math.max(Math.min(currentPercentage - delta * 0.1, minPercentage), maxPercentage);
       
       track.dataset.prevPercentage = nextPercentage.toString();
       moveTrack(nextPercentage);
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!track) return;
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         e.preventDefault();
+        if (!track) return;
         
         const currentPercentage = parseFloat(track.dataset.percentage || "0");
         let nextPercentage = currentPercentage;
 
         if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-          nextPercentage = Math.min(currentPercentage + 5, 0);
+          nextPercentage = Math.min(currentPercentage + stepPerPhoto, minPercentage);
         } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-          nextPercentage = Math.max(currentPercentage - 5, -100);
+          nextPercentage = Math.max(currentPercentage - stepPerPhoto, maxPercentage);
         }
 
-        if (nextPercentage !== currentPercentage) {
-          track.dataset.prevPercentage = nextPercentage.toString();
-          moveTrack(nextPercentage);
-        }
+        track.dataset.prevPercentage = nextPercentage.toString();
+        moveTrack(nextPercentage);
       }
     };
 
-    const handleTouchStart = (e: TouchEvent) => handleOnDown(e);
-    const handleTouchEnd = () => handleOnUp();
-    const handleTouchMove = (e: TouchEvent) => handleOnMove(e);
-
-    window.addEventListener('mousedown', handleOnDown);
-    window.addEventListener('touchstart', handleTouchStart);
-    window.addEventListener('mouseup', handleOnUp);
-    window.addEventListener('touchend', handleTouchEnd);
-    window.addEventListener('mousemove', handleOnMove);
-    window.addEventListener('touchmove', handleTouchMove);
     window.addEventListener('wheel', handleWheel, { passive: false });
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      window.removeEventListener('mousedown', handleOnDown);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('mouseup', handleOnUp);
-      window.removeEventListener('touchend', handleTouchEnd);
-      window.removeEventListener('mousemove', handleOnMove);
-      window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('keydown', handleKeyDown);
     };
@@ -320,7 +239,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
         {photosWithDimensions.map((photo, index) => (
           <motion.div
             key={photo.id}
-            className="relative h-[56vmin] w-[40vmin] overflow-hidden cursor-grab active:cursor-grabbing"
+            className="relative h-[56vmin] w-[40vmin] overflow-hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{
@@ -333,12 +252,11 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
               src={photo.src}
               alt={photo.alt}
               fill
-              className={`image object-cover object-center drag-none`}
+              className={`image object-cover object-center`}
               style={{ 
                 objectPosition: '50% center',
                 transform: `scale(${getImageScale(photo)})`
               }}
-              draggable={false}
               sizes="(max-width: 768px) 80vw, 40vw"
               quality={95}
               onClick={(e) => {
