@@ -15,6 +15,13 @@ interface PhotoWithDimensions extends Photo {
   height: number;
 }
 
+interface FullscreenPosition {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 interface PhotoGalleryProps {
   photos: Photo[];
 }
@@ -105,6 +112,20 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const [fullscreenPhoto, setFullscreenPhoto] = useState<PhotoWithDimensions | null>(null);
   const [photosWithDimensions, setPhotosWithDimensions] = useState<PhotoWithDimensions[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [direction, setDirection] = useState<'next' | 'prev'>('next');
+
+  const slideVariants = {
+    initial: (direction: string) => ({
+      x: direction === 'next' ? '100%' : '-100%'
+    }),
+    animate: {
+      x: 0
+    },
+    exit: (direction: string) => ({
+      x: direction === 'next' ? '-100%' : '100%',
+      opacity: 0
+    })
+  };
 
   // Load image dimensions
   useEffect(() => {
@@ -210,8 +231,10 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       if (fullscreenPhoto) {
         const currentIndex = photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id);
         if ((e.key === 'ArrowLeft' || e.key === 'ArrowUp') && currentIndex > 0) {
+          setDirection('prev');
           setFullscreenPhoto(photosWithDimensions[currentIndex - 1]);
         } else if ((e.key === 'ArrowRight' || e.key === 'ArrowDown') && currentIndex < photosWithDimensions.length - 1) {
+          setDirection('next');
           setFullscreenPhoto(photosWithDimensions[currentIndex + 1]);
         }
         return;
@@ -231,13 +254,14 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
     };
   }, [photosWithDimensions.length, fullscreenPhoto]);
 
-  const navigateFullscreen = (direction: 'prev' | 'next') => {
+  const navigateFullscreen = (dir: 'prev' | 'next') => {
     if (!fullscreenPhoto) return;
     
     const currentIndex = photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id);
-    const newIndex = direction === 'prev' ? currentIndex - 1 : currentIndex + 1;
+    const newIndex = dir === 'prev' ? currentIndex - 1 : currentIndex + 1;
     
     if (newIndex >= 0 && newIndex < photosWithDimensions.length) {
+      setDirection(dir);
       setFullscreenPhoto(photosWithDimensions[newIndex]);
       moveTrack(-(newIndex * stepPerPhoto + centerOffset));
     }
@@ -280,44 +304,57 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
         ))}
       </motion.div>
 
-      {fullscreenPhoto && (
-        <div className="fixed inset-0 z-50 bg-black">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <AnimatePresence mode="wait">
-              <motion.div 
-                key={fullscreenPhoto.id}
-                className="absolute inset-0"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Image
-                  src={fullscreenPhoto.src}
-                  alt={fullscreenPhoto.alt}
-                  fill
-                  className="object-contain"
-                  sizes="100vw"
-                  quality={100}
-                  priority
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </motion.div>
-            </AnimatePresence>
-          </div>
+      <AnimatePresence>
+        {fullscreenPhoto && (
+          <motion.div 
+            className="fixed inset-0 z-50 bg-black"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+              <AnimatePresence initial={false} mode="popLayout" custom={direction}>
+                <motion.div 
+                  key={fullscreenPhoto.id}
+                  className="absolute inset-0"
+                  custom={direction}
+                  variants={slideVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={{
+                    duration: 0.7,
+                    ease: [0.32, 0.72, 0, 1]
+                  }}
+                >
+                  <Image
+                    src={fullscreenPhoto.src}
+                    alt={fullscreenPhoto.alt}
+                    fill
+                    className="object-contain"
+                    sizes="100vw"
+                    quality={100}
+                    priority
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
 
-          <FullscreenNavigation
-            onClose={() => {
-              const index = photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id);
-              moveTrack(-(index * stepPerPhoto + centerOffset));
-              setFullscreenPhoto(null);
-            }}
-            onNavigate={navigateFullscreen}
-            currentIndex={photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id)}
-            totalPhotos={photosWithDimensions.length}
-          />
-        </div>
-      )}
+            <FullscreenNavigation
+              onClose={() => {
+                const index = photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id);
+                moveTrack(-(index * stepPerPhoto + centerOffset));
+                setFullscreenPhoto(null);
+              }}
+              onNavigate={navigateFullscreen}
+              currentIndex={photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id)}
+              totalPhotos={photosWithDimensions.length}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className={`fixed bottom-0 left-0 right-0 h-16 bg-black/50 backdrop-blur-sm ${fullscreenPhoto ? 'z-[60]' : 'z-20'}`}>
         <div className="flex items-center justify-between h-full px-4 max-w-screen-xl mx-auto">
