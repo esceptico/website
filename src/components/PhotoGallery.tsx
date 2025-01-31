@@ -274,72 +274,19 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       {/* Fullscreen view */}
       <AnimatePresence>
         {fullscreenPhoto && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-lg"
-            onClick={() => setFullscreenPhoto(null)}
-          >
-            <motion.div
-              className="absolute"
-              initial={{
-                x: fullscreenInitialPosition.x,
-                y: fullscreenInitialPosition.y,
-                width: fullscreenInitialPosition.width,
-                height: fullscreenInitialPosition.height,
-              }}
-              animate={{
-                x: 0,
-                y: 0,
-                width: '100vw',
-                height: '100vh',
-                transition: {
-                  duration: 0.6,
-                  ease: [0.43, 0.13, 0.23, 0.96]
-                }
-              }}
-              exit={{
-                x: fullscreenInitialPosition.x,
-                y: fullscreenInitialPosition.y,
-                width: fullscreenInitialPosition.width,
-                height: fullscreenInitialPosition.height,
-                transition: {
-                  duration: 0.5,
-                  ease: [0.43, 0.13, 0.23, 0.96]
-                }
-              }}
-            >
-              <motion.div
-                className="w-full h-full relative"
-                initial={{ scale: 3, objectPosition: '100% center' }}
-                animate={{ 
-                  scale: 1,
-                  transition: {
-                    duration: 0.6,
-                    ease: [0.43, 0.13, 0.23, 0.96]
-                  }
-                }}
-                exit={{ 
-                  scale: 3,
-                  transition: {
-                    duration: 0.5,
-                    ease: [0.43, 0.13, 0.23, 0.96]
-                  }
-                }}
-              >
-                <Image
-                  src={fullscreenPhoto.src}
-                  alt={fullscreenPhoto.alt}
-                  fill
-                  className="object-contain"
-                  sizes="100vw"
-                  quality={100}
-                  priority
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </motion.div>
-            </motion.div>
+          <div className="fixed inset-0 z-50 bg-black">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Image
+                src={fullscreenPhoto.src}
+                alt={fullscreenPhoto.alt}
+                fill
+                className="object-contain"
+                sizes="100vw"
+                quality={100}
+                priority
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
 
             {/* Close button */}
             <button
@@ -417,7 +364,44 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
                 </svg>
               </button>
             </div>
-          </motion.div>
+
+            {/* Preview strip */}
+            <div className="fixed bottom-0 left-0 right-0 h-16 bg-black/50 backdrop-blur-sm">
+              <div className="flex items-center justify-between h-full px-4 max-w-screen-xl mx-auto">
+                {/* Counter */}
+                <div className="text-white/70 font-light">
+                  {photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) + 1} — {photosWithDimensions.length}
+                </div>
+                
+                {/* Thumbnails */}
+                <div className="flex gap-2 h-full py-2 overflow-x-auto">
+                  {photosWithDimensions.map((photo) => (
+                    <div
+                      key={photo.id}
+                      className={`relative h-full aspect-[3/4] transition-all cursor-pointer ${
+                        photo.id === fullscreenPhoto.id ? 'opacity-100 ring-2 ring-white' : 'opacity-30 hover:opacity-50'
+                      }`}
+                      onClick={() => setFullscreenPhoto(photo)}
+                    >
+                      <Image
+                        src={photo.src}
+                        alt={photo.alt}
+                        fill
+                        className="object-cover rounded-sm"
+                        sizes="120px"
+                        quality={85}
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Navigation hint */}
+                <div className="text-white/30 text-sm">
+                  Use ← → keys
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </AnimatePresence>
 
