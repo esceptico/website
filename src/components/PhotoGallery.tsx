@@ -77,7 +77,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const centerOffset = stepPerPhoto / 2;
   const minPercentage = -centerOffset;
   const maxPercentage = -(100 - centerOffset);
-  const PARALLAX_MULTIPLIER = 0.2; // Match the multiplier used in animation
+  const PARALLAX_MULTIPLIER = 1.0; // Full movement from left to right edge
 
   // Calculate the required scale for an image
   const getImageScale = (photo: PhotoWithDimensions) => {
@@ -89,11 +89,9 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       ? 56 / (photo.height * (40 / photo.width)) // height-constrained
       : 40 / (photo.width * (56 / photo.height)); // width-constrained
 
-    // Add extra scale for parallax movement
-    const parallaxScale = 1 + Math.abs(PARALLAX_MULTIPLIER);
-    
-    // Add a small buffer to prevent edge cases
-    return Math.ceil(Math.max(baseScale, parallaxScale) * 100) / 100 + 0.5;
+    // We only need minimal extra scale since we're using the full width of the image
+    // Just add a small buffer for smooth movement
+    return Math.ceil(baseScale * 100) / 100 + 0.05;
   };
 
   const moveTrack = (nextPercentage: number, velocity = 0) => {
@@ -115,10 +113,30 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       }
     );
 
-    for (const image of track.getElementsByClassName("image")) {
-      (image as HTMLElement).animate(
+    // Calculate the center point of the track
+    const centerPoint = -constrainedPercentage;
+    
+    const images = track.getElementsByClassName("image");
+    for (let i = 0; i < images.length; i++) {
+      const image = images[i] as HTMLElement;
+      // Calculate image's position relative to center
+      const imagePosition = (i * stepPerPhoto) - centerPoint;
+      
+      // Normalize the position to -1 to 1 range where:
+      // 0 = center of viewport
+      // -1 = just entered viewport from left
+      // 1 = just exiting viewport to right
+      const normalizedPosition = imagePosition / stepPerPhoto;
+      
+      // Calculate parallax offset
+      // When image enters viewport (normalizedPosition = -1), objectPosition = 0%
+      // When image is centered (normalizedPosition = 0), objectPosition = 50%
+      // When image exits viewport (normalizedPosition = 1), objectPosition = 100%
+      const parallaxOffset = (normalizedPosition + 1) * 50;
+      
+      image.animate(
         {
-          objectPosition: `${100 + constrainedPercentage * PARALLAX_MULTIPLIER}% center`
+          objectPosition: `${parallaxOffset}% center`
         },
         { 
           duration: 2400, 
