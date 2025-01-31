@@ -6,14 +6,6 @@ import { SectionHeader } from './SectionHeader';
 export const PhotographyContent = () => (
   <div className="space-y-4">
     <section>
-      <p className="text-[var(--theme-text-secondary)]">
-        Photography is my creative outlet where I explore visual storytelling through both digital 
-        and analog mediums. I focus on capturing authentic moments and unique perspectives, 
-        combining technical precision with artistic vision.
-      </p>
-    </section>
-
-    <section>
       <SectionHeader title="Equipment" />
       <div className="space-y-8 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
         <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-[var(--theme-text-secondary)] before:opacity-20 group hover:before:bg-[var(--theme-accent-primary)] before:transition-colors duration-200">
