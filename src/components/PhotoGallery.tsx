@@ -191,8 +191,18 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         e.preventDefault();
-        if (!track) return;
         
+        if (fullscreenPhoto) {
+          const currentIndex = photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id);
+          if ((e.key === 'ArrowLeft' || e.key === 'ArrowUp') && currentIndex > 0) {
+            setFullscreenPhoto(photosWithDimensions[currentIndex - 1]);
+          } else if ((e.key === 'ArrowRight' || e.key === 'ArrowDown') && currentIndex < photosWithDimensions.length - 1) {
+            setFullscreenPhoto(photosWithDimensions[currentIndex + 1]);
+          }
+          return;
+        }
+
+        if (!track) return;
         const currentPercentage = parseFloat(track.dataset.percentage || "0");
         let nextPercentage = currentPercentage;
 
@@ -214,7 +224,19 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [photosWithDimensions.length]);
+  }, [photosWithDimensions.length, fullscreenPhoto]);
+
+  // Function to handle fullscreen navigation
+  const navigateFullscreen = (direction: 'prev' | 'next') => {
+    if (!fullscreenPhoto) return;
+    
+    const currentIndex = photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id);
+    if (direction === 'prev' && currentIndex > 0) {
+      setFullscreenPhoto(photosWithDimensions[currentIndex - 1]);
+    } else if (direction === 'next' && currentIndex < photosWithDimensions.length - 1) {
+      setFullscreenPhoto(photosWithDimensions[currentIndex + 1]);
+    }
+  };
 
   return (
     <div className="min-h-screen overflow-hidden bg-[var(--theme-bg)] scrollbar-hide">
@@ -272,10 +294,10 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       </motion.div>
 
       {/* Fullscreen view */}
-      <AnimatePresence>
-        {fullscreenPhoto && (
-          <div className="fixed inset-0 z-50 bg-black">
-            <div className="absolute inset-0 flex items-center justify-center">
+      {fullscreenPhoto && (
+        <div className="fixed inset-0 z-50 bg-black">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0">
               <Image
                 src={fullscreenPhoto.src}
                 alt={fullscreenPhoto.alt}
@@ -287,15 +309,42 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
                 onClick={(e) => e.stopPropagation()}
               />
             </div>
+          </div>
 
-            {/* Close button */}
+          {/* Close button */}
+          <button
+            className="absolute top-4 right-4 text-white/70 hover:text-white z-50 p-2"
+            onClick={() => setFullscreenPhoto(null)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+
+          {/* Navigation arrows */}
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4">
             <button
-              className="absolute top-4 right-4 text-white/70 hover:text-white z-50 p-2"
-              onClick={() => setFullscreenPhoto(null)}
+              className="p-2 text-white/70 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigateFullscreen('prev');
+              }}
+              disabled={photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) === 0}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
+                className="h-8 w-8"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -304,106 +353,73 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
+                  d="M15 19l-7-7 7-7"
                 />
               </svg>
             </button>
-
-            {/* Navigation arrows */}
-            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4">
-              <button
-                className="p-2 text-white/70 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const currentIndex = photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id);
-                  if (currentIndex > 0) {
-                    setFullscreenPhoto(photosWithDimensions[currentIndex - 1]);
-                  }
-                }}
-                disabled={photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) === 0}
+            <button
+              className="p-2 text-white/70 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigateFullscreen('next');
+              }}
+              disabled={photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) === photosWithDimensions.length - 1}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-              <button
-                className="p-2 text-white/70 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const currentIndex = photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id);
-                  if (currentIndex < photosWithDimensions.length - 1) {
-                    setFullscreenPhoto(photosWithDimensions[currentIndex + 1]);
-                  }
-                }}
-                disabled={photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) === photosWithDimensions.length - 1}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          </div>
 
-            {/* Preview strip */}
-            <div className="fixed bottom-0 left-0 right-0 h-16 bg-black/50 backdrop-blur-sm">
-              <div className="flex items-center justify-between h-full px-4 max-w-screen-xl mx-auto">
-                {/* Counter */}
-                <div className="text-white/70 font-light">
-                  {photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) + 1} — {photosWithDimensions.length}
-                </div>
-                
-                {/* Thumbnails */}
-                <div className="flex gap-2 h-full py-2 overflow-x-auto">
-                  {photosWithDimensions.map((photo) => (
-                    <div
-                      key={photo.id}
-                      className={`relative h-full aspect-[3/4] transition-all cursor-pointer ${
-                        photo.id === fullscreenPhoto.id ? 'opacity-100 ring-2 ring-white' : 'opacity-30 hover:opacity-50'
-                      }`}
-                      onClick={() => setFullscreenPhoto(photo)}
-                    >
-                      <Image
-                        src={photo.src}
-                        alt={photo.alt}
-                        fill
-                        className="object-cover rounded-sm"
-                        sizes="120px"
-                        quality={85}
-                      />
-                    </div>
-                  ))}
-                </div>
+          {/* Preview strip */}
+          <div className="fixed bottom-0 left-0 right-0 h-16 bg-black/50 backdrop-blur-sm">
+            <div className="flex items-center justify-between h-full px-4 max-w-screen-xl mx-auto">
+              {/* Counter */}
+              <div className="text-white/70 font-light">
+                {photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) + 1} — {photosWithDimensions.length}
+              </div>
+              
+              {/* Thumbnails */}
+              <div className="flex gap-2 h-full py-2 overflow-x-auto">
+                {photosWithDimensions.map((photo) => (
+                  <div
+                    key={photo.id}
+                    className={`relative h-full aspect-[3/4] transition-all cursor-pointer ${
+                      photo.id === fullscreenPhoto.id ? 'opacity-100 ring-2 ring-white' : 'opacity-30 hover:opacity-50'
+                    }`}
+                    onClick={() => setFullscreenPhoto(photo)}
+                  >
+                    <Image
+                      src={photo.src}
+                      alt={photo.alt}
+                      fill
+                      className="object-cover rounded-sm"
+                      sizes="120px"
+                      quality={85}
+                    />
+                  </div>
+                ))}
+              </div>
 
-                {/* Navigation hint */}
-                <div className="text-white/30 text-sm">
-                  Use ← → keys
-                </div>
+              {/* Navigation hint */}
+              <div className="text-white/30 text-sm">
+                Use ← → keys
               </div>
             </div>
           </div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
 
       {/* Preview strip */}
       <div className="fixed bottom-0 left-0 right-0 h-16 bg-black/50 backdrop-blur-sm z-20">
