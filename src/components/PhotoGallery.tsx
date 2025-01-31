@@ -322,17 +322,20 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
           >
-            <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+            <div className="absolute inset-0 flex items-center justify-center">
               <AnimatePresence mode="wait">
                 <motion.div 
                   key={fullscreenPhoto.id}
                   className="absolute inset-0"
-                  variants={slideVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ 
+                    duration: 0.3,
+                    ease: "easeOut"
+                  }}
                 >
                   <Image
                     src={fullscreenPhoto.src}
