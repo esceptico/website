@@ -152,8 +152,15 @@ const FullscreenNavigation = ({ onClose, onNavigate, currentIndex, totalPhotos }
       </button>
     </div>
 
-    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70">
-      {currentIndex + 1} / {totalPhotos}
+    <div className="fixed bottom-0 left-0 right-0 h-16 bg-black/50 backdrop-blur-sm">
+      <div className="relative flex items-center justify-center h-full max-w-screen-xl mx-auto px-8">
+        <div className="font-mono">
+          <MechanicalCounter 
+            number={currentIndex} 
+            total={totalPhotos} 
+          />
+        </div>
+      </div>
     </div>
   </>
 );
