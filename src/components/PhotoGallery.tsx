@@ -297,18 +297,27 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       {fullscreenPhoto && (
         <div className="fixed inset-0 z-50 bg-black">
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="absolute inset-0">
-              <Image
-                src={fullscreenPhoto.src}
-                alt={fullscreenPhoto.alt}
-                fill
-                className="object-contain"
-                sizes="100vw"
-                quality={100}
-                priority
-                onClick={(e) => e.stopPropagation()}
-              />
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div 
+                key={fullscreenPhoto.id}
+                className="absolute inset-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <Image
+                  src={fullscreenPhoto.src}
+                  alt={fullscreenPhoto.alt}
+                  fill
+                  className="object-contain"
+                  sizes="100vw"
+                  quality={100}
+                  priority
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </motion.div>
+            </AnimatePresence>
           </div>
 
           {/* Close button */}
