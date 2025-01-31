@@ -20,7 +20,7 @@ export function AboutPage({ mode }: AboutPageProps) {
   }, []);
 
   return (
-    <div className="p-8">
+    <div className="min-h-screen p-8 bg-[var(--theme-bg-primary)]">
       <div className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0 }}
