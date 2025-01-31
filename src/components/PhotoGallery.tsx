@@ -169,12 +169,13 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
     const track = trackRef.current;
     if (!track) return;
 
-    track.dataset.mouseDownAt = "0";
-    track.dataset.prevPercentage = (-centerOffset).toString();
-    track.dataset.percentage = (-centerOffset).toString();
-
-    // Set initial centered position
-    moveTrack(-centerOffset);
+    // Only initialize if there's no previous position set
+    if (!track.dataset.percentage) {
+      track.dataset.mouseDownAt = "0";
+      track.dataset.prevPercentage = (-centerOffset).toString();
+      track.dataset.percentage = (-centerOffset).toString();
+      moveTrack(-centerOffset);
+    }
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
@@ -231,10 +232,21 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
     if (!fullscreenPhoto) return;
     
     const currentIndex = photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id);
+    let newIndex = currentIndex;
+    
     if (direction === 'prev' && currentIndex > 0) {
-      setFullscreenPhoto(photosWithDimensions[currentIndex - 1]);
+      newIndex = currentIndex - 1;
+      setFullscreenPhoto(photosWithDimensions[newIndex]);
     } else if (direction === 'next' && currentIndex < photosWithDimensions.length - 1) {
-      setFullscreenPhoto(photosWithDimensions[currentIndex + 1]);
+      newIndex = currentIndex + 1;
+      setFullscreenPhoto(photosWithDimensions[newIndex]);
+    }
+
+    // Update track position
+    if (trackRef.current) {
+      const nextPercentage = -(newIndex * stepPerPhoto + centerOffset);
+      trackRef.current.dataset.prevPercentage = nextPercentage.toString();
+      moveTrack(nextPercentage);
     }
   };
 
@@ -324,6 +336,12 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
           <button
             className="absolute top-4 right-4 text-white/70 hover:text-white z-50 p-2"
             onClick={() => {
+              const index = photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id);
+              if (trackRef.current) {
+                const nextPercentage = -(index * stepPerPhoto + centerOffset);
+                trackRef.current.dataset.prevPercentage = nextPercentage.toString();
+                moveTrack(nextPercentage);
+              }
               setFullscreenPhoto(null);
             }}
           >
