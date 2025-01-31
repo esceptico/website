@@ -323,7 +323,9 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
           {/* Close button */}
           <button
             className="absolute top-4 right-4 text-white/70 hover:text-white z-50 p-2"
-            onClick={() => setFullscreenPhoto(null)}
+            onClick={() => {
+              setFullscreenPhoto(null);
+            }}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -390,52 +392,15 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
               </svg>
             </button>
           </div>
-
-          {/* Preview strip */}
-          <div className="fixed bottom-0 left-0 right-0 h-16 bg-black/50 backdrop-blur-sm">
-            <div className="flex items-center justify-between h-full px-4 max-w-screen-xl mx-auto">
-              {/* Counter */}
-              <div className="text-white/70 font-light">
-                {photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) + 1} — {photosWithDimensions.length}
-              </div>
-              
-              {/* Thumbnails */}
-              <div className="flex gap-2 h-full py-2 overflow-x-auto">
-                {photosWithDimensions.map((photo) => (
-                  <div
-                    key={photo.id}
-                    className={`relative h-full aspect-[3/4] transition-all cursor-pointer ${
-                      photo.id === fullscreenPhoto.id ? 'opacity-100 ring-2 ring-white' : 'opacity-30 hover:opacity-50'
-                    }`}
-                    onClick={() => setFullscreenPhoto(photo)}
-                  >
-                    <Image
-                      src={photo.src}
-                      alt={photo.alt}
-                      fill
-                      className="object-cover rounded-sm"
-                      sizes="120px"
-                      quality={85}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {/* Navigation hint */}
-              <div className="text-white/30 text-sm">
-                Use ← → keys
-              </div>
-            </div>
-          </div>
         </div>
       )}
 
       {/* Preview strip */}
-      <div className="fixed bottom-0 left-0 right-0 h-16 bg-black/50 backdrop-blur-sm z-20">
+      <div className={`fixed bottom-0 left-0 right-0 h-16 bg-black/50 backdrop-blur-sm ${fullscreenPhoto ? 'z-[60]' : 'z-20'}`}>
         <div className="flex items-center justify-between h-full px-4 max-w-screen-xl mx-auto">
           {/* Counter */}
           <div className="text-white/70 font-light">
-            {currentIndex + 1} — {photosWithDimensions.length}
+            {(fullscreenPhoto ? photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) : currentIndex) + 1} — {photosWithDimensions.length}
           </div>
           
           {/* Thumbnails */}
@@ -444,13 +409,17 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
               <div
                 key={photo.id}
                 className={`relative h-full aspect-[3/4] transition-all cursor-pointer ${
-                  index === currentIndex ? 'opacity-100 ring-2 ring-white' : 'opacity-30 hover:opacity-50'
+                  (fullscreenPhoto ? photo.id === fullscreenPhoto.id : index === currentIndex) ? 'opacity-100 ring-2 ring-white' : 'opacity-30 hover:opacity-50'
                 }`}
                 onClick={() => {
-                  if (!trackRef.current) return;
-                  const nextPercentage = -(index * stepPerPhoto + centerOffset);
-                  trackRef.current.dataset.prevPercentage = nextPercentage.toString();
-                  moveTrack(nextPercentage);
+                  if (fullscreenPhoto) {
+                    setFullscreenPhoto(photo);
+                  } else {
+                    if (!trackRef.current) return;
+                    const nextPercentage = -(index * stepPerPhoto + centerOffset);
+                    trackRef.current.dataset.prevPercentage = nextPercentage.toString();
+                    moveTrack(nextPercentage);
+                  }
                 }}
               >
                 <Image
@@ -467,7 +436,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
 
           {/* Navigation hint */}
           <div className="text-white/30 text-sm">
-            Use ← → keys or scroll
+            Use ← → keys {!fullscreenPhoto && 'or scroll'}
           </div>
         </div>
       </div>
