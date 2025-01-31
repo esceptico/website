@@ -115,16 +115,23 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const [direction, setDirection] = useState<'next' | 'prev'>('next');
 
   const slideVariants = {
-    initial: (direction: string) => ({
-      x: direction === 'next' ? '100%' : '-100%'
-    }),
-    animate: {
-      x: 0
-    },
-    exit: (direction: string) => ({
-      x: direction === 'next' ? '-100%' : '100%',
+    initial: {
       opacity: 0
-    })
+    },
+    animate: {
+      opacity: 1,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut"
+      }
+    },
+    exit: {
+      opacity: 0,
+      transition: {
+        duration: 0.4,
+        ease: "easeIn"
+      }
+    }
   };
 
   // Load image dimensions
@@ -282,9 +289,13 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
           <motion.div
             key={photo.id}
             className="relative h-[56vmin] w-[40vmin] overflow-hidden"
-            initial={false}
+            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1], delay: index * 0.2 }}
+            transition={{ 
+              duration: 1,
+              ease: "easeOut",
+              delay: index * 0.15
+            }}
           >
             <Image
               src={photo.src}
@@ -297,7 +308,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
               }}
               sizes="(max-width: 768px) 80vw, 40vw"
               quality={95}
-              priority={index < 3} // Prioritize loading first 3 images
+              priority={index < 3}
               onClick={() => openFullscreen(photo)}
             />
           </motion.div>
@@ -314,29 +325,25 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
             transition={{ duration: 0.3 }}
           >
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-              <AnimatePresence initial={false} mode="popLayout" custom={direction}>
+              <AnimatePresence mode="wait">
                 <motion.div 
                   key={fullscreenPhoto.id}
                   className="absolute inset-0"
-                  custom={direction}
                   variants={slideVariants}
                   initial="initial"
                   animate="animate"
                   exit="exit"
-                  transition={{
-                    duration: 0.7,
-                    ease: [0.32, 0.72, 0, 1]
-                  }}
                 >
                   <Image
                     src={fullscreenPhoto.src}
                     alt={fullscreenPhoto.alt}
                     fill
-                    className="object-contain"
+                    className="object-contain select-none"
                     sizes="100vw"
-                    quality={100}
+                    quality={95}
                     priority
                     onClick={(e) => e.stopPropagation()}
+                    draggable={false}
                   />
                 </motion.div>
               </AnimatePresence>
