@@ -113,6 +113,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const [photosWithDimensions, setPhotosWithDimensions] = useState<PhotoWithDimensions[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [direction, setDirection] = useState<'next' | 'prev'>('next');
+  const [isVisible, setIsVisible] = useState(false);
 
   const slideVariants = {
     initial: {
@@ -156,6 +157,8 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
 
       setPhotosWithDimensions(loadedPhotos);
       setIsLoading(false);
+      // Add a small delay before showing the gallery to ensure smooth transition
+      setTimeout(() => setIsVisible(true), 100);
     };
 
     loadImageDimensions();
@@ -281,8 +284,14 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
         className="flex gap-[4vmin] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none"
         style={{ 
           transform: `translate(${-centerOffset}%, -50%)`,
-          opacity: isLoading ? 0 : 1,
-          transition: 'opacity 0.5s ease-in-out'
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ 
+          opacity: isVisible ? 1 : 0,
+        }}
+        transition={{
+          duration: 0.5,
+          ease: "easeOut"
         }}
       >
         {photosWithDimensions.map((photo, index) => (
