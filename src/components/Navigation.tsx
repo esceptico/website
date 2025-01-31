@@ -14,12 +14,12 @@ export default function Navigation() {
   const modeLinks = mode === 'mle' 
     ? [
         { href: '/projects', label: 'Projects' }, 
-        { href: '/blog/mle', label: 'Blog' }, 
+        { href: '/blog/mle', label: 'Posts' }, 
         { href: '/about', label: 'About' }
       ]
     : [
         { href: '/portfolio', label: 'Portfolio' }, 
-        { href: '/blog/photography', label: 'Blog' }, 
+        { href: '/blog/photography', label: 'Posts' }, 
         { href: '/about', label: 'About' }
       ];
 
