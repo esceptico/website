@@ -85,7 +85,7 @@ export default function ClientLayout({
         >
           {children}
         </motion.main>
-        <Footer />
+        {pathname !== '/portfolio' && <Footer />}
       </motion.div>
     </>
   );
