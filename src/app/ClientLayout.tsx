@@ -77,7 +77,7 @@ export default function ClientLayout({
         style={themeColors as React.CSSProperties}
       >
         <Navigation />
-        <ColorSchemeToggle />
+        {pathname === '/' && <ColorSchemeToggle />}
         <motion.main
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

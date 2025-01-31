@@ -9,18 +9,28 @@ const transition = {
   ease: [0.43, 0.13, 0.23, 0.96]
 };
 
-export default function ColorSchemeToggle() {
+export default function ColorSchemeToggle({ variant = 'fixed' }: { variant?: 'fixed' | 'nav' }) {
   const { colorScheme, toggleColorScheme } = useThemeStore();
   const isDark = colorScheme === 'dark';
+
+  const baseClasses = "p-3 rounded-full backdrop-blur-sm border transition-colors";
+  const variantClasses = {
+    fixed: `fixed bottom-6 right-6 z-30 ${
+      isDark 
+        ? 'bg-gray-900/50 border-gray-800 hover:bg-gray-900/70' 
+        : 'bg-white/50 border-gray-200 hover:bg-white/70'
+    }`,
+    nav: `${
+      isDark 
+        ? 'bg-gray-900/30 border-gray-800 hover:bg-gray-900/50' 
+        : 'bg-white/30 border-gray-200 hover:bg-white/50'
+    }`
+  };
 
   return (
     <button
       onClick={toggleColorScheme}
-      className={`fixed bottom-6 right-6 p-3 rounded-full backdrop-blur-sm border z-30 transition-colors ${
-        isDark 
-          ? 'bg-gray-900/50 border-gray-800 hover:bg-gray-900/70' 
-          : 'bg-white/50 border-gray-200 hover:bg-white/70'
-      }`}
+      className={`${baseClasses} ${variantClasses[variant]}`}
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
     >
       <div className="relative w-6 h-6">

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useThemeStore } from '@/store/theme';
+import ColorSchemeToggle from '@/components/ColorSchemeToggle';
 
 export default function Navigation() {
   const mode = useThemeStore(state => state.mode);
@@ -51,6 +52,9 @@ export default function Navigation() {
                 {label}
               </Link>
             ))}
+            <div className="ml-2">
+              <ColorSchemeToggle variant="nav" />
+            </div>
           </div>
         </div>
       </div>
