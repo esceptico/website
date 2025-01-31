@@ -77,7 +77,11 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const centerOffset = stepPerPhoto / 2;
   const minPercentage = -centerOffset;
   const maxPercentage = -(100 - centerOffset);
-  const PARALLAX_MULTIPLIER = 1.0; // Full movement from left to right edge
+  const PARALLAX_POWER = 0.9; // Adjust this value to control effect strength: 
+                             // 1.0 = full movement (0-100%)
+                             // 0.5 = half movement (25-75%)
+                             // 0.3 = subtle movement (35-65%)
+                             // 2.0 = exaggerated movement (will go beyond 0-100%)
 
   // Calculate the required scale for an image
   const getImageScale = (photo: PhotoWithDimensions) => {
@@ -122,17 +126,12 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       // Calculate image's position relative to center
       const imagePosition = (i * stepPerPhoto) - centerPoint;
       
-      // Normalize the position to -1 to 1 range where:
-      // 0 = center of viewport
-      // -1 = just entered viewport from left
-      // 1 = just exiting viewport to right
+      // Normalize the position to -1 to 1 range
       const normalizedPosition = imagePosition / stepPerPhoto;
       
-      // Calculate parallax offset
-      // When image enters viewport (normalizedPosition = -1), objectPosition = 0%
-      // When image is centered (normalizedPosition = 0), objectPosition = 50%
-      // When image exits viewport (normalizedPosition = 1), objectPosition = 100%
-      const parallaxOffset = (normalizedPosition + 1) * 50;
+      // Calculate parallax offset with adjustable power
+      // Center point (50%) + offset * power
+      const parallaxOffset = 50 + ((normalizedPosition * 50) * PARALLAX_POWER);
       
       image.animate(
         {
