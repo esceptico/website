@@ -151,6 +151,10 @@ const FullscreenNavigation = ({ onClose, onNavigate, currentIndex, totalPhotos }
         </svg>
       </button>
     </div>
+
+    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70">
+      {currentIndex + 1} / {totalPhotos}
+    </div>
   </>
 );
 
@@ -404,86 +408,18 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
         )}
       </AnimatePresence>
 
-      <div className={`fixed bottom-0 left-0 right-0 h-20 bg-black/50 backdrop-blur-sm ${fullscreenPhoto ? 'z-[60]' : 'z-20'}`}>
-        <div className="flex items-center justify-between h-full px-4 max-w-screen-xl mx-auto">
-          <div className="shrink-0 font-mono w-24 text-center">
-            <MechanicalCounter 
-              number={fullscreenPhoto ? photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) : currentIndex} 
-              total={photosWithDimensions.length} 
-            />
-          </div>
-          
-          <div className="flex-1 flex justify-center mx-4">
-            <div className="overflow-x-auto scrollbar-hide">
-              <div className="flex min-w-min px-2">
-                <div className="flex gap-2 h-full py-3">
-                  <AnimatePresence initial={false}>
-                    {photosWithDimensions.slice(
-                      Math.max(0, Math.min(
-                        (fullscreenPhoto 
-                          ? photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) 
-                          : currentIndex) - 4,
-                        photosWithDimensions.length - 9
-                      )),
-                      Math.min(
-                        (fullscreenPhoto 
-                          ? photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) 
-                          : currentIndex) + 5,
-                        photosWithDimensions.length
-                      )
-                    ).map((photo) => (
-                      <motion.div
-                        key={photo.id}
-                        className={`relative w-10 h-14 cursor-pointer shrink-0 ${
-                          (fullscreenPhoto ? photo.id === fullscreenPhoto.id : photo.id === photosWithDimensions[currentIndex].id) 
-                            ? 'ring-2 ring-white' 
-                            : ''
-                        }`}
-                        initial={{ opacity: 0.3 }}
-                        animate={{ 
-                          opacity: (fullscreenPhoto ? photo.id === fullscreenPhoto.id : photo.id === photosWithDimensions[currentIndex].id) 
-                            ? 1 
-                            : 0.3
-                        }}
-                        transition={{ duration: 0.15 }}
-                        whileHover={{ 
-                          opacity: (fullscreenPhoto ? photo.id === fullscreenPhoto.id : photo.id === photosWithDimensions[currentIndex].id) 
-                            ? 1 
-                            : 0.5,
-                          scale: 1.05,
-                          transition: { duration: 0.2 }
-                        }}
-                        onClick={() => {
-                          if (fullscreenPhoto) {
-                            setDirection(photo.id > fullscreenPhoto.id ? 'next' : 'prev');
-                            setFullscreenPhoto(photo);
-                          } else {
-                            const realIndex = photosWithDimensions.findIndex(p => p.id === photo.id);
-                            moveTrack(-(realIndex * stepPerPhoto + centerOffset));
-                          }
-                        }}
-                      >
-                        <Image
-                          src={photo.src}
-                          alt={photo.alt}
-                          fill
-                          className="object-cover rounded-sm"
-                          sizes="40px"
-                          quality={85}
-                          unoptimized
-                          loading="eager"
-                          style={{ backgroundColor: 'rgba(0,0,0,0.1)' }}
-                        />
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
-              </div>
+      <div className="fixed bottom-0 left-0 right-0 h-16 bg-black/50 backdrop-blur-sm">
+        <div className="relative flex items-center justify-center h-full max-w-screen-xl mx-auto px-8">
+          <div className="absolute right-8">
+            <div className="text-white/30 text-sm">
+              Use ← → keys or scroll
             </div>
           </div>
-
-          <div className="shrink-0 text-white/30 text-sm">
-            Use ← → keys {!fullscreenPhoto && 'or scroll'}
+          <div className="font-mono">
+            <MechanicalCounter 
+              number={currentIndex} 
+              total={photosWithDimensions.length} 
+            />
           </div>
         </div>
       </div>
