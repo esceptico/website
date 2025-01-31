@@ -228,7 +228,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       e.preventDefault();
       const currentPercentage = parseFloat(track.dataset.percentage || "0");
       const delta = e.deltaY || e.deltaX;
-      moveTrack(currentPercentage - delta * 0.1);
+      moveTrack(currentPercentage - delta * 0.05);
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -376,30 +376,66 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
             <div className="overflow-x-auto scrollbar-hide">
               <div className="flex min-w-min px-2">
                 <div className="flex gap-2 h-full py-3">
-                  {photosWithDimensions.map((photo, index) => (
-                    <div
-                      key={photo.id}
-                      className={`relative w-10 h-14 transition-all cursor-pointer shrink-0 ${
-                        (fullscreenPhoto ? photo.id === fullscreenPhoto.id : index === currentIndex) ? 'opacity-100 ring-2 ring-white' : 'opacity-30 hover:opacity-50'
-                      }`}
-                      onClick={() => {
-                        if (fullscreenPhoto) {
-                          setFullscreenPhoto(photo);
-                        } else {
-                          moveTrack(-(index * stepPerPhoto + centerOffset));
-                        }
-                      }}
-                    >
-                      <Image
-                        src={photo.src}
-                        alt={photo.alt}
-                        fill
-                        className="object-cover rounded-sm"
-                        sizes="40px"
-                        quality={85}
-                      />
-                    </div>
-                  ))}
+                  <AnimatePresence initial={false}>
+                    {photosWithDimensions.slice(
+                      Math.max(0, Math.min(
+                        (fullscreenPhoto 
+                          ? photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) 
+                          : currentIndex) - 4,
+                        photosWithDimensions.length - 9
+                      )),
+                      Math.min(
+                        (fullscreenPhoto 
+                          ? photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) 
+                          : currentIndex) + 5,
+                        photosWithDimensions.length
+                      )
+                    ).map((photo) => (
+                      <motion.div
+                        key={photo.id}
+                        className={`relative w-10 h-14 cursor-pointer shrink-0 ${
+                          (fullscreenPhoto ? photo.id === fullscreenPhoto.id : photo.id === photosWithDimensions[currentIndex].id) 
+                            ? 'ring-2 ring-white' 
+                            : ''
+                        }`}
+                        initial={{ opacity: 0.3 }}
+                        animate={{ 
+                          opacity: (fullscreenPhoto ? photo.id === fullscreenPhoto.id : photo.id === photosWithDimensions[currentIndex].id) 
+                            ? 1 
+                            : 0.3
+                        }}
+                        transition={{ duration: 0.15 }}
+                        whileHover={{ 
+                          opacity: (fullscreenPhoto ? photo.id === fullscreenPhoto.id : photo.id === photosWithDimensions[currentIndex].id) 
+                            ? 1 
+                            : 0.5,
+                          scale: 1.05,
+                          transition: { duration: 0.2 }
+                        }}
+                        onClick={() => {
+                          if (fullscreenPhoto) {
+                            setDirection(photo.id > fullscreenPhoto.id ? 'next' : 'prev');
+                            setFullscreenPhoto(photo);
+                          } else {
+                            const realIndex = photosWithDimensions.findIndex(p => p.id === photo.id);
+                            moveTrack(-(realIndex * stepPerPhoto + centerOffset));
+                          }
+                        }}
+                      >
+                        <Image
+                          src={photo.src}
+                          alt={photo.alt}
+                          fill
+                          className="object-cover rounded-sm"
+                          sizes="40px"
+                          quality={85}
+                          unoptimized
+                          loading="eager"
+                          style={{ backgroundColor: 'rgba(0,0,0,0.1)' }}
+                        />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                 </div>
               </div>
             </div>
