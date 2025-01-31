@@ -366,40 +366,46 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
         )}
       </AnimatePresence>
 
-      <div className={`fixed bottom-0 left-0 right-0 h-16 bg-black/50 backdrop-blur-sm ${fullscreenPhoto ? 'z-[60]' : 'z-20'}`}>
+      <div className={`fixed bottom-0 left-0 right-0 h-20 bg-black/50 backdrop-blur-sm ${fullscreenPhoto ? 'z-[60]' : 'z-20'}`}>
         <div className="flex items-center justify-between h-full px-4 max-w-screen-xl mx-auto">
-          <div className="text-white/70 font-light">
+          <div className="shrink-0 text-white/70 font-mono w-24 text-center">
             {(fullscreenPhoto ? photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id) : currentIndex) + 1} — {photosWithDimensions.length}
           </div>
           
-          <div className="flex gap-2 h-full py-2 overflow-x-auto">
-            {photosWithDimensions.map((photo, index) => (
-              <div
-                key={photo.id}
-                className={`relative h-full aspect-[3/4] transition-all cursor-pointer ${
-                  (fullscreenPhoto ? photo.id === fullscreenPhoto.id : index === currentIndex) ? 'opacity-100 ring-2 ring-white' : 'opacity-30 hover:opacity-50'
-                }`}
-                onClick={() => {
-                  if (fullscreenPhoto) {
-                    setFullscreenPhoto(photo);
-                  } else {
-                    moveTrack(-(index * stepPerPhoto + centerOffset));
-                  }
-                }}
-              >
-                <Image
-                  src={photo.src}
-                  alt={photo.alt}
-                  fill
-                  className="object-cover rounded-sm"
-                  sizes="120px"
-                  quality={85}
-                />
+          <div className="flex-1 flex justify-center mx-4">
+            <div className="overflow-x-auto scrollbar-hide">
+              <div className="flex min-w-min px-2">
+                <div className="flex gap-2 h-full py-3">
+                  {photosWithDimensions.map((photo, index) => (
+                    <div
+                      key={photo.id}
+                      className={`relative w-10 h-14 transition-all cursor-pointer shrink-0 ${
+                        (fullscreenPhoto ? photo.id === fullscreenPhoto.id : index === currentIndex) ? 'opacity-100 ring-2 ring-white' : 'opacity-30 hover:opacity-50'
+                      }`}
+                      onClick={() => {
+                        if (fullscreenPhoto) {
+                          setFullscreenPhoto(photo);
+                        } else {
+                          moveTrack(-(index * stepPerPhoto + centerOffset));
+                        }
+                      }}
+                    >
+                      <Image
+                        src={photo.src}
+                        alt={photo.alt}
+                        fill
+                        className="object-cover rounded-sm"
+                        sizes="40px"
+                        quality={85}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
+            </div>
           </div>
 
-          <div className="text-white/30 text-sm">
+          <div className="shrink-0 text-white/30 text-sm">
             Use ← → keys {!fullscreenPhoto && 'or scroll'}
           </div>
         </div>
