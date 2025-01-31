@@ -2,28 +2,15 @@
 
 import { motion } from 'framer-motion';
 import { ArrowTopRightOnSquareIcon, CodeBracketIcon } from '@heroicons/react/24/outline';
-import { useThemeStore } from '@/store/theme';
 import { SectionHeader } from '@/components/SectionHeader';
 
 const projects = [
   {
     id: 1,
-    title: 'Neural Style Transfer',
-    description: 'Implementation of a neural style transfer algorithm using PyTorch, allowing users to apply artistic styles to their images.',
-    github: 'https://github.com/username/neural-style-transfer',
-  },
-  {
-    id: 2,
-    title: 'NLP Text Summarizer',
-    description: 'A transformer-based text summarization model fine-tuned on news articles to generate concise and accurate summaries.',
-    github: 'https://github.com/username/text-summarizer',
-  },
-  {
-    id: 3,
-    title: 'Time Series Forecasting',
-    description: 'Advanced time series forecasting model using LSTM networks to predict stock market trends with high accuracy.',
-    github: 'https://github.com/username/time-series-forecast',
-  },
+    title: 'To be added',
+    description: 'To be added',
+    github: 'https://github.com/',
+  }
 ];
 
 const ProjectItem = ({ project, index }: { project: typeof projects[0], index: number }) => {
@@ -70,15 +57,13 @@ export default function Projects() {
       <div className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-12">
           <SectionHeader 
-            title="ML Projects"
+            title="Projects"
             as="h1" 
             variant="primary" 
             useAccentColor 
           />
           <p className="mt-4 text-[var(--theme-text-secondary)] max-w-3xl">
-            A collection of machine learning projects, ranging from computer vision
-            to natural language processing. Each project includes detailed documentation
-            and source code.
+            A collection of machine learning related projects, usually related to natural language processing.
           </p>
         </div>
 

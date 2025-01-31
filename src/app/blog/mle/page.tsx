@@ -7,7 +7,7 @@ export default function MLEBlog() {
   return (
     <BlogListingPage
       mode="mle"
-      title="ML Engineering Blog"
+      title="Engineering Blog"
       description="Exploring machine learning engineering concepts, best practices, and implementation details."
       posts={posts.mle}
     />
