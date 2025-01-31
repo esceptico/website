@@ -11,8 +11,8 @@ const firaMono = Fira_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ML Engineer & Photographer Portfolio",
-  description: "Personal website showcasing machine learning engineering projects and photography portfolio",
+  title: "Timur Ganiev",
+  description: "Hey 👋",
 };
 
 export default function RootLayout({

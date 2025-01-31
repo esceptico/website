@@ -14,7 +14,7 @@ export const sections: SectionContent[] = [
     title: 'Machine Learning',
     subtitle: 'Engineer',
     description: 'Developing intelligent systems and algorithms that push the boundaries of artificial intelligence. Specializing in computer vision and natural language processing.',
-    path: '/projects'
+    path: '/about'
   },
   {
     mode: 'photography',

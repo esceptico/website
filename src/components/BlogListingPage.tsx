@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { SectionHeader } from '@/components/SectionHeader';
 import { useEffect, useState } from 'react';
 import { BlogPost } from '@/components/BlogPost';
-import { Post, Posts } from '@/data/posts';
+import { Posts } from '@/data/posts';
 import { Mode } from '@/types/theme';
 
 interface BlogListingPageProps {

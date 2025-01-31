@@ -1,8 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { SectionHeader } from './SectionHeader';
-import { ListItem } from './ListItem';
+import { ExperienceEntry } from './ExperienceEntry';
+import { SkillSection } from './SkillSection';
+import { mleExperiences, mleSkills } from '@/constants/content';
 
 export const MLEContent = () => (
   <div className="space-y-4">
@@ -18,139 +19,17 @@ export const MLEContent = () => (
     <section>
       <SectionHeader title="Experience" />
       <div className="space-y-8">
-        <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-[var(--theme-text-secondary)] before:opacity-20 group hover:before:bg-[var(--theme-accent-primary)] before:transition-colors duration-200">
-          <motion.div 
-            className="relative mb-2"
-            initial={{ opacity: 0.8 }}
-            whileHover={{ opacity: 1 }}
-          >
-            <h3 className="text-lg font-medium text-[var(--theme-text-primary)] group-hover:text-[var(--theme-accent-primary)] transition-colors duration-200">Machine Learning Engineer (NLP)</h3>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-sm font-medium text-[var(--theme-text-primary)]">Replika</span>
-              <span className="text-sm text-[var(--theme-text-secondary)] tracking-wide">Oct 2022 - Present</span>
-            </div>
-          </motion.div>
-          <ul className="space-y-2">
-            <ListItem>Ensure scalability and reliability of high-load LLM-based services</ListItem>
-            <ListItem>Lead safety alignment to ensure models operate within desired parameters</ListItem>
-            <ListItem>Work on user alignment data mining and model training</ListItem>
-            <ListItem>Implement safety benchmarks for continuous monitoring and improvement</ListItem>
-          </ul>
-        </div>
-
-        <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-[var(--theme-text-secondary)] before:opacity-20 group hover:before:bg-[var(--theme-accent-primary)] before:transition-colors duration-200">
-          <motion.div 
-            className="relative mb-2"
-            initial={{ opacity: 0.8 }}
-            whileHover={{ opacity: 1 }}
-          >
-            <h3 className="text-lg font-medium text-[var(--theme-text-primary)] group-hover:text-[var(--theme-accent-primary)] transition-colors duration-200">Machine Learning Engineer (NLP)</h3>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-sm font-medium text-[var(--theme-text-primary)]">Embedika</span>
-              <span className="text-sm text-[var(--theme-text-secondary)] tracking-wide">Feb 2022 - Sep 2022</span>
-            </div>
-          </motion.div>
-          <ul className="space-y-2">
-            <ListItem>Completed an active learning service on multi-modal data</ListItem>
-            <ListItem>Introduced toxic classifier service achieving 94% F1-Score</ListItem>
-            <ListItem>Implemented and deployed spellchecking service using BERT and PyTorch Lightning</ListItem>
-          </ul>
-        </div>
-
-        <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-[var(--theme-text-secondary)] before:opacity-20 group hover:before:bg-[var(--theme-accent-primary)] before:transition-colors duration-200">
-          <motion.div 
-            className="relative mb-2"
-            initial={{ opacity: 0.8 }}
-            whileHover={{ opacity: 1 }}
-          >
-            <h3 className="text-lg font-medium text-[var(--theme-text-primary)] group-hover:text-[var(--theme-accent-primary)] transition-colors duration-200">Machine Learning Engineer</h3>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-sm font-medium text-[var(--theme-text-primary)]">Sberbank</span>
-              <span className="text-sm text-[var(--theme-text-secondary)] tracking-wide">May 2021 - Feb 2022</span>
-            </div>
-          </motion.div>
-          <ul className="space-y-2">
-            <ListItem>Led a team of 4 engineers and onboarded 3 new hires</ListItem>
-            <ListItem>Optimized models through distillation and ONNX, reducing inference time by 80%</ListItem>
-            <ListItem>Reduced NER models development time by 50% with custom Transformers pipeline</ListItem>
-            <ListItem>Designed model showcase system reducing time to production by 15-20%</ListItem>
-            <ListItem>Established CI/CD pipelines for automatic testing and deployment</ListItem>
-          </ul>
-        </div>
-
-        <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-[var(--theme-text-secondary)] before:opacity-20 group hover:before:bg-[var(--theme-accent-primary)] before:transition-colors duration-200">
-          <motion.div 
-            className="relative mb-2"
-            initial={{ opacity: 0.8 }}
-            whileHover={{ opacity: 1 }}
-          >
-            <h3 className="text-lg font-medium text-[var(--theme-text-primary)] group-hover:text-[var(--theme-accent-primary)] transition-colors duration-200">Data Scientist</h3>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-sm font-medium text-[var(--theme-text-primary)]">Sberbank</span>
-              <span className="text-sm text-[var(--theme-text-secondary)] tracking-wide">Jan 2020 - May 2021</span>
-            </div>
-          </motion.div>
-          <ul className="space-y-2">
-            <ListItem>Developed multi-target text classification model achieving 93% F1-Score</ListItem>
-            <ListItem>Enhanced model robustness by 4% using Integrated Gradients and adversarial training</ListItem>
-            <ListItem>Improved NER model performance by 5% through advanced token vectorization</ListItem>
-          </ul>
-        </div>
-
-        <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-[var(--theme-text-secondary)] before:opacity-20 group hover:before:bg-[var(--theme-accent-primary)] before:transition-colors duration-200">
-          <motion.div 
-            className="relative mb-2"
-            initial={{ opacity: 0.8 }}
-            whileHover={{ opacity: 1 }}
-          >
-            <h3 className="text-lg font-medium text-[var(--theme-text-primary)] group-hover:text-[var(--theme-accent-primary)] transition-colors duration-200">Data Scientist</h3>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-sm font-medium text-[var(--theme-text-primary)]">Advance.Careers</span>
-              <span className="text-sm text-[var(--theme-text-secondary)] tracking-wide">Aug 2018 - Jul 2019</span>
-            </div>
-          </motion.div>
-          <ul className="space-y-2">
-            <ListItem>Built resume and job posting parsing systems improving CV upload rate by 10%</ListItem>
-            <ListItem>Enhanced job matching score by 10% using Smooth Inverse Frequency vectorization</ListItem>
-            <ListItem>Reduced time to apply by 8% through system optimizations</ListItem>
-          </ul>
-        </div>
+        {mleExperiences.map((experience, index) => (
+          <ExperienceEntry key={index} {...experience} />
+        ))}
       </div>
     </section>
 
     <section>
       <SectionHeader title="Skills" />
       <div className="grid grid-cols-2 gap-6">
-        <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-[var(--theme-text-secondary)] before:opacity-20 group hover:before:bg-[var(--theme-accent-primary)] before:transition-colors duration-200">
-          <motion.div 
-            className="relative mb-2"
-            initial={{ opacity: 0.8 }}
-            whileHover={{ opacity: 1 }}
-          >
-            <h3 className="text-lg font-medium text-[var(--theme-text-primary)] group-hover:text-[var(--theme-accent-primary)] transition-colors duration-200">Core</h3>
-          </motion.div>
-          <ul className="space-y-2">
-            <ListItem>LLM Development</ListItem>
-            <ListItem>NLP & Text Processing</ListItem>
-            <ListItem>Model Optimization</ListItem>
-            <ListItem>Safety Alignment</ListItem>
-          </ul>
-        </div>
-        <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-[var(--theme-text-secondary)] before:opacity-20 group hover:before:bg-[var(--theme-accent-primary)] before:transition-colors duration-200">
-          <motion.div 
-            className="relative mb-2"
-            initial={{ opacity: 0.8 }}
-            whileHover={{ opacity: 1 }}
-          >
-            <h3 className="text-lg font-medium text-[var(--theme-text-primary)] group-hover:text-[var(--theme-accent-primary)] transition-colors duration-200">Technologies</h3>
-          </motion.div>
-          <ul className="space-y-2">
-            <ListItem>PyTorch</ListItem>
-            <ListItem>Transformers</ListItem>
-            <ListItem>ONNX</ListItem>
-            <ListItem>Python</ListItem>
-          </ul>
-        </div>
+        <SkillSection title="Core" skills={mleSkills.core} />
+        <SkillSection title="Technologies" skills={mleSkills.technologies} />
       </div>
     </section>
   </div>

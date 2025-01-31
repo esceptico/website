@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Mode } from '@/types/theme';
-import { pageTransition, gradientConfig } from '@/constants/animation';
+import { gradientConfig } from '@/constants/animation';
 import { textColors } from '@/constants/colors';
 
 interface PersonalInfoProps {

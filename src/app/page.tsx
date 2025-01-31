@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { useThemeStore } from '@/store/theme';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { pageTransition } from '@/constants/animation';
 import { Mode } from '@/types/theme';
 import { Section } from '@/components/Section';
 import { Divider } from '@/components/Divider';
@@ -12,8 +11,6 @@ import { Background } from '@/components/Background';
 import { PersonalInfo } from '@/components/PersonalInfo';
 import { sections } from '@/constants/sections';
 import { useDevice } from '@/hooks/useDevice';
-import { gradientConfig } from '@/constants/animation';
-import { textColors } from '@/constants/colors';
 
 export default function Home() {
   const { setMode, colorScheme } = useThemeStore();
