@@ -15,13 +15,6 @@ interface PhotoWithDimensions extends Photo {
   height: number;
 }
 
-interface FullscreenPosition {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
 interface PhotoGalleryProps {
   photos: Photo[];
 }
@@ -169,26 +162,6 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [direction, setDirection] = useState<'next' | 'prev'>('next');
   const [isVisible, setIsVisible] = useState(false);
-
-  const slideVariants = {
-    initial: {
-      opacity: 0
-    },
-    animate: {
-      opacity: 1,
-      transition: {
-        duration: 0.4,
-        ease: "easeOut"
-      }
-    },
-    exit: {
-      opacity: 0,
-      transition: {
-        duration: 0.4,
-        ease: "easeIn"
-      }
-    }
-  };
 
   // Load image dimensions
   useEffect(() => {
