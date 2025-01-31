@@ -311,54 +311,22 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
           select-none
         "
         style={{ 
-          transform: 'translate(-10%, -50%)',  // Updated to match new constraint
+          transform: `translate(${-centerOffset}%, -50%)`,
         }}
         data-mouse-down-at="0"
-        data-prev-percentage="-10"
-        data-percentage="-10"
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        variants={{
-          hidden: {},
-          visible: {
-            transition: {
-              staggerChildren: 0.1
-            }
-          },
-          exit: {
-            transition: {
-              staggerChildren: 0.05,
-              staggerDirection: -1
-            }
-          }
-        }}
+        data-prev-percentage={(-centerOffset).toString()}
+        data-percentage={(-centerOffset).toString()}
       >
         {photosWithDimensions.map((photo, index) => (
           <motion.div
             key={photo.id}
             className="relative h-[56vmin] w-[40vmin] overflow-hidden cursor-grab active:cursor-grabbing"
-            variants={{
-              hidden: { 
-                opacity: 0,
-                y: -50
-              },
-              visible: { 
-                opacity: 1,
-                y: 0,
-                transition: {
-                  duration: 0.6,
-                  ease: [0.43, 0.13, 0.23, 0.96]
-                }
-              },
-              exit: {
-                opacity: 0,
-                y: 50,
-                transition: {
-                  duration: 0.4,
-                  ease: [0.43, 0.13, 0.23, 0.96]
-                }
-              }
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{
+              duration: 1.6,
+              ease: [0.22, 1, 0.36, 1],
+              delay: index * 0.2,
             }}
           >
             <Image
@@ -367,7 +335,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
               fill
               className={`image object-cover object-center drag-none`}
               style={{ 
-                objectPosition: '100% center',
+                objectPosition: '50% center',
                 transform: `scale(${getImageScale(photo)})`
               }}
               draggable={false}
