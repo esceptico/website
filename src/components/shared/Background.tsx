@@ -14,7 +14,7 @@ const getGradientBackground = (hoveredSide: Mode | null, isDark: boolean, isMobi
     return 'radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 0%, transparent 0%)';
   }
   
-  const config = hoveredSide === 'mle' ? gradients.mle : gradients.photography;
+  const config = gradients[hoveredSide];
   const position = isMobile 
     ? hoveredSide === 'mle' ? '50% 25%' : '50% 75%'
     : hoveredSide === 'mle' ? '35% 50%' : '65% 50%';

@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const socialLinkStyles = "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors";
   
   return (
     <footer className="w-full py-6 border-t border-gray-800/10 dark:border-gray-100/10">
@@ -12,7 +13,7 @@ const Footer = () => {
             <Link 
               href="https://github.com/esceptico" 
               target="_blank"
-              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              className={socialLinkStyles}
               aria-label="GitHub"
             >
               <FaGithub className="w-6 h-6" />
@@ -20,14 +21,14 @@ const Footer = () => {
             <Link 
               href="https://linkedin.com/in/esceptico" 
               target="_blank"
-              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              className={socialLinkStyles}
               aria-label="LinkedIn"
             >
               <FaLinkedin className="w-6 h-6" />
             </Link>
             <a 
               href="mailto:ganiev.tmr@gmail.com"
-              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              className={socialLinkStyles}
               aria-label="Email"
             >
               <FaEnvelope className="w-6 h-6" />
