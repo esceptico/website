@@ -23,4 +23,4 @@ export const sections: SectionContent[] = [
     description: 'Capturing moments and emotions through the lens, specializing in street and landscape photography. Creating visual narratives that resonate.',
     path: '/portfolio'
   }
-]; 
+];
