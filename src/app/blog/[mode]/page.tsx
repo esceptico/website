@@ -1,13 +1,13 @@
 'use client';
 
-import { BlogListingPage } from '@/components/BlogListingPage';
+import { BlogListingPage } from '@/components/blog/BlogListingPage';
 import { useParams } from 'next/navigation';
-import { Mode } from '@/types/theme';
+import { Mode } from '@/types';
 import { notFound } from 'next/navigation';
 import { posts } from '@/data/posts';
 
 const titles = {
-  mle: "Engineering Blog",
+  mle: "ML Engineering Blog",
   photography: "Photography Blog"
 } as const;
 
@@ -32,4 +32,4 @@ export default function DynamicBlogPage() {
       posts={posts[mode]}
     />
   );
-} 
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { SectionHeader } from '@/components/SectionHeader';
+import { SectionHeader } from '@/components/shared/SectionHeader';
 import { CalendarIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 

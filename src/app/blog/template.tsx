@@ -14,4 +14,4 @@ export default function BlogTemplate({
       {children}
     </div>
   );
-} 
+}

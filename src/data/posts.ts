@@ -1,11 +1,11 @@
-import { Mode } from '@/types/theme';
+import { Mode } from '@/types';
 
-export interface Post {
+interface Post {
   id: number;
   title: string;
   description: string;
   date: string;
-  content?: string;
+  content: string;
   slug: string;
 }
 
@@ -17,29 +17,39 @@ export type Posts = {
 
 export const posts: Posts = {
   mle: {
-    'to-be-added': {
+    'optimizing-llm-production': {
       id: 1,
-      title: 'To be added',
-      description: 'To be added',
+      title: 'Optimizing Large Language Models for Production',
+      description: 'A deep dive into techniques for optimizing LLMs in production environments, covering quantization, pruning, and efficient deployment strategies.',
       date: '2024-03-15',
-      slug: 'to-be-added',
-      content: `
-        Content would go here.
-        This is just a placeholder for now.
-      `
+      content: 'Coming soon...',
+      slug: 'optimizing-llm-production'
+    },
+    'understanding-attention-mechanisms': {
+      id: 2,
+      title: 'Understanding Attention Mechanisms',
+      description: 'Exploring the fundamentals of attention mechanisms in neural networks and their applications in modern machine learning architectures.',
+      date: '2024-03-10',
+      content: 'Coming soon...',
+      slug: 'understanding-attention-mechanisms'
     }
   },
   photography: {
-    'to-be-added': {
+    'urban-light-photography': {
       id: 1,
-      title: 'To be added',
-      description: 'To be added',
+      title: 'Finding Light in Urban Landscapes',
+      description: 'Tips and techniques for capturing compelling urban photography, with a focus on natural and artificial lighting.',
       date: '2024-03-12',
-      slug: 'to-be-added',
-      content: `
-        Content would go here.
-        This is just a placeholder for now.
-      `
+      content: 'Coming soon...',
+      slug: 'urban-light-photography'
+    },
+    'street-photography-guide': {
+      id: 2,
+      title: 'The Art of Street Photography',
+      description: 'A guide to capturing authentic moments in street photography, including composition techniques and ethical considerations.',
+      date: '2024-03-08',
+      content: 'Coming soon...',
+      slug: 'street-photography-guide'
     }
   }
-}; 
+};

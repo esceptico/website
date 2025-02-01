@@ -1,20 +1,18 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { SectionHeader } from '@/components/SectionHeader';
+import { SectionHeader } from '@/components/shared/SectionHeader';
 import { useEffect, useState } from 'react';
-import { BlogPost } from '@/components/BlogPost';
-import { Posts } from '@/data/posts';
-import { Mode } from '@/types/theme';
+import { Mode } from '@/types';
+import { MLEContent } from '@/components/content/MLEContent';
+import { PhotographyContent } from '@/components/content/PhotographyContent';
+import { descriptions } from '@/constants/content/descriptions';
 
-interface BlogListingPageProps {
+interface AboutPageProps {
   mode: Mode;
-  title: string;
-  description: string;
-  posts: Posts[Mode];
 }
 
-export function BlogListingPage({ mode, title, description, posts }: BlogListingPageProps) {
+export function AboutPage({ mode }: AboutPageProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -22,32 +20,27 @@ export function BlogListingPage({ mode, title, description, posts }: BlogListing
   }, []);
 
   return (
-    <div className="p-8">
+    <div className="min-h-screen p-8 bg-[var(--theme-bg-primary)]">
       <div className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: mounted ? 1 : 0.5 }}
           transition={{ duration: 0.3 }}
         >
           <div className="mb-12">
             <SectionHeader 
-              title={title}
+              title="About Me"
               as="h1" 
               variant="primary" 
               useAccentColor 
             />
             <p className="mt-4 text-[var(--theme-text-secondary)]">
-              {description}
+              {descriptions[mode]}
             </p>
           </div>
-
-          <div className="space-y-8">
-            {Object.values(posts).map((post, index) => (
-              <BlogPost key={post.id} post={post} index={index} mode={mode} isPreview />
-            ))}
-          </div>
+          {mode === 'mle' ? <MLEContent /> : <PhotographyContent />}
         </motion.div>
       </div>
     </div>
   );
-} 
+}

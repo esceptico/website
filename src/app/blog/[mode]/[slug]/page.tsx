@@ -1,8 +1,8 @@
 'use client';
 
-import { BlogPostPage } from '@/components/BlogPostPage';
+import { BlogPostPage } from '@/components/blog/BlogPostPage';
 import { useParams } from 'next/navigation';
-import { Mode } from '@/types/theme';
+import { Mode } from '@/types';
 import { notFound } from 'next/navigation';
 import { posts } from '@/data/posts';
 

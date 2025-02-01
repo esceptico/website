@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
-import { Mode } from '@/types/theme';
-import { gradientConfig } from '@/constants/animation';
-import { textColors } from '@/constants/colors';
+import { Mode } from '@/types';
+import { colors, gradients } from '@/constants';
 
 interface PersonalInfoProps {
   hoveredSide: Mode | null;
@@ -19,10 +18,10 @@ export const PersonalInfo = ({ hoveredSide, isDark }: PersonalInfoProps) => (
         y: 0, 
         scale: 1,
         color: hoveredSide === 'mle' 
-          ? isDark ? gradientConfig.mle.textDark : gradientConfig.mle.textLight
+          ? isDark ? gradients.mle.textDark : gradients.mle.textLight
           : hoveredSide === 'photography'
-            ? isDark ? gradientConfig.photography.textDark : gradientConfig.photography.textLight
-            : isDark ? textColors.primary.dark : textColors.primary.light
+            ? isDark ? gradients.photography.textDark : gradients.photography.textLight
+            : isDark ? colors.text.primary.dark : colors.text.primary.light
       }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className="text-5xl font-light tracking-wide mb-4"
@@ -38,4 +37,4 @@ export const PersonalInfo = ({ hoveredSide, isDark }: PersonalInfoProps) => (
       Based in Yerevan
     </motion.p>
   </motion.div>
-); 
+);

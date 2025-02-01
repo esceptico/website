@@ -1,9 +1,9 @@
 'use client';
 
-import { SectionHeader } from './SectionHeader';
-import { ExperienceEntry } from './ExperienceEntry';
-import { SkillSection } from './SkillSection';
+import { SectionHeader } from '@/components/shared/SectionHeader';
+import { SkillSection } from '@/components/shared/SkillSection';
 import { mleExperiences, mleSkills } from '@/constants/content';
+import { ExperienceEntry } from '@/components/shared/ExperienceEntry';
 
 export const MLEContent = () => (
   <div className="space-y-4">

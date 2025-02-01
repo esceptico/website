@@ -1,4 +1,4 @@
-export const textColors = {
+const textColors = {
   primary: {
     dark: 'rgb(229, 231, 235)',
     light: 'rgb(17, 24, 39)'
@@ -13,7 +13,7 @@ export const textColors = {
   }
 } as const;
 
-export const backgroundColors = {
+const backgroundColors = {
   primary: {
     dark: 'rgb(3, 7, 18)',
     light: 'rgb(249, 250, 251)'
@@ -24,9 +24,15 @@ export const backgroundColors = {
   }
 } as const;
 
-export const borderColors = {
+const borderColors = {
   primary: {
     dark: 'rgb(31, 41, 55)',
     light: 'rgb(229, 231, 235)'
   }
-} as const; 
+} as const;
+
+export const colors = {
+  text: textColors,
+  background: backgroundColors,
+  border: borderColors
+} as const;

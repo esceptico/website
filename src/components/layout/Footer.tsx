@@ -35,7 +35,7 @@ const Footer = () => {
           </div>
           
           <div className="text-sm text-gray-600 dark:text-gray-400">
-            <p>© {currentYear} postmort3m.ai</p>
+            <p>© {currentYear} postmort3m.io</p>
           </div>
         </div>
       </div>

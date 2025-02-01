@@ -4,43 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useThemeStore } from '@/store/theme';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { SectionHeader } from '@/components/SectionHeader';
 import { CalendarIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-
-const mlePosts = [
-  {
-    id: 1,
-    title: 'Optimizing Large Language Models for Production',
-    description: 'A deep dive into techniques for optimizing LLMs in production environments, covering quantization, pruning, and efficient deployment strategies.',
-    date: '2024-03-15',
-    slug: 'optimizing-llm-production'
-  },
-  {
-    id: 2,
-    title: 'Understanding Attention Mechanisms',
-    description: 'Exploring the fundamentals of attention mechanisms in neural networks and their applications in modern machine learning architectures.',
-    date: '2024-03-10',
-    slug: 'understanding-attention-mechanisms'
-  }
-];
-
-const photoPosts = [
-  {
-    id: 1,
-    title: 'Finding Light in Urban Landscapes',
-    description: 'Tips and techniques for capturing compelling urban photography, with a focus on natural and artificial lighting.',
-    date: '2024-03-12',
-    slug: 'urban-light-photography'
-  },
-  {
-    id: 2,
-    title: 'The Art of Street Photography',
-    description: 'A guide to capturing authentic moments in street photography, including composition techniques and ethical considerations.',
-    date: '2024-03-08',
-    slug: 'street-photography-guide'
-  }
-];
 
 function BlogPost({ post, index, mode }: { post: any; index: number; mode: string }) {
   return (

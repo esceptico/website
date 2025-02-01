@@ -1,14 +1,15 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { Mode, ColorScheme } from '@/types/theme';
+import { Mode } from '@/types';
 
-export type ThemeMode = 'mle' | 'photography';
+export type ColorScheme = 'light' | 'dark';
 
 interface ThemeState {
   mode: Mode;
   colorScheme: ColorScheme;
   setMode: (mode: Mode) => void;
   toggleMode: () => void;
+  setColorScheme: (scheme: ColorScheme) => void;
   toggleColorScheme: () => void;
   backgroundColors: {
     mle: {
@@ -47,6 +48,7 @@ export const useThemeStore = create<ThemeState>()(
       toggleMode: () => set((state) => ({ 
         mode: state.mode === 'mle' ? 'photography' : 'mle' 
       })),
+      setColorScheme: (colorScheme) => set({ colorScheme }),
       toggleColorScheme: () => set((state) => ({ 
         colorScheme: state.colorScheme === 'dark' ? 'light' : 'dark' 
       })),
@@ -68,4 +70,4 @@ export const useThemeStore = create<ThemeState>()(
       storage: createJSONStorage(() => localStorage)
     }
   )
-); 
+);

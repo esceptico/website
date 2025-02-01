@@ -1,8 +1,7 @@
 import { motion } from 'framer-motion';
-import { Mode } from '@/types/theme';
-import { pageTransition } from '@/constants/animation';
-import { textColors } from '@/constants/colors';
-import { gradientConfig } from '@/constants/animation';
+import { Mode } from '@/types';
+import { colors, gradients } from '@/constants';
+import { transitions } from '@/constants/animation';
 
 export interface SectionProps {
   mode: Mode;
@@ -29,7 +28,7 @@ export const Section = ({
   onHover,
   onModeChange 
 }: SectionProps) => {
-  const config = gradientConfig[mode];
+  const config = gradients[mode];
   const isHovered = hoveredSide === mode;
   const isSelected = selectedSide === mode;
   const isOtherHovered = hoveredSide && hoveredSide !== mode;
@@ -53,16 +52,16 @@ export const Section = ({
             : (isOtherHovered ? 0.3 : 1),
           scale: isMobile && isSelected ? 1.05 : 1
         }}
-        transition={pageTransition}
+        transition={transitions.page}
       >
         <motion.h2 
           className="text-3xl md:text-4xl font-light tracking-tight"
           animate={{ 
             color: (isHovered || isSelected)
-              ? isDark ? config.textDark : config.textLight
-              : isDark ? textColors.primary.dark : textColors.primary.light
+              ? isDark ? colors.text.primary.dark : colors.text.primary.light
+              : isDark ? colors.text.primary.dark : colors.text.primary.light
           }}
-          transition={pageTransition}
+          transition={transitions.page}
         >
           {title}
           <motion.span 
@@ -70,7 +69,7 @@ export const Section = ({
             animate={{ 
               color: isDark ? config.textDark : config.textLight
             }}
-            transition={pageTransition}
+            transition={transitions.page}
           >
             {subtitle}
           </motion.span>
@@ -82,9 +81,9 @@ export const Section = ({
           animate={{ 
             opacity: isHovered ? 1 : 0,
             y: isHovered ? 0 : -20,
-            color: isDark ? textColors.secondary.dark : textColors.secondary.light
+            color: isDark ? colors.text.secondary.dark : colors.text.secondary.light
           }}
-          transition={pageTransition}
+          transition={transitions.page}
         >
           {description}
         </motion.p>

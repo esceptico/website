@@ -1,8 +1,8 @@
 'use client';
 
-import { AboutPage } from '@/components/AboutPage';
+import { AboutPage } from '@/components/content/AboutPage';
 import { useParams } from 'next/navigation';
-import { Mode } from '@/types/theme';
+import { Mode } from '@/types';
 import { notFound } from 'next/navigation';
 
 export default function DynamicAboutPage() {

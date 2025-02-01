@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useThemeStore } from '@/store/theme';
-import ColorSchemeToggle from '@/components/ColorSchemeToggle';
-import { Mode } from '@/types/theme';
+import ColorSchemeToggle from '@/components/theme/ColorSchemeToggle';
+import { Mode } from '@/types';
 
 interface RouteConfig {
   path: string;

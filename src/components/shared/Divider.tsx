@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
-import { Mode } from '@/types/theme';
-import { pageTransition, gradientConfig } from '@/constants/animation';
-import { textColors } from '@/constants/colors';
+import { Mode } from '@/types';
+import { colors, gradients } from '@/constants/theme';
+import { transitions } from '@/constants/animation';
 
 interface DividerProps {
   hoveredSide: Mode | null;
@@ -10,10 +10,10 @@ interface DividerProps {
 
 export const Divider = ({ hoveredSide, isDark }: DividerProps) => {
   const currentColor = hoveredSide === 'mle' 
-    ? isDark ? gradientConfig.mle.textDark : gradientConfig.mle.textLight
+    ? isDark ? gradients.mle.textDark : gradients.mle.textLight
     : hoveredSide === 'photography'
-    ? isDark ? gradientConfig.photography.textDark : gradientConfig.photography.textLight
-    : isDark ? textColors.muted.dark : textColors.muted.light;
+    ? isDark ? gradients.photography.textDark : gradients.photography.textLight
+    : isDark ? colors.text.primary.dark : colors.text.primary.light;
 
   return (
     <motion.div 
@@ -33,7 +33,7 @@ export const Divider = ({ hoveredSide, isDark }: DividerProps) => {
           : 0
       }}
       transition={{
-        ...pageTransition,
+        ...transitions.page,
         scaleY: { duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }
       }}
     />

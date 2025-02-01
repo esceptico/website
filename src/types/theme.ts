@@ -9,4 +9,4 @@ export type ThemeColors = {
   '--theme-bg-card': string;
   '--theme-border': string;
   '--theme-bg': string;
-}; 
+};

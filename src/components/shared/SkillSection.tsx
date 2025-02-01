@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ListItem } from './ListItem';
+import { ListItem } from '@/components/shared/ListItem';
 
 interface SkillSectionProps {
   title: string;
@@ -21,4 +21,4 @@ export const SkillSection = ({ title, skills }: SkillSectionProps) => (
       ))}
     </ul>
   </div>
-); 
+);

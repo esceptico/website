@@ -3,12 +3,13 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useThemeStore } from '@/store/theme';
 import { useRouter, usePathname } from 'next/navigation';
-import Navigation from "@/components/Navigation";
-import ColorSchemeToggle from "@/components/ColorSchemeToggle";
-import Footer from "@/components/Footer";
+import Navigation from "@/components/layout/Navigation";
+import ColorSchemeToggle from "@/components/theme/ColorSchemeToggle";
+import Footer from "@/components/layout/Footer";
 import { motion } from 'framer-motion';
-import { pageTransition, gradientConfig } from '@/constants/animation';
-import { getThemeColors } from '@/constants/theme';
+import { transitions } from '@/constants/animation';
+import { colors, gradients } from '@/constants/theme';
+import { getThemeColors } from '@/utils/theme';
 
 export default function ClientLayout({
   children,
@@ -42,8 +43,8 @@ export default function ClientLayout({
 
   const gradientBackground = useMemo(() => 
     mode === 'mle'
-      ? `linear-gradient(to right, ${isDark ? gradientConfig.mle.dark : gradientConfig.mle.light} 0%, transparent 50%)`
-      : `linear-gradient(to left, ${isDark ? gradientConfig.photography.dark : gradientConfig.photography.light} 0%, transparent 50%)`,
+      ? `linear-gradient(to right, ${isDark ? gradients.mle.dark : gradients.mle.light} 0%, transparent 50%)`
+      : `linear-gradient(to left, ${isDark ? gradients.photography.dark : gradients.photography.light} 0%, transparent 50%)`,
     [mode, isDark]
   );
 
@@ -65,14 +66,14 @@ export default function ClientLayout({
           opacity: pathname === '/' ? 0 : 1,
           background: gradientBackground
         }}
-        transition={pageTransition}
+        transition={transitions.page}
       />
       <motion.div
         initial={false}
         animate={{ 
           backgroundColor: isDark ? 'rgb(3, 7, 18)' : 'rgb(249, 250, 251)',
         }}
-        transition={pageTransition}
+        transition={transitions.page}
         className="min-h-screen"
         style={themeColors as React.CSSProperties}
       >
@@ -81,7 +82,7 @@ export default function ClientLayout({
         <motion.main
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={pageTransition}
+          transition={transitions.page}
         >
           {children}
         </motion.main>

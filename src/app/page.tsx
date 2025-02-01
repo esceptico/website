@@ -4,10 +4,10 @@ import { motion } from 'framer-motion';
 import { useThemeStore } from '@/store/theme';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Mode } from '@/types/theme';
-import { Section } from '@/components/Section';
-import { Divider } from '@/components/Divider';
-import { Background } from '@/components/Background';
+import { Mode } from '@/types';
+import { Section } from '@/components/shared/Section';
+import { Divider } from '@/components/shared/Divider';
+import { Background } from '@/components/shared/Background';
 import { PersonalInfo } from '@/components/PersonalInfo';
 import { sections } from '@/constants/sections';
 import { useDevice } from '@/hooks/useDevice';
@@ -24,14 +24,16 @@ export default function Home() {
     if (isMobile) {
       if (selectedSide === mode) {
         setMode(mode);
-        router.push(sections.find(s => s.mode === mode)?.path || '/');
+        const section = sections.find(s => s.mode === mode);
+        router.push(section?.path || '/');
       } else {
         setSelectedSide(mode);
         setHoveredSide(mode);
       }
     } else {
       setMode(mode);
-      router.push(sections.find(s => s.mode === mode)?.path || '/');
+      const section = sections.find(s => s.mode === mode);
+      router.push(section?.path || '/');
     }
   };
 
