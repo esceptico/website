@@ -2,12 +2,11 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
 import { Mode } from '@/types';
 import { BlogPost } from '@/components/blog/BlogPost';
 import { Posts } from '@/data/posts';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
 
 interface BlogPostPageProps {
   mode: Mode;

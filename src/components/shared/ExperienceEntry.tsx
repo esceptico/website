@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { ListItem } from './ListItem';
-import { ReactNode } from 'react';
 
 interface ExperienceEntryProps {
   title: string;

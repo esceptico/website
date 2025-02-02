@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -28,10 +28,9 @@ interface FullscreenNavigationProps {
 
 interface MechanicalDigitProps {
   digit: number;
-  direction: 'up' | 'down';
 }
 
-const MechanicalDigit = ({ digit, direction }: MechanicalDigitProps) => {
+const MechanicalDigit = ({ digit }: MechanicalDigitProps) => {
   const numbers = Array.from({ length: 10 }, (_, i) => i);
   const currentIndex = numbers.indexOf(digit);
   
@@ -54,13 +53,6 @@ const MechanicalDigit = ({ digit, direction }: MechanicalDigitProps) => {
 };
 
 const MechanicalCounter = ({ number, total }: { number: number; total: number }) => {
-  const [prevNumber, setPrevNumber] = useState(number);
-  const direction = number > prevNumber ? 'up' : 'down';
-  
-  useEffect(() => {
-    setPrevNumber(number);
-  }, [number]);
-
   const digits = String(number + 1).padStart(2, '0').split('').map(Number);
   const totalDigits = String(total).padStart(2, '0').split('').map(Number);
 
@@ -68,13 +60,13 @@ const MechanicalCounter = ({ number, total }: { number: number; total: number })
     <div className="flex items-center gap-1 text-white/70">
       <div className="flex">
         {digits.map((digit, idx) => (
-          <MechanicalDigit key={idx} digit={digit} direction={direction} />
+          <MechanicalDigit key={idx} digit={digit} />
         ))}
       </div>
       <span>—</span>
       <div className="flex">
         {totalDigits.map((digit, idx) => (
-          <MechanicalDigit key={idx} digit={digit} direction="up" />
+          <MechanicalDigit key={idx} digit={digit} />
         ))}
       </div>
     </div>
@@ -171,7 +163,6 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const [fullscreenPhoto, setFullscreenPhoto] = useState<PhotoWithDimensions | null>(null);
   const [photosWithDimensions, setPhotosWithDimensions] = useState<PhotoWithDimensions[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [direction, setDirection] = useState<'next' | 'prev'>('next');
   const [isVisible, setIsVisible] = useState(false);
 
   // Load image dimensions
@@ -218,7 +209,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
     return Math.ceil(baseScale * 100) / 100 + 0.05;
   };
 
-  const moveTrack = (nextPercentage: number) => {
+  const moveTrack = useCallback((nextPercentage: number) => {
     const track = trackRef.current;
     if (!track) return;
     
@@ -247,7 +238,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
 
     const normalizedPercentage = -constrainedPercentage - centerOffset;
     setCurrentIndex(Math.max(0, Math.min(Math.round(normalizedPercentage / stepPerPhoto), photosWithDimensions.length - 1)));
-  };
+  }, [centerOffset, maxPercentage, minPercentage, photosWithDimensions.length, stepPerPhoto]);
 
   const openFullscreen = (photo: PhotoWithDimensions) => {
     setFullscreenPhoto(photo);
@@ -260,7 +251,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
     // Set initial positions
     track.dataset.percentage = (-centerOffset).toString();
     moveTrack(-centerOffset);
-  }, [photosWithDimensions.length, isLoading]);
+  }, [photosWithDimensions.length, isLoading, centerOffset, moveTrack]);
 
   useEffect(() => {
     const track = trackRef.current;
@@ -280,10 +271,8 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       if (fullscreenPhoto) {
         const currentIndex = photosWithDimensions.findIndex(p => p.id === fullscreenPhoto.id);
         if ((e.key === 'ArrowLeft' || e.key === 'ArrowUp') && currentIndex > 0) {
-          setDirection('prev');
           setFullscreenPhoto(photosWithDimensions[currentIndex - 1]);
         } else if ((e.key === 'ArrowRight' || e.key === 'ArrowDown') && currentIndex < photosWithDimensions.length - 1) {
-          setDirection('next');
           setFullscreenPhoto(photosWithDimensions[currentIndex + 1]);
         }
         return;
@@ -301,7 +290,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [photosWithDimensions.length, fullscreenPhoto]);
+  }, [fullscreenPhoto, photosWithDimensions, moveTrack, stepPerPhoto]);
 
   const navigateFullscreen = (dir: 'prev' | 'next') => {
     if (!fullscreenPhoto) return;
@@ -310,7 +299,6 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
     const newIndex = dir === 'prev' ? currentIndex - 1 : currentIndex + 1;
     
     if (newIndex >= 0 && newIndex < photosWithDimensions.length) {
-      setDirection(dir);
       setFullscreenPhoto(photosWithDimensions[newIndex]);
       moveTrack(-(newIndex * stepPerPhoto + centerOffset));
     }

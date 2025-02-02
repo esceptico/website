@@ -8,7 +8,7 @@ import ColorSchemeToggle from "@/components/theme/ColorSchemeToggle";
 import Footer from "@/components/layout/Footer";
 import { motion } from 'framer-motion';
 import { transitions } from '@/constants/animation';
-import { colors, gradients } from '@/constants/theme';
+import { gradients } from '@/constants/theme';
 import { getThemeColors } from '@/utils/theme';
 
 export default function ClientLayout({
