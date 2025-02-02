@@ -1,4 +1,4 @@
-import { animations } from '@/constants';
+import { transitions } from '@/constants/animation';
 import { AnimationConfig } from '@/types/animation';
 import { useCallback } from 'react';
 
@@ -7,12 +7,12 @@ export function useAnimation() {
     initial: { opacity: 0 },
     animate: { opacity: 1 },
     exit: { opacity: 0 },
-    transition: animations.page,
+    transition: transitions.page,
     ...customConfig
   }), []);
 
   const getMountTransition = useCallback((customConfig?: Partial<AnimationConfig>): AnimationConfig => ({
-    ...animations.mount,
+    ...transitions.mount,
     ...customConfig
   }), []);
 
