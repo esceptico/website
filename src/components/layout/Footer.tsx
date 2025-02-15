@@ -1,4 +1,4 @@
-import { FaGithub, FaLinkedin, FaEnvelope } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaEnvelope, FaInstagram } from 'react-icons/fa';
 import Link from 'next/link';
 
 const Footer = () => {
@@ -26,6 +26,14 @@ const Footer = () => {
             >
               <FaLinkedin className="w-6 h-6" />
             </Link>
+            <a 
+              href="https://instagram.com/timurmurmur"
+              target="_blank"
+              className={socialLinkStyles}
+              aria-label="Instagram"
+            >
+              <FaInstagram className="w-6 h-6" />
+            </a>
             <a 
               href="mailto:ganiev.tmr@gmail.com"
               className={socialLinkStyles}
