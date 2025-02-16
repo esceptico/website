@@ -13,6 +13,7 @@ interface Photo {
 interface PhotoWithDimensions extends Photo {
   width: number;
   height: number;
+  loaded?: boolean;
 }
 
 interface PhotoGalleryProps {
@@ -164,35 +165,66 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
   const [photosWithDimensions, setPhotosWithDimensions] = useState<PhotoWithDimensions[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
-  // Load image dimensions
+  // Initialize photos with placeholder dimensions
   useEffect(() => {
-    const loadImageDimensions = async () => {
-      setIsLoading(true);
-      const loadedPhotos = await Promise.all(photos.map(async (photo) => {
-        try {
-          const dimensions = await new Promise<{ width: number; height: number }>((resolve, reject) => {
-            const img = document.createElement('img');
-            img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
-            img.onerror = reject;
-            img.src = photo.src;
-          });
+    const initialPhotos = photos.map(photo => ({
+      ...photo,
+      width: 1000,  // placeholder dimensions
+      height: 1500,
+      loaded: false
+    }));
+    setPhotosWithDimensions(initialPhotos);
+    setIsLoading(false);
+    setIsVisible(true);
+  }, [photos]);
 
-          return { ...photo, ...dimensions };
-        } catch (error) {
-          console.error(`Error loading dimensions for ${photo.src}:`, error);
-          return { ...photo, width: 1000, height: 1500 };
-        }
-      }));
+  // Progressive image loading
+  useEffect(() => {
+    if (!photosWithDimensions.length) return;
 
-      setPhotosWithDimensions(loadedPhotos);
-      setIsLoading(false);
-      // Add a small delay before showing the gallery to ensure smooth transition
-      setTimeout(() => setIsVisible(true), 100);
+    const loadImage = async (photo: PhotoWithDimensions, index: number) => {
+      try {
+        const dimensions = await new Promise<{ width: number; height: number }>((resolve, reject) => {
+          const img = document.createElement('img');
+          img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+          img.onerror = reject;
+          img.src = photo.src;
+        });
+
+        setPhotosWithDimensions(prev => {
+          const updated = [...prev];
+          updated[index] = { ...photo, ...dimensions, loaded: true };
+          return updated;
+        });
+      } catch (error) {
+        console.error(`Error loading dimensions for ${photo.src}:`, error);
+      }
     };
 
-    loadImageDimensions();
-  }, [photos]);
+    // Set up intersection observer for lazy loading
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const index = parseInt(entry.target.getAttribute('data-index') || '0');
+            const photo = photosWithDimensions[index];
+            if (!photo.loaded) {
+              loadImage(photo, index);
+            }
+            observerRef.current?.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: '50px' }
+    );
+
+    // Clean up observer
+    return () => {
+      observerRef.current?.disconnect();
+    };
+  }, [photosWithDimensions]);
 
   const stepPerPhoto = 100 / photosWithDimensions.length;
   const centerOffset = stepPerPhoto / 2;
@@ -321,35 +353,54 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
           ease: "easeOut"
         }}
       >
-        {photosWithDimensions.map((photo, index) => (
-          <motion.div
-            key={photo.id}
-            className="relative h-[56vmin] w-[40vmin] overflow-hidden"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ 
-              duration: 1,
-              ease: "easeOut",
-              delay: index * 0.15
-            }}
-          >
-            <Image
-              src={photo.src}
-              alt={photo.alt}
-              fill
-              className="image object-cover object-center"
-              style={{ 
-                objectPosition: '50% center',
-                transform: `scale(${getImageScale(photo)})`
+        {photosWithDimensions.map((photo, index) => {
+          const scale = getImageScale(photo);
+          return (
+            <motion.div
+              key={photo.id}
+              className="relative h-[56vmin] w-[40vmin] overflow-hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ 
+                duration: 1,
+                ease: "easeOut",
+                delay: index * 0.15
               }}
-              sizes="(max-width: 768px) 80vw, 40vw"
-              quality={90}
-              priority={index < 5}
-              loading={index < 10 ? "eager" : "lazy"}
-              onClick={() => openFullscreen(photo)}
-            />
-          </motion.div>
-        ))}
+            >
+              <div
+                className="relative inline-block h-[56vmin] w-[40vmin] cursor-pointer"
+                style={{ marginRight: '4vmin' }}
+                onClick={() => openFullscreen(photo)}
+                data-index={index}
+                ref={el => {
+                  if (el && observerRef.current) {
+                    observerRef.current.observe(el);
+                  }
+                }}
+              >
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  fill
+                  className={`image object-cover transition-opacity duration-500 ${
+                    photo.loaded ? 'opacity-100' : 'opacity-50'
+                  }`}
+                  sizes="(max-width: 768px) 80vw, 40vmin"
+                  priority={index === 0}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  quality={80}
+                  style={{
+                    transform: `scale(${scale})`,
+                    transformOrigin: 'center',
+                  }}
+                />
+                {!photo.loaded && (
+                  <div className="absolute inset-0 bg-white/5 animate-pulse rounded-sm" />
+                )}
+              </div>
+            </motion.div>
+          );
+        })}
       </motion.div>
 
       <AnimatePresence>
