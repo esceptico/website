@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-
 interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
@@ -29,89 +28,17 @@ export const AIChat = ({ isOpen, onClose }: AIChatProps) => {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isModelLoading, setIsModelLoading] = useState(false);
-  const [streamingContent, setStreamingContent] = useState('');
   
-  const workerRef = useRef<Worker | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  // Initialize the Web Worker
-  useEffect(() => {
-    if (isOpen && typeof window !== 'undefined') {
-      // Create the worker
-      workerRef.current = new Worker(
-        new URL('../../workers/chat.worker.ts', import.meta.url),
-        { type: 'module' }
-      );
-
-      // Handle messages from the worker
-      workerRef.current.onmessage = (event) => {
-        const { type, data, error } = event.data;
-
-        switch (type) {
-          case 'progress':
-            // Model loading progress
-            if (data.status === 'ready') {
-              setIsModelLoading(false);
-            }
-            break;
-
-          case 'stream':
-            // Streaming tokens
-            if (data.output_token_ids) {
-              // Update streaming content - this would need decoding
-              // For now, we'll handle it in the complete message
-            }
-            break;
-
-          case 'complete':
-            // Complete response
-            if (data && data.length > 0) {
-              const generatedText = data[0].generated_text;
-              const assistantResponse = generatedText[generatedText.length - 1].content;
-              
-              setMessages(prev => [...prev, { 
-                role: 'assistant', 
-                content: assistantResponse 
-              }]);
-            }
-            setIsLoading(false);
-            setStreamingContent('');
-            break;
-
-          case 'error':
-            console.error('Worker error:', error);
-            setMessages(prev => [...prev, { 
-              role: 'assistant', 
-              content: "Oops! My circuits got a bit tangled. Let me reboot... 🤖" 
-            }]);
-            setIsLoading(false);
-            break;
-        }
-      };
-    }
-
-    return () => {
-      // Clean up worker
-      if (workerRef.current) {
-        workerRef.current.terminate();
-        workerRef.current = null;
-      }
-    };
-  }, [isOpen]);
-
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    if (messages.length > 1 || streamingContent) {
+    if (messages.length > 1) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, streamingContent]);
-  
-
-  
-
+  }, [messages]);
 
   // Focus input when opened and handle Escape key
   useEffect(() => {
@@ -134,26 +61,45 @@ export const AIChat = ({ isOpen, onClose }: AIChatProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading || !workerRef.current || isModelLoading) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    const newMessages = [...messages, { role: 'user' as const, content: userMessage }];
+    setMessages(newMessages);
     setIsLoading(true);
 
-    // Send message to worker
-    const chatMessages = [...messages, { role: 'user', content: userMessage }];
-    
-    workerRef.current.postMessage({
-      type: 'generate',
-      messages: chatMessages,
-      config: {
-        max_new_tokens: 128,
-        temperature: 0.7,
-        do_sample: true,
-        top_p: 0.95,
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messages: newMessages }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessages(prev => [...prev, { 
+          role: 'assistant', 
+          content: data.message 
+        }]);
+      } else {
+        setMessages(prev => [...prev, { 
+          role: 'assistant', 
+          content: "I'm having trouble connecting right now. Please try again later." 
+        }]);
       }
-    });
+    } catch (error) {
+      console.error('Chat error:', error);
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: "Oops! Something went wrong. Please try again." 
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const suggestedQuestions = [
@@ -192,12 +138,7 @@ export const AIChat = ({ isOpen, onClose }: AIChatProps) => {
           </div>
 
           {/* Messages */}
-          <div ref={(el) => {
-                 messagesContainerRef.current = el;
-                 if (el) {
-                   el.scrollTop = el.scrollHeight;
-                 }
-               }}
+          <div ref={messagesContainerRef}
                className="h-[400px] overflow-y-auto px-6 py-4 space-y-6"
                style={{ scrollbarWidth: 'thin', scrollbarColor: 'var(--theme-border) transparent' }}>
             {messages.length === 1 && (
@@ -273,8 +214,8 @@ export const AIChat = ({ isOpen, onClose }: AIChatProps) => {
                   handleSubmit(e);
                 }
               }}
-              disabled={isLoading || isModelLoading}
-              placeholder={isModelLoading ? "..." : "Send a message..."}
+              disabled={isLoading}
+              placeholder="Send a message..."
               className="w-full px-4 py-3 bg-[var(--theme-border)] bg-opacity-10
                        rounded-xl outline-none transition-all
                        text-[var(--theme-text-primary)] placeholder-[var(--theme-text-secondary)]
@@ -282,7 +223,7 @@ export const AIChat = ({ isOpen, onClose }: AIChatProps) => {
                        focus:bg-opacity-20"
             />
             <div className="absolute right-10 top-1/2 -translate-y-1/2 text-xs text-[var(--theme-text-secondary)] opacity-30">
-              {!isLoading && !isModelLoading && input.length > 0 && "⌘↵"}
+              {!isLoading && input.length > 0 && "⌘↵"}
             </div>
           </form>
         </motion.div>

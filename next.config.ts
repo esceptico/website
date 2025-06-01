@@ -14,8 +14,20 @@ const nextConfig: NextConfig = {
       type: "asset/resource",
     });
     
+    // Add aliases for node-specific modules when bundling for the browser
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "sharp$": false,
+      "onnxruntime-node$": false,
+    };
+    
+    // Ensure workers are properly handled
+    config.output.webassemblyModuleFilename = "static/wasm/[modulehash].wasm";
+    config.output.publicPath = "/_next/";
+    
     return config;
   },
+  serverExternalPackages: ["sharp", "onnxruntime-node"],
 };
 
 export default nextConfig;

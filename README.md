@@ -8,6 +8,7 @@ A modern, responsive website built with Next.js 13 that showcases a Machine Lear
 - **Modern UI**: Clean, minimalist design with smooth animations
 - **Content**: Navigation items and content focused on Machine Learning Engineering.
 - **Interactive Components**: Project cards for ML work
+- **AI Chat Assistant**: Built-in chat assistant powered by OpenAI for answering questions about the developer
 
 ## Tech Stack
 
@@ -32,12 +33,20 @@ A modern, responsive website built with Next.js 13 that showcases a Machine Lear
    npm install
    ```
 
-3. Run the development server:
+3. Set up environment variables:
+   - Create a `.env.local` file in the root directory
+   - Add your OpenAI API key:
+     ```
+     OPENAI_API_KEY=your_openai_api_key_here
+     ```
+   - You can get an API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+
+4. Run the development server:
    ```bash
    npm run dev
    ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Project Structure
 
