@@ -15,13 +15,32 @@ export const hackerTextItems = [
   'postmortem',
   'timur ganiev',
   'tim',
-  'timur'
 ] as const;
+
+// Time-based greetings
+export const getTimeBasedGreeting = (): string => {
+  const currentHour = new Date().getHours();
+  
+  const timeRanges = [
+    { min: 0, max: 4, greeting: 'good night' },
+    { min: 5, max: 11, greeting: 'good morning' },
+    { min: 12, max: 16, greeting: 'good afternoon' },
+    { min: 17, max: 21, greeting: 'good evening' },
+    { min: 22, max: 23, greeting: 'good night' }
+  ] as const;
+  
+  const matchingRange = timeRanges.find(
+    range => currentHour >= range.min && currentHour <= range.max
+  );
+  
+  return matchingRange?.greeting ?? 'hello';
+};
+
 
 // About Text
 export const aboutText = {
-  mainDescription: `As a Machine Learning Engineer, I focus on developing and deploying machine learning models that tackle real-world challenges. My expertise includes natural language processing, computer vision, and predictive analytics. I am committed to creating impactful solutions and advancing the field of AI.`,
-  additionalInfo: `Beyond my professional endeavors, I am an avid explorer of new technologies and a contributor to open-source projects. I also enjoy [mention a hobby or interest if you like, e.g., "hiking in nature", "playing the piano", "competitive programming"].`
+  mainDescription: `ML engineer with over 6 years in NLP and deep learning. I build and scale language model systems – now working at Replika, focusing on real-world AI products.`,
+  additionalInfo: `Outside of work, I'm into photography – shooting city scenes, people, and everything that catches my eye.`
 } as const;
 
 // Experience Data
@@ -42,8 +61,13 @@ export const experiences: ExperienceEntry[] = [
     roles: [
       {
         title: 'Lead ML Engineer',
-        period: 'Oct 2022 - Present',
-        summary: 'Leading safety alignment for high-load LLM services and implementing continuous monitoring systems.'
+        period: 'Jan 2022 - Present',
+        summary: 'Leading ML projects for conversational AI. Shipped new features end-to-end, integrated VLMs, and helped scale LLM infrastructure for production.'
+      },
+      {
+        title: 'ML Engineer',
+        period: 'Oct 2022 - Jan 2022',
+        summary: 'Maintained high-load LLM services, focused on safety and user preference alignment. Fine-tuned models on real user feedback. Developed tools for synthetic data, evaluation, and training.'
       }
     ]
   },
@@ -53,7 +77,7 @@ export const experiences: ExperienceEntry[] = [
       {
         title: 'ML Engineer',
         period: 'Feb 2022 - Sep 2022',
-        summary: 'Built toxic content classifier (94% F1-Score) and deployed spellchecking services with BERT.'
+        summary: 'Built active learning and toxic content detection pipelines. Launched spell-checking and multi-modal ML services.'
       }
     ]
   },
@@ -63,12 +87,12 @@ export const experiences: ExperienceEntry[] = [
       {
         title: 'ML Engineer',
         period: 'May 2021 - Feb 2022',
-        summary: 'Led 4-person team, optimized models with 80% inference time reduction, established CI/CD pipelines.'
+        summary: 'Worked on documents processing. Led a small team to deliver ML solutions from scratch. Focused on model optimization (distillation, quantization) and improved deployment processes with CI/CD.'
       },
       {
         title: 'Data Scientist',
         period: 'Jan 2020 - May 2021',
-        summary: 'Developed text classification models (93% F1-Score) using adversarial training and advanced NLP techniques.'
+        summary: 'Developed robust NLP models for text classification and NER. Improved accuracy using new vectorization and adversarial data techniques.'
       }
     ]
   },
@@ -78,8 +102,21 @@ export const experiences: ExperienceEntry[] = [
       {
         title: 'Data Scientist',
         period: 'Aug 2018 - Jul 2019',
-        summary: 'Built resume parsing and job matching systems, improving platform efficiency and user experience.'
+        summary: 'Built resume/job parsing and matching systems, boosting CV upload and match rates. Developed custom text vectorizers for better recommendations.'
       }
     ]
   }
 ];
+
+// 404 Error Messages
+export const errorMessages = [
+  "page not found",
+  "gradient has vanished",
+  "model failed to converge",
+  "attention weights are NaN",
+  "out of GPU memory",
+  "tokenizer exception: unknown token",
+  "loss exploded to infinity",
+  "tensor shape mismatch",
+  "embedding dimension error"
+] as const;

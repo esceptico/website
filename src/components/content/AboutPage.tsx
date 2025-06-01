@@ -8,6 +8,7 @@ import { experiences } from '@/personal-content';
 
 export function AboutPage() {
   const [mounted, setMounted] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -34,6 +35,10 @@ export function AboutPage() {
               key={index} 
               company={experience.company}
               roles={experience.roles}
+              isHovered={hoveredIndex === index}
+              isDimmed={hoveredIndex !== null && hoveredIndex !== index}
+              onHover={() => setHoveredIndex(index)}
+              onLeave={() => setHoveredIndex(null)}
             />
           ))}
         </div>

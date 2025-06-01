@@ -7,6 +7,7 @@ import ColorSchemeToggle from "@/components/theme/ColorSchemeToggle";
 import { motion } from 'framer-motion';
 import { transitions } from '@/constants';
 import { getThemeColors } from '@/utils';
+import { CommandPalette } from '@/components/shared/CommandPalette';
 
 export default function ClientLayout({
   children,
@@ -19,6 +20,7 @@ export default function ClientLayout({
   const isDark = colorScheme === 'dark';
   const [mounted, setMounted] = useState(false);
   const [hasUserPreference, setHasUserPreference] = useState(false);
+  const [isMac, setIsMac] = useState(true);
 
   const themeColors = useMemo(() => 
     getThemeColors(isDark),
@@ -27,6 +29,11 @@ export default function ClientLayout({
 
   useEffect(() => {
     setMounted(true);
+    
+    // Detect platform
+    if (typeof navigator !== 'undefined') {
+      setIsMac(navigator.platform.toUpperCase().indexOf('MAC') >= 0);
+    }
     
     // Check if user has a saved preference
     const savedTheme = localStorage.getItem('theme-storage');
@@ -90,12 +97,24 @@ export default function ClientLayout({
     if (!mounted) return;
   }, [mounted, pathname, router]);
 
+  const handleCommandPaletteOpen = () => {
+    // Trigger the keyboard event to open command palette
+    const event = new KeyboardEvent('keydown', {
+      key: 'k',
+      metaKey: isMac,
+      ctrlKey: !isMac,
+      bubbles: true
+    });
+    document.dispatchEvent(event);
+  };
+
   if (!mounted) {
     return null;
   }
 
   return (
     <>
+      <CommandPalette />
       <motion.div
         initial={false}
         animate={{}}
@@ -106,6 +125,17 @@ export default function ClientLayout({
         <div className="fixed top-4 left-4 z-50">
           <ColorSchemeToggle />
         </div>
+
+        {/* Subtle Command Palette Trigger - Bottom Right */}
+        <button
+          onClick={handleCommandPaletteOpen}
+          className="fixed bottom-4 right-4 z-40 px-1.5 py-0.5 
+                     text-[10px] text-[var(--theme-text-secondary)] font-mono cursor-pointer
+                     hover:text-[var(--theme-text-primary)]
+                     transition-all duration-200 opacity-10 hover:opacity-60"
+        >
+          {isMac ? '⌘K' : 'Ctrl+K'}
+        </button>
 
         <motion.main
           initial={{ opacity: 0 }}
