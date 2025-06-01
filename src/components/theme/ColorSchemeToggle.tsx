@@ -9,54 +9,41 @@ const transition = {
   ease: [0.43, 0.13, 0.23, 0.96]
 };
 
-export default function ColorSchemeToggle({ variant = 'fixed' }: { variant?: 'fixed' | 'nav' }) {
+export default function ColorSchemeToggle() {
   const { colorScheme, toggleColorScheme } = useThemeStore();
   const isDark = colorScheme === 'dark';
 
-  const baseClasses = "p-3 rounded-full backdrop-blur-sm border transition-colors";
-  const variantClasses = {
-    fixed: `fixed bottom-6 right-6 z-30 ${
-      isDark 
-        ? 'bg-gray-900/50 border-gray-800 hover:bg-gray-900/70' 
-        : 'bg-white/50 border-gray-200 hover:bg-white/70'
-    }`,
-    nav: `${
-      isDark 
-        ? 'bg-gray-900/30 border-gray-800 hover:bg-gray-900/50' 
-        : 'bg-white/30 border-gray-200 hover:bg-white/50'
-    }`
-  };
+  // Simplified styling, adjust as needed for a sleek look
+  const buttonClasses = "p-2 rounded-md hover:bg-[var(--theme-border)] transition-colors";
 
   return (
     <button
       onClick={toggleColorScheme}
-      className={`${baseClasses} ${variantClasses[variant]}`}
+      className={buttonClasses}
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
     >
-      <div className="relative w-6 h-6">
+      <div className="relative w-5 h-5">
         <motion.div
           initial={false}
           animate={{
             scale: isDark ? 1 : 0,
             opacity: isDark ? 1 : 0,
-            rotate: isDark ? 0 : 90,
           }}
           transition={transition}
           className="absolute inset-0"
         >
-          <MoonIcon className={`w-6 h-6 ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`} />
+          <MoonIcon className={`w-5 h-5 text-[var(--theme-text-secondary)]`} />
         </motion.div>
         <motion.div
           initial={false}
           animate={{
             scale: isDark ? 0 : 1,
             opacity: isDark ? 0 : 1,
-            rotate: isDark ? -90 : 0,
           }}
           transition={transition}
           className="absolute inset-0"
         >
-          <SunIcon className={`w-6 h-6 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
+          <SunIcon className={`w-5 h-5 text-[var(--theme-text-secondary)]`} />
         </motion.div>
       </div>
     </button>

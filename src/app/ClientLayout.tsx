@@ -3,55 +3,92 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useThemeStore } from '@/store/theme';
 import { useRouter, usePathname } from 'next/navigation';
-import Navigation from "@/components/layout/Navigation";
 import ColorSchemeToggle from "@/components/theme/ColorSchemeToggle";
-import Footer from "@/components/layout/Footer";
 import { motion } from 'framer-motion';
-import { transitions } from '@/constants/animation';
-import { gradients } from '@/constants/theme';
-import { getThemeColors } from '@/utils/theme';
+import { transitions } from '@/constants';
+import { getThemeColors } from '@/utils';
 
 export default function ClientLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { mode, colorScheme } = useThemeStore();
+  const { colorScheme, setColorScheme } = useThemeStore();
   const router = useRouter();
   const pathname = usePathname();
   const isDark = colorScheme === 'dark';
   const [mounted, setMounted] = useState(false);
+  const [hasUserPreference, setHasUserPreference] = useState(false);
+
+  const themeColors = useMemo(() => 
+    getThemeColors(isDark),
+    [isDark]
+  );
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    
+    // Check if user has a saved preference
+    const savedTheme = localStorage.getItem('theme-storage');
+    if (savedTheme) {
+      setHasUserPreference(true);
+    } else {
+      // No saved preference, use system theme
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      setColorScheme(systemTheme);
+    }
+  }, [setColorScheme]);
+
+  // Listen for OS theme changes
+  useEffect(() => {
+    if (typeof window === 'undefined' || hasUserPreference) return;
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    const handleThemeChange = (e: MediaQueryListEvent) => {
+      if (!hasUserPreference) {
+        setColorScheme(e.matches ? 'dark' : 'light');
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleThemeChange);
+    
+    return () => {
+      mediaQuery.removeEventListener('change', handleThemeChange);
+    };
+  }, [setColorScheme, hasUserPreference]);
+
+  // Track when user manually changes theme
+  useEffect(() => {
+    if (mounted && !hasUserPreference) {
+      // If the theme changes after mount and we didn't have a preference, user must have toggled
+      const unsubscribe = useThemeStore.subscribe(() => {
+        setHasUserPreference(true);
+      });
+      return unsubscribe;
+    }
+  }, [mounted, hasUserPreference]);
+
+  useEffect(() => {
+    Object.entries(themeColors).forEach(([key, value]) => {
+      document.documentElement.style.setProperty(key, value);
+    });
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    
+    // Update theme-color meta tag
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', isDark ? '#121212' : '#fafafa');
+    }
+  }, [themeColors, isDark]);
 
   useEffect(() => {
     if (!mounted) return;
-    if (pathname === '/') return;
-
-    const currentMode = pathname.includes('/mle/') || pathname === '/projects' ? 'mle' : 
-                       pathname.includes('/photography/') || pathname === '/portfolio' ? 'photography' : null;
-    
-    if (currentMode && currentMode !== mode) {
-      const redirectPath = mode === 'mle' ? 
-        pathname.replace('/photography/', '/mle/').replace('/portfolio', '/projects') :
-        pathname.replace('/mle/', '/photography/').replace('/projects', '/portfolio');
-      router.replace(redirectPath);
-    }
-  }, [mode, pathname, router, mounted]);
-
-  const gradientBackground = useMemo(() => 
-    mode === 'mle'
-      ? `linear-gradient(to right, ${isDark ? gradients.mle.dark : gradients.mle.light} 0%, transparent 50%)`
-      : `linear-gradient(to left, ${isDark ? gradients.photography.dark : gradients.photography.light} 0%, transparent 50%)`,
-    [mode, isDark]
-  );
-
-  const themeColors = useMemo(() => 
-    getThemeColors(isDark, mode),
-    [isDark, mode]
-  );
+  }, [mounted, pathname, router]);
 
   if (!mounted) {
     return null;
@@ -60,25 +97,16 @@ export default function ClientLayout({
   return (
     <>
       <motion.div
-        className="fixed inset-0 pointer-events-none"
         initial={false}
-        animate={{ 
-          opacity: pathname === '/' ? 0 : 1,
-          background: gradientBackground
-        }}
+        animate={{}}
         transition={transitions.page}
-      />
-      <motion.div
-        initial={false}
-        animate={{ 
-          backgroundColor: isDark ? 'rgb(3, 7, 18)' : 'rgb(249, 250, 251)',
-        }}
-        transition={transitions.page}
-        className="min-h-screen"
-        style={themeColors as React.CSSProperties}
+        className="min-h-screen relative pt-16" 
       >
-        <Navigation />
-        {pathname === '/' && <ColorSchemeToggle />}
+        {/* Theme Toggle - Top Left */}
+        <div className="fixed top-4 left-4 z-50">
+          <ColorSchemeToggle />
+        </div>
+
         <motion.main
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -86,7 +114,6 @@ export default function ClientLayout({
         >
           {children}
         </motion.main>
-        {pathname !== '/portfolio' && <Footer />}
       </motion.div>
     </>
   );

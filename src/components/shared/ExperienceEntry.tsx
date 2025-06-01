@@ -1,30 +1,66 @@
-import { motion } from 'framer-motion';
-import { ListItem } from './ListItem';
+'use client';
 
-interface ExperienceEntryProps {
+import { useState } from 'react';
+
+interface Role {
   title: string;
-  company: string;
   period: string;
-  achievements: string[];
+  summary: string;
 }
 
-export const ExperienceEntry = ({ title, company, period, achievements }: ExperienceEntryProps) => (
-  <div className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1px] before:bg-[var(--theme-text-secondary)] before:opacity-20 group hover:before:bg-[var(--theme-accent-primary)] before:transition-colors duration-200">
-    <motion.div 
-      className="relative mb-2"
-      initial={{ opacity: 0.8 }}
-      whileHover={{ opacity: 1 }}
-    >
-      <h3 className="text-lg font-medium text-[var(--theme-text-primary)] group-hover:text-[var(--theme-accent-primary)] transition-colors duration-200">{title}</h3>
-      <div className="flex items-center gap-2 mt-0.5">
-        <span className="text-sm font-medium text-[var(--theme-text-primary)]">{company}</span>
-        <span className="text-sm text-[var(--theme-text-secondary)] tracking-wide">{period}</span>
+interface ExperienceEntryProps {
+  company: string;
+  roles: Role[];
+}
+
+export const ExperienceEntry = ({ company, roles }: ExperienceEntryProps) => {
+  const [expandedRoles, setExpandedRoles] = useState<Set<number>>(new Set());
+
+  const toggleRole = (index: number) => {
+    const newExpandedRoles = new Set(expandedRoles);
+    if (newExpandedRoles.has(index)) {
+      newExpandedRoles.delete(index);
+    } else {
+      newExpandedRoles.add(index);
+    }
+    setExpandedRoles(newExpandedRoles);
+  };
+
+  return (
+    <div className="mb-6">
+      <h3 className="text-lg font-medium text-[var(--theme-text-primary)] mb-2">
+        {company}
+      </h3>
+      <div className="space-y-1">
+        {roles.map((role, index) => (
+          <div key={index}>
+            <div 
+              className="flex justify-between items-center hover:bg-[var(--theme-border)] hover:bg-opacity-10 rounded px-2 py-1 -mx-2 transition-all duration-150 cursor-pointer"
+              onClick={() => toggleRole(index)}
+            >
+              <span className={`text-sm text-[var(--theme-text-secondary)] transition-all duration-300 ${
+                expandedRoles.has(index) 
+                  ? 'opacity-100 border-l-2 border-[var(--theme-text-primary)] pl-2 -ml-2' 
+                  : 'opacity-60'
+              }`}>
+                {role.period}
+              </span>
+              <span className="text-base text-[var(--theme-text-primary)]">
+                {role.title}
+              </span>
+            </div>
+            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              expandedRoles.has(index) ? 'max-h-32 opacity-70 mb-3' : 'max-h-0 opacity-0'
+            }`}>
+              <div className="mt-1 pt-1">
+                <p className="text-base text-[var(--theme-text-secondary)] leading-relaxed">
+                  {role.summary}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
-    </motion.div>
-    <ul className="space-y-2">
-      {achievements.map((achievement, index) => (
-        <ListItem key={index}>{achievement}</ListItem>
-      ))}
-    </ul>
-  </div>
-); 
+    </div>
+  );
+};

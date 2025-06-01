@@ -1,46 +1,43 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { SectionHeader } from '@/components/shared/SectionHeader';
 import { useEffect, useState } from 'react';
-import { Mode } from '@/types';
-import { MLEContent } from '@/components/content/MLEContent';
-import { PhotographyContent } from '@/components/content/PhotographyContent';
-import { descriptions } from '@/constants/content/descriptions';
+import { PersonalInfo } from '@/components/content/PersonalInfo';
+import { ExperienceEntry } from '@/components/shared/ExperienceEntry';
+import { experiences } from '@/personal-content';
 
-interface AboutPageProps {
-  mode: Mode;
-}
-
-export function AboutPage({ mode }: AboutPageProps) {
+export function AboutPage() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Basic fade-in for the whole page
+  const pageVariants = {
+    initial: { opacity: 0 },
+    animate: { opacity: mounted ? 1 : 0, transition: { duration: 0.5 } },
+  };
+
   return (
-    <div className="min-h-screen p-8 bg-[var(--theme-bg-primary)]">
-      <div className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: mounted ? 1 : 0.5 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="mb-12">
-            <SectionHeader 
-              title="About Me"
-              as="h1" 
-              variant="primary" 
-              useAccentColor 
+    <motion.div 
+      className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 md:pl-32 py-8 md:py-12"
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+    >
+      <PersonalInfo />
+      <div className="mt-8 relative">
+        <div>
+          {experiences.map((experience, index) => (
+            <ExperienceEntry 
+              key={index} 
+              company={experience.company}
+              roles={experience.roles}
             />
-            <p className="mt-4 text-[var(--theme-text-secondary)]">
-              {descriptions[mode]}
-            </p>
-          </div>
-          {mode === 'mle' ? <MLEContent /> : <PhotographyContent />}
-        </motion.div>
+          ))}
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

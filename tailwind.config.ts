@@ -12,6 +12,10 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        'jetbrains-mono': ['JetBrains Mono', 'var(--font-jetbrains-mono)', 'monospace'],
+        'mono': ['JetBrains Mono', 'var(--font-jetbrains-mono)', 'monospace'],
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':

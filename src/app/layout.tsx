@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
-import { Inter, Fira_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "./ClientLayout";
 
 const inter = Inter({ subsets: ["latin"] });
-const firaMono = Fira_Mono({ 
+
+// Use JetBrains Mono - modern and smooth monospace font
+const jetbrainsMono = JetBrains_Mono({ 
   subsets: ["latin"],
-  weight: ["400"],
-  variable: '--font-fira-mono'
+  weight: ["400", "500"],
+  variable: '--font-jetbrains-mono'
 });
 
 export const metadata: Metadata = {
@@ -21,9 +23,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`antialiased ${firaMono.variable}`}>
+    <html lang="en" className={`antialiased ${jetbrainsMono.variable}`}>
       <head>
         <link rel="icon" href="/favicon.ico" />
+        <meta name="theme-color" content="#121212" />
       </head>
       <body className={inter.className}>
         <ClientLayout>{children}</ClientLayout>
