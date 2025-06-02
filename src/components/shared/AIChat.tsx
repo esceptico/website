@@ -261,6 +261,8 @@ export const AIChat = ({ isOpen, onClose }: AIChatProps) => {
   const handleSuggestedQuestion = async (question: string) => {
     // Immediately send the message without populating the input
     await sendMessage(question);
+    // Focus back on the input for the next message
+    inputRef.current?.focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
