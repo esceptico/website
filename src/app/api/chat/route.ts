@@ -18,7 +18,7 @@ const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_CONFIG = {
   maxRequestsPerMinute: 10,        // Max 10 requests per minute per IP
   maxRequestsPerHour: 50,          // Max 50 requests per hour per IP
-  maxMessageLength: 1000,          // Max 1000 characters per message
+  maxMessageLength: 256,          // Max 1000 characters per message
   maxConversationLength: 30,       // Max 30 messages in conversation history
   maxTokensPerRequest: 128,        // Max tokens per response
   blockDuration: 60 * 60 * 1000,   // Block for 1 hour if limits exceeded
@@ -96,7 +96,7 @@ function validateMessages(messages: any[]): { valid: boolean; error?: string } {
     if (message.role !== 'system' && message.content.length > RATE_LIMIT_CONFIG.maxMessageLength) {
       return { 
         valid: false, 
-        error: `your message is way too long. ${RATE_LIMIT_CONFIG.maxMessageLength} characters max. learn to be concise.` 
+        error: `it's way too long. ${RATE_LIMIT_CONFIG.maxMessageLength} chars max bro. what do you trying to send me? a book?` 
       };
     }
 
