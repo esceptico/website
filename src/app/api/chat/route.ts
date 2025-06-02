@@ -127,27 +127,36 @@ async function checkContentSafety(messages: Message[]): Promise<{ safe: boolean;
       return { safe: true };
     }
 
+    // Define which categories should BLOCK vs just WARN
+    const blockingCategories = new Set([
+      'sexual/minors',
+      'self-harm/intent',
+      'self-harm/instructions',
+      'hate/threatening',
+      'harassment/threatening',
+      'illicit/violent',
+      'illicit',  // illegal activities should also block
+    ]);
+
     // Define custom messages for each category
     const categoryMessages: { [key: string]: string } = {
-      'sexual': "oh wow, real classy. this isn't that kind of site, genius.",
       'sexual/minors': "absolutely not. get help and get out.",
-      'harassment': "cute, trying to be mean? i do it better. try again when you're less boring.",
       'harassment/threatening': "threats? how original. maybe try therapy instead.",
-      'hate': "hate speech? yawn. find a new personality.",
       'hate/threatening': "threatening hate speech? touch grass immediately.",
       'illicit': "illegal stuff? wrong site, wrong chatbot. move along.",
       'illicit/violent': "illegal and violent? edgy. now leave.",
       'self-harm': "hey, not cool. seriously, talk to someone who isn't made of code.",
       'self-harm/intent': "stop. call a real human. 988 if you're in the us.",
       'self-harm/instructions': "nope. not happening. find better questions.",
-      'violence': "violence? boring. timur's projects are more interesting than your edge.",
-      'violence/graphic': "graphic violence? what is this, a horror movie audition? next."
     };
     
     // Get all flagged categories
     const flaggedCategories = Object.entries(results.categories)
       .filter(([, flagged]) => flagged)
       .map(([category]) => category);
+
+    // Check if any BLOCKING categories are flagged
+    const shouldBlock = flaggedCategories.some(cat => blockingCategories.has(cat));
 
     // Priority order for selecting which message to show (most severe first)
     const priorityOrder = [
@@ -157,13 +166,8 @@ async function checkContentSafety(messages: Message[]): Promise<{ safe: boolean;
       'hate/threatening',
       'harassment/threatening',
       'illicit/violent',
-      'violence/graphic',
-      'self-harm',
-      'hate',
-      'harassment',
-      'violence',
       'illicit',
-      'sexual'
+      'self-harm',
     ];
 
     // Find the highest priority flagged category
@@ -171,8 +175,9 @@ async function checkContentSafety(messages: Message[]): Promise<{ safe: boolean;
     const warningMessage = categoryMessages[primaryCategory] || 
       "whatever that was, it's not happening. try being less... that.";
     
+    // Only block if it's a blocking category, otherwise allow with warning
     return {
-      safe: false,
+      safe: !shouldBlock,  // Only unsafe if it's a blocking category
       reason: `Content violates policies: ${flaggedCategories.join(', ')}`,
       warningMessage
     };
