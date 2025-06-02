@@ -38,7 +38,7 @@ export const CommandPalette = () => {
     {
       id: 'coffee',
       name: 'Buy me a coffee',
-      description: 'Support my work',
+      description: 'Please?',
       icon: <HeartIcon className="w-5 h-5" />,
       action: () => {
         setShowTeaMessage(true);
@@ -51,7 +51,7 @@ export const CommandPalette = () => {
     {
       id: 'ai-chat',
       name: 'Ask AI',
-      description: 'Chat with my AI assistant',
+      description: 'Chat with a bunch of matrices',
       icon: <SparklesIcon className="w-5 h-5" />,
       action: () => {
         setShowAIChat(true);
@@ -65,6 +65,16 @@ export const CommandPalette = () => {
       icon: <RocketLaunchIcon className="w-5 h-5" />,
       action: () => {
         window.open('/resume.pdf', '_blank');
+        setIsOpen(false);
+      }
+    },
+    {
+      id: '404',
+      name: '404',
+      description: 'Eh?',
+      icon: <XMarkIcon className="w-5 h-5" />,
+      action: () => {
+        window.open('/404', '_blank');
         setIsOpen(false);
       }
     }

@@ -16,15 +16,42 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4.1-nano",
+    const stream = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
       messages: messages,
       temperature: 0.7,
       max_tokens: 500,
+      stream: true,
     });
 
-    return NextResponse.json({
-      message: completion.choices[0].message.content,
+    // Create a TransformStream to handle the streaming
+    const encoder = new TextEncoder();
+    const readableStream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of stream) {
+            const content = chunk.choices[0]?.delta?.content || '';
+            if (content) {
+              // Send the content as a Server-Sent Event
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content })}\n\n`));
+            }
+          }
+          
+          // Send a final message to indicate completion
+          controller.enqueue(encoder.encode(`data: [DONE]\n\n`));
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        }
+      },
+    });
+
+    return new Response(readableStream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
     });
   } catch (error) {
     console.error('OpenAI API error:', error);

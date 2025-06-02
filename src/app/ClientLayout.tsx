@@ -126,13 +126,16 @@ export default function ClientLayout({
           <ColorSchemeToggle />
         </div>
 
-        {/* Subtle Command Palette Trigger - Bottom Right */}
+        {/* Command Palette Trigger - Bottom Right */}
         <button
           onClick={handleCommandPaletteOpen}
-          className="fixed bottom-4 right-4 z-40 px-1.5 py-0.5 
-                     text-[10px] text-[var(--theme-text-secondary)] font-mono cursor-pointer
-                     hover:text-[var(--theme-text-primary)]
-                     transition-all duration-200 opacity-10 hover:opacity-60"
+          className="fixed bottom-4 right-4 z-40 px-2.5 py-1.5 
+                     text-xs text-[var(--theme-text-secondary)] font-mono cursor-pointer
+                     bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)]
+                     rounded-md shadow-sm
+                     hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-hover)]
+                     hover:border-[var(--theme-border-hover)] hover:shadow-md
+                     transition-all duration-200 opacity-40 hover:opacity-100"
         >
           {isMac ? '⌘K' : 'Ctrl+K'}
         </button>
