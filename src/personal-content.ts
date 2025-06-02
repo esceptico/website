@@ -61,12 +61,12 @@ export const experiences: ExperienceEntry[] = [
     roles: [
       {
         title: 'Lead ML Engineer',
-        period: 'Jan 2022 - Present',
+        period: 'Jan 2024 - Present',
         summary: 'Leading ML projects for conversational AI. Shipped new features end-to-end, integrated VLMs, and helped scale LLM infrastructure for production.'
       },
       {
         title: 'ML Engineer',
-        period: 'Oct 2022 - Jan 2022',
+        period: 'Oct 2022 - Jan 2024',
         summary: 'Maintained high-load LLM services, focused on safety and user preference alignment. Fine-tuned models on real user feedback. Developed tools for synthetic data, evaluation, and training.'
       }
     ]
