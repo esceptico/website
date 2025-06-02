@@ -50,7 +50,7 @@ export const CommandPalette = () => {
     {
       id: 'ai-chat',
       name: 'Ask AI',
-      description: 'Chat with a bunch of matrices',
+      description: 'It\'s a bit rude...',
       icon: <SparklesIcon className="w-5 h-5" />,
       action: () => {
         setShowAIChat(true);
