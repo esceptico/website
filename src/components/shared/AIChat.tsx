@@ -239,8 +239,8 @@ export const AIChat = ({ isOpen, onClose }: AIChatProps) => {
           }
         }
       }
-    } catch (error: any) {
-      if (error.name !== 'AbortError') {
+    } catch (error) {
+      if (error instanceof Error && error.name !== 'AbortError') {
         console.error('Chat error:', error);
         setMessages(prev => addMessage(prev, { 
           role: 'assistant' as const, 
@@ -273,7 +273,7 @@ export const AIChat = ({ isOpen, onClose }: AIChatProps) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       e.preventDefault();
-      handleSubmit(e as any);
+      handleSubmit(e as React.FormEvent);
     }
   };
 

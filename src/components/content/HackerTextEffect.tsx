@@ -131,7 +131,7 @@ const HackerTextEffect: React.FC<HackerTextEffectProps> = ({
           }
         }
 
-        setDisplayText(
+        setDisplayText(prevDisplayText =>
           letters
             .map((letter, index) => {
               if (revealed[index]) {
@@ -139,7 +139,7 @@ const HackerTextEffect: React.FC<HackerTextEffectProps> = ({
               }
               // Add occasional "stuck" characters that change less frequently
               if (Math.random() > 0.7 && iterationCount % 3 !== 0) {
-                return displayText[index] || chars[Math.floor(Math.random() * chars.length)];
+                return prevDisplayText[index] || chars[Math.floor(Math.random() * chars.length)];
               }
               return chars[Math.floor(Math.random() * chars.length)];
             })
