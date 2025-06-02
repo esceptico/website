@@ -227,7 +227,7 @@ export const AIChat = ({ isOpen, onClose }: AIChatProps) => {
           setRateLimitRetryAfter(retryAfter ? parseInt(retryAfter) : 60);
           setMessages(prev => addMessage(prev, {
             role: 'assistant' as const,
-            content: errorData.error || RATE_LIMIT_MESSAGE
+            content: errorData.message || errorData.error || RATE_LIMIT_MESSAGE
           }));
           setIsLoading(false);
           return;

@@ -11,17 +11,32 @@ interface Message {
   content: string;
 }
 
+// Enhanced rate limit data structure with backoff support
+interface RateLimitData {
+  count: number;                  // Current request count in the window
+  resetTime: number;              // When the current window resets
+  backoffLevel: number;           // Current backoff level (0 = no backoff)
+  blockedUntil?: number;          // If blocked, when the block expires
+  lastViolation?: number;         // Last time this IP violated rate limits
+  totalViolations: number;        // Total number of violations
+}
+
 // Simple in-memory rate limiter (for production, use Redis or similar)
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const rateLimitMap = new Map<string, RateLimitData>();
 
 // Configuration for rate limiting and abuse prevention
 const RATE_LIMIT_CONFIG = {
-  maxRequestsPerMinute: 10,        // Max 10 requests per minute per IP
-  maxRequestsPerHour: 50,          // Max 50 requests per hour per IP
-  maxMessageLength: 256,          // Max 1000 characters per message
+  maxRequestsPerMinute: 15,        // Max 10 requests per minute per IP
+  maxRequestsPerHour: 120,          // Max 50 requests per hour per IP
+  maxMessageLength: 256,           // Max 256 characters per message
   maxConversationLength: 30,       // Max 30 messages in conversation history
   maxTokensPerRequest: 128,        // Max tokens per response
-  blockDuration: 60 * 60 * 1000,   // Block for 1 hour if limits exceeded
+  
+  // Exponential backoff configuration
+  initialBlockDuration: 60 * 1000,     // Start with 1 minute block
+  maxBlockDuration: 60 * 60 * 1000,    // Max 1 hour block
+  backoffMultiplier: 2,                // Double the duration each time
+  backoffResetTime: 60 * 60 * 1000,    // Reset backoff after 1 hour of good behavior
 };
 
 // Get client IP address
@@ -31,37 +46,96 @@ function getClientIp(req: NextRequest): string {
   return ip;
 }
 
-// Check rate limits
-function checkRateLimit(ip: string): { allowed: boolean; retryAfter?: number } {
+// Calculate block duration based on backoff level
+function calculateBlockDuration(backoffLevel: number): number {
+  const duration = RATE_LIMIT_CONFIG.initialBlockDuration * 
+    Math.pow(RATE_LIMIT_CONFIG.backoffMultiplier, backoffLevel);
+  
+  // Cap at maximum block duration
+  return Math.min(duration, RATE_LIMIT_CONFIG.maxBlockDuration);
+}
+
+// Check rate limits with exponential backoff
+function checkRateLimit(ip: string): { 
+  allowed: boolean; 
+  retryAfter?: number;
+  blockDuration?: number;
+  backoffLevel?: number;
+} {
   const now = Date.now();
   const userLimit = rateLimitMap.get(ip);
 
-  // Clean up old entries
+  // Clean up old entries to prevent memory bloat
   if (rateLimitMap.size > 1000) {
     for (const [key, value] of rateLimitMap.entries()) {
-      if (value.resetTime < now) {
+      // Remove entries that haven't been active for over 2 hours
+      if (value.resetTime < now - 2 * 60 * 60 * 1000 && !value.blockedUntil) {
         rateLimitMap.delete(key);
       }
     }
   }
 
+  // Initialize new user
   if (!userLimit) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + 60 * 1000 });
+    rateLimitMap.set(ip, { 
+      count: 1, 
+      resetTime: now + 60 * 1000,
+      backoffLevel: 0,
+      totalViolations: 0
+    });
     return { allowed: true };
   }
 
-  if (userLimit.resetTime < now) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + 60 * 1000 });
-    return { allowed: true };
-  }
-
-  if (userLimit.count >= RATE_LIMIT_CONFIG.maxRequestsPerMinute) {
+  // Check if user is currently blocked
+  if (userLimit.blockedUntil && userLimit.blockedUntil > now) {
+    const retryAfter = Math.ceil((userLimit.blockedUntil - now) / 1000);
+    const blockDuration = calculateBlockDuration(userLimit.backoffLevel);
+    
     return { 
       allowed: false, 
-      retryAfter: Math.ceil((userLimit.resetTime - now) / 1000) 
+      retryAfter,
+      blockDuration: Math.ceil(blockDuration / 1000), // Convert to seconds
+      backoffLevel: userLimit.backoffLevel
     };
   }
 
+  // Check if backoff should be reset (1 hour of good behavior)
+  if (userLimit.lastViolation && 
+      now - userLimit.lastViolation > RATE_LIMIT_CONFIG.backoffResetTime) {
+    userLimit.backoffLevel = 0;
+    userLimit.totalViolations = 0;
+  }
+
+  // Reset count if window expired
+  if (userLimit.resetTime < now) {
+    userLimit.count = 1;
+    userLimit.resetTime = now + 60 * 1000;
+    return { allowed: true };
+  }
+
+  // Check if rate limit exceeded
+  if (userLimit.count >= RATE_LIMIT_CONFIG.maxRequestsPerMinute) {
+    // Apply exponential backoff
+    const blockDuration = calculateBlockDuration(userLimit.backoffLevel);
+    
+    userLimit.blockedUntil = now + blockDuration;
+    userLimit.lastViolation = now;
+    userLimit.backoffLevel++;
+    userLimit.totalViolations++;
+    
+    const retryAfter = Math.ceil(blockDuration / 1000);
+    
+    console.log(`Rate limit violation for IP ${ip}: backoff level ${userLimit.backoffLevel}, blocked for ${retryAfter}s`);
+    
+    return { 
+      allowed: false, 
+      retryAfter,
+      blockDuration: retryAfter,
+      backoffLevel: userLimit.backoffLevel
+    };
+  }
+
+  // Increment count for allowed request
   userLimit.count++;
   return { allowed: true };
 }
@@ -196,17 +270,26 @@ export async function POST(req: NextRequest) {
     const rateLimitCheck = checkRateLimit(clientIp);
     
     if (!rateLimitCheck.allowed) {
+      const blockDuration = rateLimitCheck.blockDuration || 60;
+      const backoffLevel = rateLimitCheck.backoffLevel || 1;
+      
       return NextResponse.json(
         { 
-          error: 'slow down there, speed racer. you\'re sending too many messages.',
-          retryAfter: rateLimitCheck.retryAfter 
+          error: `Rate limit exceeded: ${blockDuration}s block, violation #${backoffLevel}`,
+          message: `wow, calm down. you're blocked for ${blockDuration} seconds. ` +
+                   `keep this up and it'll be ${Math.min(blockDuration * 2, 3600)} next time. have fun.`,
+          retryAfter: rateLimitCheck.retryAfter,
+          blockDuration: blockDuration,
+          backoffLevel: backoffLevel,
         },
-        { 
+        {
           status: 429,
           headers: {
             'Retry-After': String(rateLimitCheck.retryAfter || 60),
             'X-RateLimit-Limit': String(RATE_LIMIT_CONFIG.maxRequestsPerMinute),
             'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Block-Duration': String(blockDuration),
+            'X-RateLimit-Backoff-Level': String(backoffLevel),
           }
         }
       );
