@@ -152,7 +152,6 @@ export const AIChat = ({ isOpen, onClose }: AIChatProps) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState('');
-  const [isClosing, setIsClosing] = useState(false);
   const [rateLimitRetryAfter, setRateLimitRetryAfter] = useState<number | null>(null);
   
   // Refs

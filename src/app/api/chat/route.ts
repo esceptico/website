@@ -67,20 +67,13 @@ function checkRateLimit(ip: string): { allowed: boolean; retryAfter?: number } {
 }
 
 // Validate and sanitize messages
-function validateMessages(messages: any[]): { valid: boolean; error?: string } {
+function validateMessages(messages: Message[]): { valid: boolean; error?: string } {
   if (!messages || !Array.isArray(messages)) {
     return { valid: false, error: 'wow, you managed to break the most basic requirement. congrats.' };
   }
 
   if (messages.length === 0) {
     return { valid: false, error: 'an empty array? really? that\'s your move?' };
-  }
-
-  if (messages.length > RATE_LIMIT_CONFIG.maxConversationLength) {
-    return { 
-      valid: false, 
-      error: `oh look, someone can\'t count. max ${RATE_LIMIT_CONFIG.maxConversationLength} messages, genius.` 
-    };
   }
 
   for (const message of messages) {
@@ -153,7 +146,7 @@ async function checkContentSafety(messages: Message[]): Promise<{ safe: boolean;
     
     // Get all flagged categories
     const flaggedCategories = Object.entries(results.categories)
-      .filter(([_, flagged]) => flagged)
+      .filter(([, flagged]) => flagged)
       .map(([category]) => category);
 
     // Priority order for selecting which message to show (most severe first)
