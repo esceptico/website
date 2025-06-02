@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -306,7 +305,6 @@ export const AIChat = ({ isOpen, onClose }: AIChatProps) => {
   };
 
   const shouldShowSuggestions = messages.length === 1 && !streamingMessage;
-  const shouldShowShortcut = !isLoading && input.length > 0;
 
   return (
     <AnimatePresence>
@@ -413,7 +411,7 @@ export const AIChat = ({ isOpen, onClose }: AIChatProps) => {
           </div>
 
           {/* Input */}
-          <form onSubmit={handleSubmit} className="px-6 py-4 relative">
+          <form onSubmit={handleSubmit} className="px-6 py-4">
             <input
               ref={inputRef}
               type="text"
@@ -428,18 +426,6 @@ export const AIChat = ({ isOpen, onClose }: AIChatProps) => {
                        disabled:opacity-50 text-sm
                        focus:bg-opacity-20"
             />
-            {shouldShowShortcut && (
-              <div className="absolute right-10 top-1/2 -translate-y-1/2 text-xs text-[var(--theme-text-secondary)] opacity-30">
-                ⌘↵
-              </div>
-            )}
-            <button
-              type="submit"
-              disabled={isLoading || !input.trim() || !!rateLimitRetryAfter}
-              className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
-              <PaperAirplaneIcon className="w-5 h-5" />
-            </button>
           </form>
         </motion.div>
       )}
