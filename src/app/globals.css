@@ -2,29 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
 
-@keyframes float {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
 
 /* Root HTML element styling */
 html {
@@ -61,19 +39,6 @@ body,
 #__next {
   width: 100%;
   min-height: 100vh;
-}
-
-.gradient-animation {
-  background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
-}
-
-.parallax-layer {
-  will-change: transform;
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
 }
 
 * {

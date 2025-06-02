@@ -15,6 +15,9 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Timur Ganiev",
   description: "Hey 👋",
+  icons: {
+    icon: '/favicon.png',
+  },
 };
 
 export default function RootLayout({
@@ -25,7 +28,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`antialiased ${jetbrainsMono.variable}`}>
       <head>
-        <link rel="icon" href="/favicon.ico" />
         <meta name="theme-color" content="#121212" />
       </head>
       <body className={inter.className}>

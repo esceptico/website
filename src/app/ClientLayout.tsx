@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useThemeStore } from '@/store/theme';
-import { useRouter, usePathname } from 'next/navigation';
 import ColorSchemeToggle from "@/components/theme/ColorSchemeToggle";
 import { motion } from 'framer-motion';
 import { transitions } from '@/constants';
@@ -15,8 +14,6 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   const { colorScheme, setColorScheme } = useThemeStore();
-  const router = useRouter();
-  const pathname = usePathname();
   const isDark = colorScheme === 'dark';
   const [mounted, setMounted] = useState(false);
   const [hasUserPreference, setHasUserPreference] = useState(false);
@@ -92,10 +89,6 @@ export default function ClientLayout({
       metaThemeColor.setAttribute('content', isDark ? '#121212' : '#fafafa');
     }
   }, [themeColors, isDark]);
-
-  useEffect(() => {
-    if (!mounted) return;
-  }, [mounted, pathname, router]);
 
   const handleCommandPaletteOpen = () => {
     // Trigger the keyboard event to open command palette

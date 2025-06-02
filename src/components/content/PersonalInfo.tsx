@@ -71,6 +71,7 @@ export const PersonalInfo = () => {
           <Link 
             href={socialLinks.github}
             target="_blank"
+            rel="noopener noreferrer"
             className={socialLinkStyles}
             aria-label="GitHub"
           >
@@ -79,6 +80,7 @@ export const PersonalInfo = () => {
           <Link 
             href={socialLinks.linkedin}
             target="_blank"
+            rel="noopener noreferrer"
             className={socialLinkStyles}
             aria-label="LinkedIn"
           >
@@ -87,19 +89,21 @@ export const PersonalInfo = () => {
           <Link 
             href={socialLinks.twitter}
             target="_blank"
+            rel="noopener noreferrer"
             className={socialLinkStyles}
             aria-label="Twitter"
           >
             <FaTwitter className="w-5 h-5" />
           </Link>
-          <a 
+          <Link 
             href={socialLinks.instagram}
             target="_blank"
+            rel="noopener noreferrer"
             className={socialLinkStyles}
             aria-label="Instagram"
           >
             <FaInstagram className="w-5 h-5" />
-          </a>
+          </Link>
           <a 
             href={socialLinks.email}
             className={socialLinkStyles}

@@ -6,7 +6,6 @@ import {
   MagnifyingGlassIcon, 
   XMarkIcon,
   RocketLaunchIcon,
-  CommandLineIcon,
   HeartIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
