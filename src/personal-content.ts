@@ -82,7 +82,7 @@ export const experiences: ExperienceEntry[] = [
     ]
   },
   {
-    company: 'Sberbank',
+    company: 'Sber',
     roles: [
       {
         title: 'ML Engineer',
