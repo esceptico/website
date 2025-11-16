@@ -15,6 +15,7 @@ export const hackerTextItems = [
   'postmortem',
   'timur ganiev',
   'tim',
+  'timur'
 ] as const;
 
 // Time-based greetings
@@ -39,7 +40,7 @@ export const getTimeBasedGreeting = (): string => {
 
 // About Text
 export const aboutText = {
-  mainDescription: `ML engineer with over 6 years in NLP and deep learning. I build and scale language model systems – now working at Replika, focusing on real-world AI products.`,
+  mainDescription: `Machine Learning Engineer specializing in post-training and safety alignment for production LLM systems. I build preference learning pipelines, train safety classifiers, and optimize low-latency inference. Previously led alignment work at Replika, shipping models trained on user feedback at scale. Currently working on building the next-generation of conversational AI.`,
   additionalInfo: `Outside of work, I'm into photography – shooting city scenes, people, and everything that catches my eye.`
 } as const;
 
@@ -60,14 +61,9 @@ export const experiences: ExperienceEntry[] = [
     company: 'Replika',
     roles: [
       {
-        title: 'Lead ML Engineer',
-        period: 'Jan 2025 - Present',
-        summary: 'Leading ML projects for conversational AI. Shipped new features end-to-end, integrated VLMs, and helped scale LLM infrastructure for production.'
-      },
-      {
-        title: 'ML Engineer',
-        period: 'Oct 2022 - Jan 2025',
-        summary: 'Maintained high-load LLM services, focused on safety and user preference alignment. Fine-tuned models on real user feedback. Developed tools for synthetic data, evaluation, and training.'
+        title: 'Lead Machine Learning Engineer',
+        period: 'Oct 2022 - Present',
+        summary: 'Leading ML projects for conversational AI. Shipped new features end-to-end, integrated VLMs, and helped scale LLM infrastructure for production. Maintained high-load LLM services, focused on safety and user preference alignment. Fine-tuned models on real user feedback. Developed tools for synthetic data, evaluation, and training.'
       }
     ]
   },
@@ -75,7 +71,7 @@ export const experiences: ExperienceEntry[] = [
     company: 'Embedika',
     roles: [
       {
-        title: 'ML Engineer',
+        title: 'Machine Learning Engineer',
         period: 'Feb 2022 - Sep 2022',
         summary: 'Built active learning and toxic content detection pipelines. Launched spell-checking and multi-modal ML services.'
       }
@@ -85,14 +81,9 @@ export const experiences: ExperienceEntry[] = [
     company: 'Sber',
     roles: [
       {
-        title: 'ML Engineer',
-        period: 'May 2021 - Feb 2022',
+        title: 'Machine Learning Engineer',
+        period: 'Jan 2020 - Feb 2022',
         summary: 'Worked on documents processing. Led a small team to deliver ML solutions from scratch. Focused on model optimization (distillation, quantization) and improved deployment processes with CI/CD.'
-      },
-      {
-        title: 'Data Scientist',
-        period: 'Jan 2020 - May 2021',
-        summary: 'Developed robust NLP models for text classification and NER. Improved accuracy using new vectorization and adversarial data techniques.'
       }
     ]
   },
