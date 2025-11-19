@@ -12,7 +12,6 @@ export const socialLinks = {
 
 // Hacker Text Items
 export const hackerTextItems = [
-  'postmortem',
   'timur ganiev',
   'tim',
   'timur'
@@ -40,64 +39,9 @@ export const getTimeBasedGreeting = (): string => {
 
 // About Text
 export const aboutText = {
-  mainDescription: `Machine Learning Engineer specializing in post-training and safety alignment for production LLM systems. I build preference learning pipelines, train safety classifiers, and optimize low-latency inference. Previously led alignment work at Replika, shipping models trained on user feedback at scale. Currently working on building the next-generation of conversational AI.`,
+  mainDescription: `Machine Learning Engineer specializing in post-training and safety alignment for production LLM systems. I build preference learning pipelines, train safety classifiers, and optimize low-latency inference. Previously led alignment work at [Replika](https://replika.com), shipping models trained on user feedback at scale.`,
   additionalInfo: `Outside of work, I'm into photography – shooting city scenes, people, and everything that catches my eye.`
 } as const;
-
-// Experience Data
-interface Role {
-  title: string;
-  period: string;
-  summary: string;
-}
-
-interface ExperienceEntry {
-  company: string;
-  roles: Role[];
-}
-
-export const experiences: ExperienceEntry[] = [
-  {
-    company: 'Replika',
-    roles: [
-      {
-        title: 'Lead Machine Learning Engineer',
-        period: 'Oct 2022 - Present',
-        summary: 'Leading ML projects for conversational AI. Shipped new features end-to-end, integrated VLMs, and helped scale LLM infrastructure for production. Maintained high-load LLM services, focused on safety and user preference alignment. Fine-tuned models on real user feedback. Developed tools for synthetic data, evaluation, and training.'
-      }
-    ]
-  },
-  {
-    company: 'Embedika',
-    roles: [
-      {
-        title: 'Machine Learning Engineer',
-        period: 'Feb 2022 - Sep 2022',
-        summary: 'Built active learning and toxic content detection pipelines. Launched spell-checking and multi-modal ML services.'
-      }
-    ]
-  },
-  {
-    company: 'Sber',
-    roles: [
-      {
-        title: 'Machine Learning Engineer',
-        period: 'Jan 2020 - Feb 2022',
-        summary: 'Worked on documents processing. Led a small team to deliver ML solutions from scratch. Focused on model optimization (distillation, quantization) and improved deployment processes with CI/CD.'
-      }
-    ]
-  },
-  {
-    company: 'Advance.Careers',
-    roles: [
-      {
-        title: 'Data Scientist',
-        period: 'Aug 2018 - Jul 2019',
-        summary: 'Built resume/job parsing and matching systems, boosting CV upload and match rates. Developed custom text vectorizers for better recommendations.'
-      }
-    ]
-  }
-];
 
 // 404 Error Messages
 export const errorMessages = [

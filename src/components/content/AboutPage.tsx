@@ -3,12 +3,9 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { PersonalInfo } from '@/components/content/PersonalInfo';
-import { ExperienceEntry } from '@/components/shared/ExperienceEntry';
-import { experiences } from '@/personal-content';
 
 export function AboutPage() {
   const [mounted, setMounted] = useState(false);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -28,21 +25,6 @@ export function AboutPage() {
       animate="animate"
     >
       <PersonalInfo />
-      <div className="mt-8 relative">
-        <div>
-          {experiences.map((experience, index) => (
-            <ExperienceEntry 
-              key={index} 
-              company={experience.company}
-              roles={experience.roles}
-              isHovered={hoveredIndex === index}
-              isDimmed={hoveredIndex !== null && hoveredIndex !== index}
-              onHover={() => setHoveredIndex(index)}
-              onLeave={() => setHoveredIndex(null)}
-            />
-          ))}
-        </div>
-      </div>
     </motion.div>
   );
 }

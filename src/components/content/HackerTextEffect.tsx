@@ -38,15 +38,15 @@ const HackerTextEffect: React.FC<HackerTextEffectProps> = ({
   cycleDelay = 4000,
   iterationsPerReveal = { min: 1, max: 3 },
   iterationSpeed = {
-    initial: { min: 30, max: 70 },
-    running: { min: 20, max: 80 }
+    initial: { min: 40, max: 80 },
+    running: { min: 30, max: 90 }
   },
   startDelay = { min: 0, max: 100 },
   cycleDelayVariation = 500,
   glitchConfig = {
-    chance: 0.7,
-    duration: { min: 100, max: 400 },
-    frequency: { min: 1000, max: 3500 }
+    chance: 1.0, // Always glitch when triggered
+    duration: { min: 200, max: 500 }, // Increased duration
+    frequency: { min: 2000, max: 6000 } // Slightly longer intervals between glitches
   }
 }) => {
   const [displayText, setDisplayText] = useState('');
@@ -80,8 +80,8 @@ const HackerTextEffect: React.FC<HackerTextEffectProps> = ({
     const { min: glitchFreqMin, max: glitchFreqMax } = glitchFrequency;
 
     const triggerGlitch = () => {
-      // Random intensity between 0.5 and 2
-      setGlitchIntensity(0.5 + Math.random() * 1.5);
+      // Increased intensity range: 2.0 to 5.0
+      setGlitchIntensity(2.0 + Math.random() * 3.0);
       setGlitchSeed(Math.random() * 1000);
       setIsGlitching(true);
       
@@ -223,8 +223,9 @@ const HackerTextEffect: React.FC<HackerTextEffectProps> = ({
         <defs>
           {/* Chromatic aberration filter */}
           <filter id="hackerTextChromaticAberration">
-            <feOffset in="SourceGraphic" dx={isGlitching ? -1.5 * glitchIntensity : 0} dy="0" result="r" />
-            <feOffset in="SourceGraphic" dx={isGlitching ? 1.5 * glitchIntensity : 0} dy="0" result="b" />
+            {/* Increased offset values for stronger separation */}
+            <feOffset in="SourceGraphic" dx={isGlitching ? -3 * glitchIntensity : 0} dy="0" result="r" />
+            <feOffset in="SourceGraphic" dx={isGlitching ? 3 * glitchIntensity : 0} dy="0" result="b" />
             <feComponentTransfer in="r" result="red">
               <feFuncR type="table" tableValues="1 0" />
               <feFuncG type="table" tableValues="0 0" />
@@ -260,13 +261,12 @@ const HackerTextEffect: React.FC<HackerTextEffectProps> = ({
       </svg>
 
       <span 
-        className={`font-jetbrains-mono text-xl md:text-2xl select-none transition-all duration-100 relative hacker-text-main`}
+        className={`font-jetbrains-mono ${className} select-none transition-all duration-100 relative hacker-text-main`}
         style={{ 
           userSelect: 'none',
           WebkitUserSelect: 'none',
           MozUserSelect: 'none',
           msUserSelect: 'none',
-          minHeight: '1.5em',
           display: 'inline-block',
           filter: isGlitching && Math.random() > 0.5 ? 'url(#hackerTextChromaticAberration)' : undefined,
           transform: isGlitching ? `translate(${(Math.random() - 0.5) * 2}px, ${(Math.random() - 0.5) * 1}px)` : undefined
@@ -282,8 +282,8 @@ const HackerTextEffect: React.FC<HackerTextEffectProps> = ({
               className="absolute top-0 left-0 w-full h-full opacity-80"
               style={{
                 color: 'rgb(255, 0, 0)',
-                clipPath: `polygon(0 ${20 + Math.random() * 30}%, 100% ${20 + Math.random() * 30}%, 100% ${50 + Math.random() * 30}%, 0 ${50 + Math.random() * 30}%)`,
-                transform: `translate(${-2 * glitchIntensity}px, ${Math.random() > 0.5 ? 1 : -1}px)`,
+                clipPath: `polygon(0 ${Math.random() * 30}%, 100% ${Math.random() * 30}%, 100% ${60 + Math.random() * 30}%, 0 ${60 + Math.random() * 30}%)`,
+                transform: `translate(${-4 * glitchIntensity}px, ${Math.random() > 0.5 ? 2 : -2}px)`,
               }}
               aria-hidden="true"
             >
@@ -293,8 +293,8 @@ const HackerTextEffect: React.FC<HackerTextEffectProps> = ({
               className="absolute top-0 left-0 w-full h-full opacity-80"
               style={{
                 color: 'rgb(0, 255, 255)',
-                clipPath: `polygon(0 ${Math.random() * 30}%, 100% ${Math.random() * 30}%, 100% ${30 + Math.random() * 40}%, 0 ${30 + Math.random() * 40}%)`,
-                transform: `translate(${2 * glitchIntensity}px, ${Math.random() > 0.5 ? -1 : 1}px)`,
+                clipPath: `polygon(0 ${20 + Math.random() * 30}%, 100% ${20 + Math.random() * 30}%, 100% ${80 + Math.random() * 20}%, 0 ${80 + Math.random() * 20}%)`,
+                transform: `translate(${4 * glitchIntensity}px, ${Math.random() > 0.5 ? -2 : 2}px)`,
               }}
               aria-hidden="true"
             >

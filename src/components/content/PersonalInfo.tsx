@@ -1,10 +1,11 @@
 'use client';
 
 import HackerTextEffect from './HackerTextEffect';
-import { FaGithub, FaLinkedin, FaEnvelope, FaInstagram, FaTwitter } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaEnvelope, FaInstagram, FaTwitter, FaFileAlt } from 'react-icons/fa';
 import Link from 'next/link';
 import { socialLinks, hackerTextItems, aboutText, getTimeBasedGreeting } from '@/personal-content';
 import { useState, useEffect, useMemo } from 'react';
+import ReactMarkdown from 'react-markdown';
 
 export const PersonalInfo = () => {
   const socialLinkStyles = "text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors";
@@ -34,93 +35,99 @@ export const PersonalInfo = () => {
   };
   
   return (
-    <div className={`relative text-left pt-16 md:pt-24 pb-8`}> 
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 md:mb-8">
+    <div className="relative text-left pt-32 md:pt-40 pb-16 max-w-3xl"> 
+      <div className="mb-10">
         <h1 
-          className="text-xl md:text-2xl font-normal text-[var(--theme-text-secondary)] tracking-wider cursor-pointer select-none flex items-center min-w-[180px] md:min-w-[320px] whitespace-nowrap overflow-hidden"
+          className="text-3xl md:text-4xl font-bold text-[var(--theme-text-primary)] tracking-tight cursor-pointer select-none flex items-center min-w-[300px] min-h-[4rem]"
           onClick={handleHackerTextClick}
-          style={{ 
-            userSelect: 'none',
-            WebkitUserSelect: 'none',
-            MozUserSelect: 'none',
-            msUserSelect: 'none',
-            minHeight: '2.5rem'
-          }}
         >
           {showEasterEgg ? (
             <span className="inline-block relative">
-              <span 
-                className="font-jetbrains-mono text-xl md:text-2xl select-none"
-                style={{ 
-                  userSelect: 'none',
-                  WebkitUserSelect: 'none',
-                  MozUserSelect: 'none',
-                  msUserSelect: 'none',
-                  minHeight: '1.5em',
-                  display: 'inline-block'
-                }}
-              >
+              <span className="font-jetbrains-mono text-3xl md:text-4xl select-none inline-block">
                 there are no easter eggs here
               </span>
             </span>
           ) : (
-            <HackerTextEffect texts={textItems} />
+            <HackerTextEffect texts={textItems} className="text-3xl md:text-4xl" />
           )}
         </h1>
-        <div className="flex items-center space-x-4">
-          <Link 
-            href={socialLinks.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={socialLinkStyles}
-            aria-label="GitHub"
-          >
-            <FaGithub className="w-5 h-5" />
-          </Link>
-          <Link 
-            href={socialLinks.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={socialLinkStyles}
-            aria-label="LinkedIn"
-          >
-            <FaLinkedin className="w-5 h-5" />
-          </Link>
-          <Link 
-            href={socialLinks.twitter}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={socialLinkStyles}
-            aria-label="Twitter"
-          >
-            <FaTwitter className="w-5 h-5" />
-          </Link>
-          <Link 
-            href={socialLinks.instagram}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={socialLinkStyles}
-            aria-label="Instagram"
-          >
-            <FaInstagram className="w-5 h-5" />
-          </Link>
-          <a 
-            href={socialLinks.email}
-            className={socialLinkStyles}
-            aria-label="Email"
-          >
-            <FaEnvelope className="w-5 h-5" />
-          </a>
-        </div>
       </div>
-      <p 
-        className="text-base text-[var(--theme-text-primary)] leading-relaxed space-y-4 font-sans"
-        style={{ fontFamily: 'Inter, sans-serif' }}
-      >
-        {aboutText.mainDescription}
-        <br/><br/>
-        {aboutText.additionalInfo}
-      </p>
+
+      <div className="text-xl md:text-2xl text-[var(--theme-text-secondary)] leading-relaxed space-y-8 font-sans font-light">
+        <div className="markdown-content">
+          <ReactMarkdown
+            components={{
+              a: ({ node, ...props }) => (
+                <a 
+                  {...props} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-[var(--theme-text-primary)] hover:underline decoration-1 underline-offset-4 transition-all" 
+                />
+              )
+            }}
+          >
+            {aboutText.mainDescription}
+          </ReactMarkdown>
+        </div>
+        <p>{aboutText.additionalInfo}</p>
+      </div>
+
+      <div className="flex items-center space-x-8 mt-16">
+        <Link 
+          href={socialLinks.github}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${socialLinkStyles} hover:scale-110 transition-transform duration-200`}
+          aria-label="GitHub"
+        >
+          <FaGithub className="w-7 h-7" />
+        </Link>
+        <Link 
+          href={socialLinks.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${socialLinkStyles} hover:scale-110 transition-transform duration-200`}
+          aria-label="LinkedIn"
+        >
+          <FaLinkedin className="w-7 h-7" />
+        </Link>
+        <Link 
+          href={socialLinks.twitter}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${socialLinkStyles} hover:scale-110 transition-transform duration-200`}
+          aria-label="Twitter"
+        >
+          <FaTwitter className="w-7 h-7" />
+        </Link>
+        <Link 
+          href={socialLinks.instagram}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${socialLinkStyles} hover:scale-110 transition-transform duration-200`}
+          aria-label="Instagram"
+        >
+          <FaInstagram className="w-7 h-7" />
+        </Link>
+        <a 
+          href={socialLinks.email}
+          className={`${socialLinkStyles} hover:scale-110 transition-transform duration-200`}
+          aria-label="Email"
+        >
+          <FaEnvelope className="w-7 h-7" />
+        </a>
+        <a 
+          href="/resume.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${socialLinkStyles} hover:scale-110 transition-transform duration-200`}
+          aria-label="Resume"
+          title="Download Resume"
+        >
+          <FaFileAlt className="w-6 h-6" />
+        </a>
+      </div>
     </div>
   );
 };
