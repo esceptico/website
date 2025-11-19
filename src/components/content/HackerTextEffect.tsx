@@ -68,6 +68,13 @@ const HackerTextEffect: React.FC<HackerTextEffectProps> = ({
   };
 
   useEffect(() => {
+    // Check for reduced motion preference
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) {
+      setDisplayText(texts[0]);
+      return;
+    }
+
     if (texts.length === 0) return;
 
     // Extract primitive values from objects to avoid dependency issues

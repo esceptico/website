@@ -1,5 +1,3 @@
-'use client';
-
 import { AboutPage } from '@/components/content/AboutPage';
 
 export default function Home() {
