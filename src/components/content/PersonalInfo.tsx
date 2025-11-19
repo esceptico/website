@@ -35,7 +35,7 @@ export const PersonalInfo = () => {
   };
   
   return (
-    <div className="relative text-left pt-32 md:pt-40 pb-16 max-w-3xl"> 
+    <div className="relative text-left pt-24 md:pt-40 pb-16 max-w-3xl"> 
       <div className="mb-10">
         <h1 
           className="text-3xl md:text-4xl font-bold text-[var(--theme-text-primary)] tracking-tight cursor-pointer select-none flex items-center min-w-[300px] min-h-[4rem]"
