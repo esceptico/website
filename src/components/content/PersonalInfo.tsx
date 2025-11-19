@@ -57,7 +57,7 @@ export const PersonalInfo = () => {
         <div className="markdown-content">
           <ReactMarkdown
             components={{
-              a: ({ node, ...props }) => (
+              a: ({ ...props }) => (
                 <a 
                   {...props} 
                   target="_blank" 

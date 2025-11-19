@@ -77,7 +77,6 @@ const HackerTextEffect: React.FC<HackerTextEffectProps> = ({
 
     if (texts.length === 0) return;
 
-    // Extract primitive values from objects to avoid dependency issues
     const { min: iterMin, max: iterMax } = iterationsPerReveal;
     const { min: initialSpeedMin, max: initialSpeedMax } = iterationSpeed.initial;
     const { min: runningSpeedMin, max: runningSpeedMax } = iterationSpeed.running;
@@ -203,24 +202,10 @@ const HackerTextEffect: React.FC<HackerTextEffectProps> = ({
         clearTimeout(glitchTimeoutRef.current);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     currentTextIndex, 
     texts, 
-    cycleDelay, 
-    cycleDelayVariation,
-    iterationsPerReveal.min,
-    iterationsPerReveal.max,
-    iterationSpeed.initial.min,
-    iterationSpeed.initial.max,
-    iterationSpeed.running.min,
-    iterationSpeed.running.max,
-    startDelay.min,
-    startDelay.max,
-    glitchConfig.chance,
-    glitchConfig.duration.min,
-    glitchConfig.duration.max,
-    glitchConfig.frequency.min,
-    glitchConfig.frequency.max
   ]);
 
   return (
@@ -228,9 +213,7 @@ const HackerTextEffect: React.FC<HackerTextEffectProps> = ({
       {/* SVG Filters for Chromatic Aberration */}
       <svg className="fixed w-0 h-0" aria-hidden="true">
         <defs>
-          {/* Chromatic aberration filter */}
           <filter id="hackerTextChromaticAberration">
-            {/* Increased offset values for stronger separation */}
             <feOffset in="SourceGraphic" dx={isGlitching ? -3 * glitchIntensity : 0} dy="0" result="r" />
             <feOffset in="SourceGraphic" dx={isGlitching ? 3 * glitchIntensity : 0} dy="0" result="b" />
             <feComponentTransfer in="r" result="red">
