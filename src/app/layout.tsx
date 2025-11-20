@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Poppins, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "./ClientLayout";
 
-const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: '--font-poppins'
+});
 
 // Use JetBrains Mono - modern and smooth monospace font
 const jetbrainsMono = JetBrains_Mono({ 
@@ -38,11 +42,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`antialiased ${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`antialiased ${poppins.variable} ${jetbrainsMono.variable}`}>
       <head>
         <meta name="theme-color" content="#121212" />
       </head>
-      <body className={inter.className}>
+      <body className={poppins.className}>
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

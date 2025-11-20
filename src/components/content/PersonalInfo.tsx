@@ -36,24 +36,24 @@ export const PersonalInfo = () => {
   
   return (
     <div className="relative text-left pt-24 md:pt-40 pb-16 max-w-3xl"> 
-      <div className="mb-10">
+      <div className="mb-8">
         <h1 
-          className="text-3xl md:text-4xl font-bold text-[var(--theme-text-primary)] tracking-tight cursor-pointer select-none flex items-center min-w-[300px] min-h-[4rem]"
+          className="text-xl md:text-2xl font-normal text-[var(--theme-text-primary)] tracking-tight cursor-pointer select-none flex items-center min-w-[300px] min-h-[3rem]"
           onClick={handleHackerTextClick}
         >
           {showEasterEgg ? (
             <span className="inline-block relative">
-              <span className="font-jetbrains-mono text-3xl md:text-4xl select-none inline-block">
+              <span className="font-jetbrains-mono text-xl md:text-2xl select-none inline-block">
                 there are no easter eggs here
               </span>
             </span>
           ) : (
-            <HackerTextEffect texts={textItems} className="text-3xl md:text-4xl" />
+            <HackerTextEffect texts={textItems} className="text-xl md:text-2xl font-normal" />
           )}
         </h1>
       </div>
 
-      <div className="text-xl md:text-2xl text-[var(--theme-text-secondary)] leading-relaxed space-y-8 font-sans font-light">
+      <div className="text-base text-[var(--theme-text-primary)] leading-relaxed space-y-6 font-normal">
         <div className="markdown-content">
           <ReactMarkdown
             components={{
