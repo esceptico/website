@@ -62,7 +62,7 @@ export const PersonalInfo = () => {
                   {...props} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="text-[var(--theme-text-primary)] hover:underline decoration-1 underline-offset-4 transition-all" 
+                  className="hover-link transition-colors" 
                 />
               )
             }}
