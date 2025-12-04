@@ -95,8 +95,8 @@ export default function ClientLayout({
         transition={transitions.page}
         className="min-h-screen relative pt-16" 
       >
-        {/* Theme Toggle - Top Left */}
-        <div className="fixed top-4 left-4 z-50">
+        {/* Theme Toggle - Top Right */}
+        <div className="fixed top-0 right-6 z-50 h-14 flex items-center">
           <ColorSchemeToggle />
         </div>
 

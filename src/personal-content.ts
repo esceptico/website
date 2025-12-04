@@ -39,7 +39,7 @@ export const getTimeBasedGreeting = (): string => {
 
 // About Text
 export const aboutText = {
-  mainDescription: `Machine Learning Engineer specializing in post-training and safety alignment for production LLM systems. I build preference learning pipelines, train safety classifiers, and optimize low-latency inference. Previously led alignment work at [Replika](https://replika.com), shipping models trained on user feedback at scale.`,
+  mainDescription: `Machine Learning Engineer specializing in post-training and safety alignment for production LLM systems. I build preference learning pipelines, train safety classifiers, and optimize low-latency inference. Previously led alignment work at [Replika](https://replika.com), shipping models trained on user feedback at scale. I also write [annotated code explanations](/docs) on ML topics. Here's my [CV](/resume.pdf).`,
   additionalInfo: `Outside of work, I'm into photography – shooting city scenes, people, and everything that catches my eye.`
 } as const;
 

@@ -2,14 +2,164 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   Doc Chunk Hover Effect
+   ============================================ */
+
+.doc-chunk {
+  position: relative;
+}
+
+.doc-chunk::before {
+  content: '';
+  position: absolute;
+  inset: -4px -16px;
+  border-radius: 8px;
+  background: transparent;
+  transition: background-color 0.25s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.dark .doc-chunk:hover::before {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+html:not(.dark) .doc-chunk:hover::before {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* ============================================
+   Code Syntax Highlighting
+   ============================================ */
+
+/* Dark mode syntax - muted, elegant palette */
+.dark .hljs-keyword,
+.dark .hljs-built_in {
+  color: #c9a0dc;
+}
+
+.dark .hljs-type {
+  color: #7ec8e3;
+}
+
+.dark .hljs-string,
+.dark .hljs-regexp {
+  color: #a8d5a2;
+}
+
+.dark .hljs-number,
+.dark .hljs-literal {
+  color: #f0b67f;
+}
+
+.dark .hljs-function .hljs-title,
+.dark .hljs-title.function_ {
+  color: #dcdcaa;
+}
+
+.dark .hljs-comment {
+  color: #6a6a6a;
+  font-style: italic;
+}
+
+.dark .hljs-class .hljs-title,
+.dark .hljs-title.class_ {
+  color: #7ec8e3;
+}
+
+.dark .hljs-variable,
+.dark .hljs-attr,
+.dark .hljs-attribute {
+  color: #d4d4d4;
+}
+
+.dark .hljs-params {
+  color: #9cdcfe;
+}
+
+.dark .hljs-punctuation,
+.dark .hljs-operator {
+  color: #b0b0b0;
+}
+
+.dark .hljs-property {
+  color: #9cdcfe;
+}
+
+.dark .hljs-meta,
+.dark .hljs-decorator {
+  color: #dcdcaa;
+}
+
+/* Light mode syntax */
+html:not(.dark) .hljs-keyword,
+html:not(.dark) .hljs-built_in {
+  color: #8b3e8b;
+}
+
+html:not(.dark) .hljs-type {
+  color: #2b6e99;
+}
+
+html:not(.dark) .hljs-string,
+html:not(.dark) .hljs-regexp {
+  color: #3a7d44;
+}
+
+html:not(.dark) .hljs-number,
+html:not(.dark) .hljs-literal {
+  color: #c75000;
+}
+
+html:not(.dark) .hljs-function .hljs-title,
+html:not(.dark) .hljs-title.function_ {
+  color: #795e26;
+}
+
+html:not(.dark) .hljs-comment {
+  color: #999999;
+  font-style: italic;
+}
+
+html:not(.dark) .hljs-class .hljs-title,
+html:not(.dark) .hljs-title.class_ {
+  color: #2b6e99;
+}
+
+html:not(.dark) .hljs-variable,
+html:not(.dark) .hljs-attr,
+html:not(.dark) .hljs-attribute {
+  color: #333333;
+}
+
+html:not(.dark) .hljs-params {
+  color: #1a5276;
+}
+
+html:not(.dark) .hljs-punctuation,
+html:not(.dark) .hljs-operator {
+  color: #555555;
+}
+
+html:not(.dark) .hljs-property {
+  color: #1a5276;
+}
+
+html:not(.dark) .hljs-meta,
+html:not(.dark) .hljs-decorator {
+  color: #795e26;
+}
+
 
 
 /* Root HTML element styling */
 html {
+  /* Scale down overall size (85% of default 16px = ~13.6px) */
+  font-size: 85%;
   /* Always apply background to html element */
   background-color: var(--theme-bg-primary, rgb(18, 18, 18));
   color: var(--theme-text-primary, rgb(225, 225, 225));
-  scroll-behavior: smooth;
   height: 100%;
   overflow-x: hidden;
 }
@@ -59,17 +209,18 @@ a {
 /* Animated Link Underline */
 .hover-link {
   text-decoration: none;
-  font-weight: 500; /* Accent links with slightly heavier weight */
+  font-weight: 500;
+  color: var(--theme-text-primary);
   background-image: linear-gradient(currentColor, currentColor);
-  background-position: 0% 100%;
+  background-position: 100% 100%;
   background-repeat: no-repeat;
-  background-size: 0% 1px;
-  transition: background-size 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  padding-bottom: 2px;
+  background-size: 100% 1px;
+  padding-bottom: 0px;
+  transition: background-size 0.3s ease-out;
 }
 
 .hover-link:hover {
-  background-size: 100% 1px;
+  background-size: 0% 1px;
 }
 
 /* 404 Page - Glitch Effects */

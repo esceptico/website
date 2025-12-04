@@ -9,12 +9,10 @@ export default function ColorSchemeToggle() {
   return (
     <button
       onClick={toggleColorScheme}
-      className="font-mono text-sm md:text-base text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors select-none"
+      className="font-mono text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors select-none"
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
     >
-      <span>[</span>
-      <span className="mx-0.5">{isDark ? 'dark' : 'light'}</span>
-      <span>]</span>
+      [ {isDark ? 'dark' : 'light'} ]
     </button>
   );
 }

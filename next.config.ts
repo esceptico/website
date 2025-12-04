@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
       type: "asset/resource",
     });
     
+    
     // Add aliases for node-specific modules when bundling for the browser
     config.resolve.alias = {
       ...config.resolve.alias,

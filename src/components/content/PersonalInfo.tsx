@@ -1,7 +1,7 @@
 'use client';
 
 import HackerTextEffect from './HackerTextEffect';
-import { FaGithub, FaLinkedin, FaEnvelope, FaInstagram, FaTwitter, FaFileAlt } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaEnvelope, FaInstagram, FaTwitter } from 'react-icons/fa';
 import Link from 'next/link';
 import { socialLinks, hackerTextItems, aboutText, getTimeBasedGreeting } from '@/personal-content';
 import { useState, useEffect, useMemo } from 'react';
@@ -57,14 +57,31 @@ export const PersonalInfo = () => {
         <div className="markdown-content">
           <ReactMarkdown
             components={{
-              a: ({ ...props }) => (
-                <a 
-                  {...props} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="hover-link transition-colors" 
-                />
-              )
+              a: ({ href, children, ...props }) => {
+                const isInternal = href?.startsWith('/');
+                const isPdf = href?.endsWith('.pdf');
+                if (isInternal && !isPdf) {
+                  return (
+                    <Link 
+                      href={href || '/'} 
+                      className="hover-link transition-colors"
+                    >
+                      {children}
+                    </Link>
+                  );
+                }
+                return (
+                  <a 
+                    href={href}
+                    {...props} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover-link transition-colors" 
+                  >
+                    {children}
+                  </a>
+                );
+              }
             }}
           >
             {aboutText.mainDescription}
@@ -116,16 +133,6 @@ export const PersonalInfo = () => {
           aria-label="Email"
         >
           <FaEnvelope className="w-7 h-7" />
-        </a>
-        <a 
-          href="/resume.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`${socialLinkStyles} hover:scale-110 transition-transform duration-200`}
-          aria-label="Resume"
-          title="Download Resume"
-        >
-          <FaFileAlt className="w-6 h-6" />
         </a>
       </div>
     </div>
