@@ -61,8 +61,8 @@ class RoPE(nn.Module):
     def _compute_inverse_frequencies(self):
 
 # for \`head_dim=8\`, we get 4 frequencies (one per 2D plane).
-# \`freq_i = 1 / theta^(2i/d)\` where \`i = 0, 1, 2, 3\`
-# \`freq_0\` is highest (fastest rotation), \`freq_3\` is lowest (slowest).
+# $f_i = 1 / \\theta^{2i/d}$ where \`i = 0, 1, 2, 3\`
+# $f_0$ is highest (fastest rotation), $f_3$ is lowest (slowest).
         scale = torch.arange(0, self.head_dim, 2) / self.head_dim
         radians = 1.0 / self.theta ** scale
         return radians
@@ -84,7 +84,7 @@ class RoPE(nn.Module):
                 "rotary_dim, batch seq -> batch seq rotary_dim"
             )
 
-# \`torch.polar(r, θ)\` = \`r * e^(iθ)\`. \`r=1\` gives unit vectors.
+# \`torch.polar(r, θ)\` gives $r \\cdot e^{i\\theta}$. \`r=1\` gives unit vectors.
             freqs_cis = torch.polar(abs=torch.ones_like(freqs), angle=freqs)
 
         return freqs_cis.to(dtype=x.dtype)
@@ -106,7 +106,7 @@ def apply_rope(query, key, freqs_cis):
 # just a view change, no computation.
         x_complex = torch.view_as_complex(x_split.contiguous())
 
-# rotate: \`(a + bi) * e^(iθ)\` rotates the point by angle θ.
+# rotate: $(a + bi) \\cdot e^{i\\theta}$ rotates the point by angle θ.
         x_rotated = x_complex * freqs_cis.unsqueeze(-2)
 
 # back to real: \`a + bi\` -> \`[a, b]\`.
@@ -124,8 +124,8 @@ def apply_rope(query, key, freqs_cis):
 
 # ## Alternative: Sin/Cos Version
 # 
-# most codebases (LLaMA, HuggingFace) skip complex numbers and use the
-# rotation matrix directly: \`x' = x * cos - y * sin, y' = x * sin + y * cos\`
+# most codebases (HuggingFace Transformers for [example](https://github.com/huggingface/transformers/blob/3a8d291ac439fca3decb9b800ea22500cffeaf50/src/transformers/models/llama/modeling_llama.py#L138)) skip complex numbers and use the
+# rotation matrix directly: $x' = x \\cos\\theta - y \\sin\\theta$, $y' = x \\sin\\theta + y \\cos\\theta$
 
 def rotate_half(x):
     x1 = x[..., : x.shape[-1] // 2]
