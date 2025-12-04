@@ -156,7 +156,7 @@ html:not(.dark) .hljs-decorator {
 /* Root HTML element styling */
 html {
   /* Scale down overall size (85% of default 16px = ~13.6px) */
-  font-size: 85%;
+  font-size: 95%;
   /* Always apply background to html element */
   background-color: var(--theme-bg-primary, rgb(18, 18, 18));
   color: var(--theme-text-primary, rgb(225, 225, 225));

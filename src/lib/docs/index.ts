@@ -1,9 +1,6 @@
 import { parse } from './parser';
 import type { DocMeta, ParsedDocument } from './types';
-import { mhaContent } from '@/content/docs/mha';
-import { grpoContent } from '@/content/docs/grpo';
-import { dpoContent } from '@/content/docs/dpo';
-import { samplingContent } from '@/content/docs/sampling';
+import { ropeContent } from '@/content/docs/rope';
 
 interface DocEntry {
   slug: string;
@@ -13,39 +10,12 @@ interface DocEntry {
 
 const docs: DocEntry[] = [
   {
-    slug: 'mha',
-    content: mhaContent,
+    slug: 'rope',
+    content: ropeContent,
     meta: {
-      title: 'Attention Mechanisms: MHA, MQA, GQA',
-      description: 'Multi-Head, Multi-Query, and Grouped-Query Attention with KV-cache optimizations',
-      date: '2024-12-04',
-    },
-  },
-  {
-    slug: 'grpo',
-    content: grpoContent,
-    meta: {
-      title: 'Group Relative Policy Optimization',
-      description: 'GRPO algorithm for efficient LLM fine-tuning without a critic network',
-      date: '2024-12-03',
-    },
-  },
-  {
-    slug: 'dpo',
-    content: dpoContent,
-    meta: {
-      title: 'Direct Preference Optimization',
-      description: 'Simplifying RLHF by eliminating the reward model with a closed-form solution',
-      date: '2024-12-02',
-    },
-  },
-  {
-    slug: 'sampling',
-    content: samplingContent,
-    meta: {
-      title: 'Top-k and Top-p Sampling',
-      description: 'Decoding strategies for language model text generation',
-      date: '2024-12-01',
+      title: 'Rotary Position Embeddings (RoPE)',
+      description: 'Position encoding via rotation — the method behind LLaMA, Qwen, and Mistral',
+      date: '2025-12-04',
     },
   },
 ];
