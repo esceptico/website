@@ -75,16 +75,27 @@ function parseMarkdown(text: string): string {
     (match) => parseTable(match)
   );
   
-  let html = text
+  // First, protect code blocks by replacing them with placeholders
+  const codeBlocks: string[] = [];
+  let processed = text.replace(/`([^`]+)`/g, (_, code) => {
+    codeBlocks.push(code);
+    return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
+  });
+  
+  let html = processed
     .replace(/^### (.+)$/gm, '<h3 class="text-base font-medium text-[var(--theme-text-primary)] mb-1">$1</h3>')
     .replace(/^## (.+)$/gm, '<h2 class="text-lg font-medium text-[var(--theme-text-primary)] mb-2">$1</h2>')
     .replace(/^# (.+)$/gm, '<h1 class="text-xl font-medium text-[var(--theme-text-primary)] mb-2">$1</h1>')
     .replace(/\*\*(.+?)\*\*/g, '<strong class="font-medium text-[var(--theme-text-primary)]">$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/`([^`]+)`/g, '<code class="font-mono text-[0.85em] bg-[var(--theme-text-primary)]/5 px-1.5 py-0.5 rounded text-[var(--theme-text-primary)]">$1</code>')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="hover-link" target="_blank">$1</a>')
     .replace(/^- (.+)$/gm, '<li class="ml-4">$1</li>')
-    .replace(/\n\n/g, '</p><p class="mb-2">')
+    .replace(/\n\n/g, '</p><p class="mb-2">');
+  
+  // Restore code blocks
+  html = html.replace(/__CODE_BLOCK_(\d+)__/g, (_, idx) => {
+    return `<code class="font-jetbrains-mono text-[0.95em] text-[var(--theme-text-primary)]/80">${codeBlocks[parseInt(idx)]}</code>`;
+  })
   
   if (!html.startsWith('<h') && !html.startsWith('<li') && !html.startsWith('<div')) {
     html = `<p class="mb-2">${html}</p>`;

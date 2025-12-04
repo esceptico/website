@@ -1,21 +1,23 @@
 export const ropeContent = `# # Rotary Position Embeddings (RoPE)
 # 
-# RoPE is a position encoding method introduced in the RoFormer paper
-# that encodes position information by rotating feature vectors.
-# Unlike absolute or learned position embeddings, RoPE naturally
-# captures relative positions through the properties of rotation.
+# Transformers have no built-in notion of order – they see tokens as a set,
+# not a sequence. RoPE fixes this by encoding position into attention itself.
 # 
-# The key insight: if we rotate query and key vectors by angles
-# proportional to their positions, their dot product will depend
-# only on the *relative* distance between positions.
+# The core idea: if you rotate vector A by angle α and vector B by angle β,
+# their dot product depends on (α - β). So if we rotate each token's q/k
+# by an angle proportional to its position, attention scores will reflect
+# *relative* distance between tokens. Token 3 and token 5? The angle
+# difference is the same as between token 10 and token 12.
 # 
-# **Implementation note**: This implementation uses complex number
-# multiplication for rotation. While most codebases (LLaMA, HuggingFace)
-# use explicit sin/cos formulas, the complex plane approach is simpler
-# to understand — rotation is just multiplication by $e^{i\\theta}$.
+# Why 2D? 1D is just scaling, not rotation. Higher-D needs rotation
+# matrices and doesn't really help. 2D hits the sweet spot: real rotation,
+# simple complex math, and each pair gets its own frequency. High frequencies
+# pick up nearby tokens, low frequencies pick up distant ones.
 # 
-# We also use [einops](https://github.com/arogozhnikov/einops) for
-# tensor operations — it makes the transformations more readable.
+# I use complex numbers because rotating (x, y) by θ is just multiplying
+# (x + iy) by $e^{i\\theta}$. Same math, cleaner code.
+# 
+# also [einops](https://github.com/arogozhnikov/einops) – easier to follow the tensor shapes.
 
 from dataclasses import dataclass
 
@@ -23,31 +25,22 @@ import torch
 from einops import einsum, rearrange
 from torch import nn
 
-# ## Configuration
-# 
-# RoPE requires knowing the head dimension (for computing rotation
-# frequencies) and theta (base frequency, typically 10,000).
-# 
-# Higher theta values extend the effective context length by
-# making the rotation frequencies decay more slowly.
+# ## Config
 
 @dataclass
 class Config:
-    hidden_size: int = 16
+
+# \`head_dim\` must be even – we pair up dimensions for 2D rotation
     head_dim: int = 8
     num_attention_heads: int = 4
+
+# base frequency. \`10_000\` is standard. higher = slower decay = longer context
     rope_theta: float = 10_000
 
-# ## Rotary Position Embeddings
+# ## Computing Frequencies
 # 
-# The core idea: treat pairs of features as 2D coordinates and
-# rotate them based on position. Different feature pairs rotate
-# at different frequencies (like a Fourier basis).
-# 
-# Mathematically, for position $m$ and dimension $d$:
-# $$\\theta_d = \\frac{1}{\\theta_{base}^{2d/D}}$$
-# 
-# Where $D$ is the head dimension and $d$ indexes the dimension pairs.
+# Each pair of dimensions rotates at a different frequency.
+# Pair 0 rotates fast, pair 1 slower, pair 2 even slower, etc.
 
 class RoPE(nn.Module):
     def __init__(self, config: Config):
@@ -57,74 +50,82 @@ class RoPE(nn.Module):
         self.head_dim = config.head_dim
 
         inv_freq = self._compute_inverse_frequencies()
+
+# \`register_buffer\` stores \`inv_freq\` as part of the module.
+# not a learnable parameter, but moves to GPU when you call \`.cuda()\`
+# and gets included when you save/load the model.
+# 
+# \`persistent=False\` means don't save it – we recompute in \`__init__\` anyway.
         self.register_buffer("inv_freq", inv_freq, persistent=False)
 
     def _compute_inverse_frequencies(self):
+
+# for \`head_dim=8\`, we get 4 frequencies (one per 2D plane).
+# \`freq_i = 1 / theta^(2i/d)\` where \`i = 0, 1, 2, 3\`
+# \`freq_0\` is highest (fastest rotation), \`freq_3\` is lowest (slowest).
         scale = torch.arange(0, self.head_dim, 2) / self.head_dim
         radians = 1.0 / self.theta ** scale
         return radians
 
+# for each position \`p\` and frequency \`f\`: \`angle = p * f\`
+# 
+# position 0 gets angles \`[0, 0, 0, 0]\`, position 5 gets angles \`[5*f0, 5*f1, 5*f2, 5*f3]\`
+# 
+# then convert to complex: $e^{i\\theta} = \\cos\\theta + i\\sin\\theta$
+# these are unit vectors we'll multiply with to rotate.
+# 
+# also, we force float32 to avoid precision issues with bfloat16.
+# see: [HuggingFace PR #29285](https://github.com/huggingface/transformers/pull/29285)
     @torch.no_grad()
     def forward(self, x, position_ids):
-
-# Returns cis (cis is short for cos + i*sin) – complex exponentials $e^{i\\theta}$
-# for rotation, shape (..., seq, rotary_dim).
-# Rotates each pair of features by position-dependent angles.
-# 
-# Enforce float32 even if user is using bfloat16.
-# See: [HuggingFace Transformers PR #29285](https://github.com/huggingface/transformers/pull/29285)
         with torch.autocast(device_type=x.device.type, enabled=False):
             freqs = einsum(
                 self.inv_freq.float(), position_ids.float(),
                 "rotary_dim, batch seq -> batch seq rotary_dim"
             )
+
+# \`torch.polar(r, θ)\` = \`r * e^(iθ)\`. \`r=1\` gives unit vectors.
             freqs_cis = torch.polar(abs=torch.ones_like(freqs), angle=freqs)
 
         return freqs_cis.to(dtype=x.dtype)
 
-# ## Applying Rotations (Complex Number Approach)
+# ## Applying Rotation
 # 
-# RoPE encodes position information by rotating feature vectors
-# based on their position. Each pair of adjacent features is
-# treated as a 2D point and rotated in that plane.
-# 
-# We use complex multiplication: rotating a point $(a, b)$ by angle
-# $\\theta$ is equivalent to multiplying $(a + bi)$ by $e^{i\\theta}$.
+# now we rotate query and key vectors using the angles we computed.
+# each pair of adjacent features is one 2D plane.
 
 def apply_rope(query, key, freqs_cis):
 
     def rotate(x):
 
-# Reshape last dim from (d,) to (d/2, 2) – pair adjacent features.
-# E.g., [f0, f1, f2, f3] -> [[f0, f1], [f2, f3]]
+# pair adjacent dims: \`[d0, d1, d2, d3, ...]\` -> \`[[d0, d1], [d2, d3], ...]\`
+# each pair is a point on a 2D plane.
         x_split = rearrange(x, "... (pairs two) -> ... pairs two", two=2)
 
-# Convert pairs to complex numbers: [a, b] -> a + bi
+# reinterpret \`[a, b]\` as complex number \`a + bi\`.
+# just a view change, no computation.
         x_complex = torch.view_as_complex(x_split.contiguous())
 
-# Rotate by multiplying with $e^{i\\theta}$ from freqs_cis.
-# This applies a different rotation angle to each position.
+# rotate: \`(a + bi) * e^(iθ)\` rotates the point by angle θ.
         x_rotated = x_complex * freqs_cis.unsqueeze(-2)
 
-# Convert back to real pairs and flatten to original shape.
+# back to real: \`a + bi\` -> \`[a, b]\`.
         x_out = torch.view_as_real(x_rotated).flatten(-2)
         return x_out
 
     query_out = rotate(query)
     key_out = rotate(key)
 
+# that's it. now use rotated q/k in attention:
+# \`scores = (query_out @ key_out.T) / sqrt(d)\`
+# 
+# the dot product now encodes relative position.
     return query_out.type_as(query), key_out.type_as(key)
 
-# ## Alternative: Explicit Rotation (Common Pattern)
+# ## Alternative: Sin/Cos Version
 # 
-# Most implementations (LLaMA, HuggingFace Transformers) use the
-# explicit rotation matrix formula instead of complex numbers.
-# Mathematically equivalent, but more verbose.
-# 
-# The 2D rotation formula:
-# $$\\begin{bmatrix} x' \\\\ y' \\end{bmatrix} = \\begin{bmatrix} \\cos\\theta & -\\sin\\theta \\\\ \\sin\\theta & \\cos\\theta \\end{bmatrix} \\begin{bmatrix} x \\\\ y \\end{bmatrix}$$
-# 
-# Which simplifies to: $x' = x \\cos\\theta - y \\sin\\theta$, $y' = x \\sin\\theta + y \\cos\\theta$
+# most codebases (LLaMA, HuggingFace) skip complex numbers and use the
+# rotation matrix directly: \`x' = x * cos - y * sin, y' = x * sin + y * cos\`
 
 def rotate_half(x):
     x1 = x[..., : x.shape[-1] // 2]
@@ -133,18 +134,4 @@ def rotate_half(x):
 
 def apply_rope_explicit(x, cos, sin):
     return (x * cos) + (rotate_half(x) * sin)
-
-# ## Why RoPE Works
-# 
-# When we compute attention: $q_m^T k_n$ (query at position $m$,
-# key at position $n$), the rotation angles are $m\\theta$ and $n\\theta$.
-# 
-# The dot product of rotated vectors depends on the *difference*
-# of angles: $(m - n)\\theta$. This means attention naturally
-# captures relative position without explicit position biases.
-# 
-# Benefits:
-# - Extrapolates to longer sequences than seen in training
-# - No learned position embeddings needed
-# - Computationally efficient (just complex multiplication)
 `;
