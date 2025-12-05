@@ -2,6 +2,7 @@
 ---
 title: Direct Preference Optimization (DPO)
 summary: Train LLMs from human preferences without a reward model
+date: 2025-12-06
 ---
 
 # Direct Preference Optimization (DPO)

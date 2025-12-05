@@ -2,6 +2,7 @@
 ---
 title: Rotary Position Embeddings (RoPE)
 summary: Position encoding via rotation – the method behind LLaMA, Qwen, and Mistral
+date: 2025-12-04
 ---
 
 # Rotary Position Embeddings (RoPE)
