@@ -7,6 +7,12 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import type { Chunk } from '@/lib/docs/types';
 
+interface DocChunkProps {
+  chunk: Chunk;
+  language: string;
+  index: number;
+}
+
 function highlightCode(code: string, language: string): string {
   try {
     return hljs.highlight(code, { language }).value;
