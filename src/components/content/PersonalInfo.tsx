@@ -71,12 +71,12 @@ export const PersonalInfo = () => {
                   );
                 }
                 return (
-                  <a 
+                <a 
                     href={href}
-                    {...props} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="hover-link transition-colors" 
+                  {...props} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hover-link transition-colors" 
                   >
                     {children}
                   </a>

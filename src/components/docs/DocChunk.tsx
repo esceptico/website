@@ -80,20 +80,23 @@ export function DocChunk({ chunk, language, index }: DocChunkProps) {
         transition: 'background-color 0.2s ease',
       }}
     >
-      {/* Two column layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
-        {/* Code - Left side */}
-        <div className={`py-3 ${!hasCode ? 'hidden lg:block opacity-0' : ''}`}>
-          <pre className="overflow-x-auto">
-            <code 
-              className="font-jetbrains-mono text-[0.85rem] leading-[1.7] tracking-[-0.01em] block"
-              dangerouslySetInnerHTML={{ __html: codeHtml }}
-            />
-          </pre>
+      {/* Two column layout - docs first on mobile */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-8">
+        {/* Code - Left side on desktop, second on mobile */}
+        <div className={`py-3 order-2 lg:order-1 ${!hasCode ? 'hidden lg:block opacity-0' : ''}`}>
+          {/* Mobile: code gets subtle background to group with doc above */}
+          <div className="lg:bg-transparent bg-[var(--theme-text-primary)]/[0.03] -mx-4 px-4 py-2 rounded-lg lg:mx-0 lg:px-0 lg:py-0 lg:rounded-none">
+            <pre className="overflow-x-auto">
+              <code 
+                className="font-jetbrains-mono text-[0.85rem] leading-[1.7] tracking-[-0.01em] block"
+                dangerouslySetInnerHTML={{ __html: codeHtml }}
+              />
+            </pre>
+          </div>
         </div>
 
-        {/* Docs - Right side */}
-        <div className={`py-3 lg:pl-6 lg:border-l border-[var(--theme-border)] ${!hasDoc ? 'opacity-30' : ''}`}>
+        {/* Docs - Right side on desktop, first on mobile */}
+        <div className={`py-3 order-1 lg:order-2 lg:pl-6 lg:border-l border-[var(--theme-border)] ${!hasDoc ? 'opacity-30' : ''}`}>
           <div className="text-[0.875rem] text-[var(--theme-text-secondary)] leading-relaxed">
             <ReactMarkdown
               remarkPlugins={[remarkMath]}
@@ -105,6 +108,9 @@ export function DocChunk({ chunk, language, index }: DocChunkProps) {
           </div>
         </div>
       </div>
+      
+      {/* Mobile separator between chunks */}
+      <div className="lg:hidden h-px bg-[var(--theme-border)] my-4 -mx-4" />
     </div>
   );
 }
