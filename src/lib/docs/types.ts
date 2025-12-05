@@ -26,6 +26,10 @@ export interface ParsedDocument {
   chunks: Chunk[]
   /** Document title (from first # header if present) */
   title?: string
+  /** Document summary/description */
+  summary?: string
+  /** Document date */
+  date?: string
 }
 
 /**

@@ -13,11 +13,11 @@ import type { DocMeta, ParsedDocument, Chunk } from './types';
  * 3. Everything else → code
  */
 
-function parse(source: string, filename: string): { doc: ParsedDocument; meta: { title?: string; summary?: string } } {
+function parse(source: string, filename: string): { doc: ParsedDocument; meta: { title?: string; summary?: string; date?: string } } {
   const lines = source.split('\n');
   const chunks: Chunk[] = [];
   let i = 0;
-  let meta: { title?: string; summary?: string } = {};
+  let meta: { title?: string; summary?: string; date?: string } = {};
 
   // Skip leading empty lines
   while (i < lines.length && !lines[i].trim()) i++;
@@ -35,7 +35,11 @@ function parse(source: string, filename: string): { doc: ParsedDocument; meta: {
     i++; // skip closing """
     
     const { data, content } = matter(docLines.join('\n').trim());
-    meta = { title: data.title, summary: data.summary };
+    meta = { 
+      title: data.title, 
+      summary: data.summary,
+      date: data.date ? new Date(data.date).toISOString().split('T')[0] : undefined
+    };
     
     if (content.trim()) {
       chunks.push({ doc: content.trim(), code: '', lineStart: 1, lineEnd: i, isHeader: true });
@@ -81,7 +85,17 @@ function parse(source: string, filename: string): { doc: ParsedDocument; meta: {
   
   flush();
 
-  return { doc: { filename, language: 'python', chunks, title: meta.title }, meta };
+  return { 
+    doc: { 
+      filename, 
+      language: 'python', 
+      chunks, 
+      title: meta.title,
+      summary: meta.summary,
+      date: meta.date
+    }, 
+    meta 
+  };
 }
 
 // File loading
@@ -96,7 +110,13 @@ function loadDocs(): Map<string, { document: ParsedDocument; meta: DocMeta }> {
       const { doc, meta } = parse(content, file);
       cache.set(slug, {
         document: doc,
-        meta: { slug, title: meta.title || slug, description: meta.summary || '', language: 'python' },
+        meta: { 
+          slug, 
+          title: meta.title || slug, 
+          description: meta.summary || '', 
+          language: 'python',
+          date: meta.date
+        },
       });
     }
   } catch (e) {
