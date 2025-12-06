@@ -113,9 +113,9 @@ export function DocChunk({ chunk, language, index }: DocChunkProps) {
         id={`chunk-${index}`}
         data-chunk-index={index}
         data-chunk-header={chunk.isHeader}
-        className="mb-10 pb-8 border-b border-[var(--theme-border)]"
+        className="mb-10 pb-8 border-b border-[var(--theme-border)] px-4 lg:px-8"
       >
-        <div className="text-[0.925rem] text-[var(--theme-text-secondary)] leading-relaxed">
+        <div className="text-md text-[var(--theme-text-secondary)] leading-relaxed">
           <ReactMarkdown
             remarkPlugins={[remarkMath]}
             rehypePlugins={[rehypeKatex]}

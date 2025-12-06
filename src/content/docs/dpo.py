@@ -10,13 +10,13 @@ date: 2025-12-06
 ## Bradley-Terry Model
 
 DPO starts from the **Bradley-Terry model**, which connects rewards to preferences.
-This model expresses the probability that a human prefers response $y_w$ (winner) over $y_l$ (loser) given prompt $x$:
+This model expresses the probability that a human prefers response $y_w$ (**winner**) over $y_l$ (**loser**) given prompt $x$:
 
 $$
 p(y_w \succ y_l | x) = \sigma(r(x, y_w) - r(x, y_l))
 $$
 
-where $r(x, y)$ is the implicit reward model ($r(x, y_w)$ – reward of preferred response $y_w$, $r(x, y_l)$ – reward of rejected response $y_l$) and $\sigma$ is the sigmoid function.
+where $r(x, y)$ is the **implicit reward model** ($r(x, y_w)$ – reward of preferred response, $r(x, y_l)$ – reward of rejected response) and $\sigma$ is the sigmoid function.
 
 And feedback comes as **preferences over model samples**
 $$
@@ -29,11 +29,11 @@ $$
 $$
 where $\phi$ are the parameters of the reward model.
 
-As you can see, the loss function is a binary classification problem and the logit is the difference in rewards.
+> The loss function is essentially **binary classification** — the logit is just the difference in rewards.
 
 ## Deriving the DPO Objective
 
-Instead of training a separate reward model (as in RLHF), DPO uses a theoretical result connecting the optimal policy $\pi^*$ to the reward function.
+Instead of training a separate reward model (as in RLHF), DPO uses a theoretical result connecting the **optimal policy** $\pi^*$ to the reward function.
 
 The standard RLHF objective is:
 
@@ -41,7 +41,7 @@ $$
 \max_{\pi_\theta} \mathbb{E}_{x \sim \mathcal{D}, y \sim \pi_\theta(y|x)}[r_\phi(x, y)] - \beta \, D_{KL}[\pi_\theta(y|x) \| \pi_{\text{ref}}(y|x)]
 $$
 
-In other words, we want to maximize the expected reward of the policy, minus the KL term to encourage the policy to be close to the reference policy.
+In other words: maximize expected reward, minus a **KL penalty** to keep the policy close to the reference.
 
 This objective has a **closed-form solution** for the optimal policy $\pi^*$:
 
@@ -49,11 +49,11 @@ $$
 \pi^*(y|x) = \frac{1}{Z(x)} \pi_{\text{ref}}(y|x) \exp\left(\frac{1}{\beta} r(x, y)\right)
 $$
 
-where $Z(x)$ is the partition function:
+where $Z(x)$ is the **partition function**:
 $$
 Z(x) = \sum_{y \in \mathcal{Y}} \pi_{\text{ref}}(y|x) \exp\left(\frac{1}{\beta} r(x, y)\right)
 $$
-Looks almost the same, but here we sum over all possible responses $y \in \mathcal{Y}$.
+> Looks almost the same, but here we sum over *all possible responses* $y \in \mathcal{Y}$.
 
 We can rearrange this to express the reward $r(x, y)$ in terms of the optimal policy $\pi^*$, reference policy $\pi_{\text{ref}}$, and partition function $Z(x)$:
 
@@ -78,7 +78,7 @@ $$
 This bypasses the need for a separate reward model entirely. Cool, huh?
 """
 
-# imports
+# # Implementation
 import torch
 import torch.nn.functional as F
 

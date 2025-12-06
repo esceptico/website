@@ -7,27 +7,22 @@ date: 2025-12-04
 
 # Rotary Position Embeddings (RoPE)
 
-Transformers have no built-in notion of order – they see tokens as a set,
-not a sequence. RoPE fixes this by encoding position into attention itself.
+Transformers have no built-in notion of order – they see tokens as a **set**, not a sequence. RoPE fixes this by encoding position into attention itself.
 
-The core idea: if you rotate vector A by angle $\alpha$ and vector B by angle $\beta$,
-their dot product depends on ($\alpha - \beta$). So if we rotate each token's q/k
-by an angle proportional to its position, attention scores will reflect
-*relative* distance between tokens. Token 3 and token 5? The angle
-difference is the same as between token 10 and token 12.
+> **The core idea**: rotate vector A by angle $\alpha$ and vector B by angle $\beta$ – their dot product depends on ($\alpha - \beta$). Rotate each token's q/k by an angle proportional to its position, and attention scores will reflect *relative* distance between tokens.
 
-Why 2D? 1D is just scaling, not rotation. Higher-D needs rotation
-matrices and doesn't really help. 2D hits the sweet spot: real rotation,
-simple complex math, and each pair gets its own frequency. High frequencies
-pick up nearby tokens, low frequencies pick up distant ones.
+Token 3 and token 5? The angle difference is the same as between token 10 and token 12.
 
-I use complex numbers because rotating (x, y) by $\theta$ is just multiplying
-(x + iy) by $e^{i\theta}$. Same math, cleaner code.
+**Why 2D?** 1D is just scaling, not rotation. Higher-D needs rotation matrices and doesn't really help. 2D hits the sweet spot: real rotation, simple complex math, and each pair gets its own frequency.
+
+> **High frequencies** pick up nearby tokens, **low frequencies** pick up distant ones.
+
+I use **complex numbers** because rotating $(x, y)$ by $\theta$ is just multiplying $(x + iy)$ by $e^{i\theta}$. Same math, cleaner code (at least for me :D).
 
 I also use [einops](https://github.com/arogozhnikov/einops) – easier to follow the tensor shapes.
 """
 
-# imports
+# # Implementation
 from dataclasses import dataclass
 
 import torch
