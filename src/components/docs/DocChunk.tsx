@@ -118,7 +118,7 @@ export function DocChunk({ chunk, language, index }: DocChunkProps) {
         <div className="text-md text-[var(--theme-text-secondary)] leading-relaxed">
           <ReactMarkdown
             remarkPlugins={[remarkMath]}
-            rehypePlugins={[rehypeKatex]}
+            rehypePlugins={[[rehypeKatex, { trust: true }]]}
             components={markdownComponents}
           >
             {chunk.doc}
@@ -165,7 +165,7 @@ export function DocChunk({ chunk, language, index }: DocChunkProps) {
           <div className="text-[0.875rem] text-[var(--theme-text-secondary)] leading-relaxed">
             <ReactMarkdown
               remarkPlugins={[remarkMath]}
-              rehypePlugins={[rehypeKatex]}
+              rehypePlugins={[[rehypeKatex, { trust: true }]]}
               components={markdownComponents}
             >
               {chunk.doc}

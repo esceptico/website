@@ -588,4 +588,16 @@ a {
   }
 }
 
+/* ============================================
+   KaTeX Theme-Aware Colors
+   ============================================ */
+
+/* Primary color (chosen/positive) */
+.dark .color-primary { color: #93c5fd !important; }  /* soft blue */
+html:not(.dark) .color-primary { color: #3b82f6 !important; }  /* blue-500 */
+
+/* Secondary color (rejected/negative) */
+.dark .color-secondary { color: #c4b5fd !important; }  /* soft lavender */
+html:not(.dark) .color-secondary { color: #8b5cf6 !important; }  /* violet-500 */
+
 

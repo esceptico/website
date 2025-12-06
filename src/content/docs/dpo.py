@@ -13,7 +13,7 @@ DPO starts from the **Bradley-Terry model**, which connects rewards to preferenc
 This model expresses the probability that a human prefers response $y_w$ (**winner**) over $y_l$ (**loser**) given prompt $x$:
 
 $$
-p(y_w \succ y_l | x) = \sigma(r(x, y_w) - r(x, y_l))
+p(y_w \succ y_l | x) = \sigma(\htmlClass{color-primary}{r(x, y_w)} - \htmlClass{color-secondary}{r(x, y_l)})
 $$
 
 where $r(x, y)$ is the **implicit reward model** ($r(x, y_w)$ – reward of preferred response, $r(x, y_l)$ – reward of rejected response) and $\sigma$ is the sigmoid function.
@@ -72,7 +72,7 @@ $$
 Now we can train the policy $\pi_\theta$ directly by minimizing the negative log-likelihood of the preference data:
 
 $$
-\mathcal{L}_{\text{DPO}} = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}}\left[\log \sigma\left(\beta \log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right)\right]
+\mathcal{L}_{\text{DPO}} = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}}\left[\log \sigma\left(\htmlClass{color-primary}{\beta \log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)}} - \htmlClass{color-secondary}{\beta \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}}\right)\right]
 $$
 
 This bypasses the need for a separate reward model entirely. Cool, huh?
@@ -131,24 +131,24 @@ def dpo_loss(
     rejected_ids, rejected_mask, rejected_labels,
     beta: float = 0.1,
 ):
-    # 1. Compute policy log probabilities for chosen and rejected responses.
+    #    Compute policy log probabilities for chosen and rejected responses.
     #    This gives us $\log \pi_\theta(y_w|x)$ and $\log \pi_\theta(y_l|x)$.
     pi_chosen = get_log_probs(policy_model, chosen_ids, chosen_mask, chosen_labels)
     pi_rejected = get_log_probs(policy_model, rejected_ids, rejected_mask, rejected_labels)
 
-    # 2. Compute reference log probabilities (frozen model).
+    #    Compute reference log probabilities (frozen model).
     #    This gives us $\log \pi_{\text{ref}}(y_w|x)$ and $\log \pi_{\text{ref}}(y_l|x)$.
     #    We use no_grad() because we don't update the reference model.
     with torch.no_grad():
         ref_chosen = get_log_probs(reference_model, chosen_ids, chosen_mask, chosen_labels)
         ref_rejected = get_log_probs(reference_model, rejected_ids, rejected_mask, rejected_labels)
 
-    # 3. Calculate implicit rewards (log-ratios).
+    #    Calculate implicit rewards (log-ratios).
     #    $r(x, y) = \beta (\log \pi_\theta(y|x) - \log \pi_{\text{ref}}(y|x))$
     chosen_logratios = pi_chosen - ref_chosen
     rejected_logratios = pi_rejected - ref_rejected
 
-    # 4. Compute the Bradley-Terry logits.
+    #    Compute the Bradley-Terry logits.
     #    $$
     #    u = \beta (r(x, y_w) - r(x, y_l))
     #      = \beta \left( \log \frac{\pi(y_w)}{\pi_{\text{ref}}(y_w)} - \log \frac{\pi(y_l)}{\pi_{\text{ref}}(y_l)} \right)
