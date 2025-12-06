@@ -9,7 +9,7 @@ date: 2025-12-04
 
 Transformers have no built-in notion of order – they see tokens as a **set**, not a sequence. RoPE fixes this by encoding position into attention itself.
 
-> **The core idea**: rotate vector A by angle $\alpha$ and vector B by angle $\beta$ – their dot product depends on ($\alpha - \beta$). Rotate each token's q/k by an angle proportional to its position, and attention scores will reflect *relative* distance between tokens.
+**The core idea**: rotate vector A by angle $\alpha$ and vector B by angle $\beta$ – their dot product depends on ($\alpha - \beta$). Rotate each token's q/k by an angle proportional to its position, and attention scores will reflect *relative* distance between tokens.
 
 Token 3 and token 5? The angle difference is the same as between token 10 and token 12.
 
