@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import hljs from 'highlight.js';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
@@ -21,39 +21,86 @@ function highlightCode(code: string, language: string): string {
   }
 }
 
-// Custom markdown components
-const markdownComponents = {
-  h1: ({ children }: { children?: React.ReactNode }) => (
-    <h1 className="text-xl font-medium text-[var(--theme-text-primary)] mb-2">{children}</h1>
-  ),
-  h2: ({ children }: { children?: React.ReactNode }) => (
-    <h2 className="text-lg font-medium text-[var(--theme-text-primary)] mb-2">{children}</h2>
-  ),
-  h3: ({ children }: { children?: React.ReactNode }) => (
-    <h3 className="text-base font-medium text-[var(--theme-text-primary)] mb-1">{children}</h3>
-  ),
-  p: ({ children }: { children?: React.ReactNode }) => (
-    <p className="mb-2">{children}</p>
-  ),
-  strong: ({ children }: { children?: React.ReactNode }) => (
-    <strong className="font-medium text-[var(--theme-text-primary)]">{children}</strong>
-  ),
-  em: ({ children }: { children?: React.ReactNode }) => (
-    <em>{children}</em>
-  ),
-  code: ({ children }: { children?: React.ReactNode }) => (
-    <code className="font-jetbrains-mono text-[0.95em] text-[var(--theme-text-primary)]/80">{children}</code>
-  ),
-  a: ({ href, children }: { href?: string; children?: React.ReactNode }) => (
-    <a href={href} className="hover-link" target="_blank" rel="noopener noreferrer">{children}</a>
-  ),
-  ul: ({ children }: { children?: React.ReactNode }) => (
-    <ul className="my-2 list-disc list-inside">{children}</ul>
-  ),
-  li: ({ children }: { children?: React.ReactNode }) => (
-    <li className="ml-4">{children}</li>
-  ),
-};
+// Generate a URL-friendly slug from text
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
+// Extract plain text from React children (handles nested elements)
+function getTextFromChildren(children: React.ReactNode): string {
+  if (typeof children === 'string') return children;
+  if (typeof children === 'number') return String(children);
+  if (!children) return '';
+  
+  if (Array.isArray(children)) {
+    return children.map(getTextFromChildren).join('');
+  }
+  
+  if (React.isValidElement(children) && children.props?.children) {
+    return getTextFromChildren(children.props.children);
+  }
+  
+  return '';
+}
+
+// Custom markdown components with anchor ids
+function createMarkdownComponents() {
+  return {
+    h1: ({ children }: { children?: React.ReactNode }) => {
+      const text = getTextFromChildren(children);
+      const id = slugify(text);
+      return (
+        <h1 id={id} className="text-2xl font-semibold text-[var(--theme-text-primary)] mb-4 mt-8 first:mt-0">
+          {children}
+        </h1>
+      );
+    },
+    h2: ({ children }: { children?: React.ReactNode }) => {
+      const text = getTextFromChildren(children);
+      const id = slugify(text);
+      return (
+        <h2 id={id} className="text-lg font-medium text-[var(--theme-text-primary)] mb-3 mt-8 first:mt-0">
+          {children}
+        </h2>
+      );
+    },
+    h3: ({ children }: { children?: React.ReactNode }) => {
+      const text = getTextFromChildren(children);
+      const id = slugify(text);
+      return (
+        <h3 id={id} className="text-base font-medium text-[var(--theme-text-primary)] mb-2 mt-6">
+          {children}
+        </h3>
+      );
+    },
+    p: ({ children }: { children?: React.ReactNode }) => (
+      <p className="mb-3">{children}</p>
+    ),
+    strong: ({ children }: { children?: React.ReactNode }) => (
+      <strong className="font-medium text-[var(--theme-text-primary)]">{children}</strong>
+    ),
+    em: ({ children }: { children?: React.ReactNode }) => (
+      <em>{children}</em>
+    ),
+    code: ({ children }: { children?: React.ReactNode }) => (
+      <code className="font-jetbrains-mono text-[0.95em] text-[var(--theme-text-primary)]/80">{children}</code>
+    ),
+    a: ({ href, children }: { href?: string; children?: React.ReactNode }) => (
+      <a href={href} className="hover-link" target="_blank" rel="noopener noreferrer">{children}</a>
+    ),
+    ul: ({ children }: { children?: React.ReactNode }) => (
+      <ul className="my-3 list-disc list-inside">{children}</ul>
+    ),
+    li: ({ children }: { children?: React.ReactNode }) => (
+      <li className="ml-4">{children}</li>
+    ),
+  };
+}
+
+const markdownComponents = createMarkdownComponents();
 
 export function DocChunk({ chunk, language, index }: DocChunkProps) {
   const [isHovered, setIsHovered] = useState(false);
@@ -62,6 +109,30 @@ export function DocChunk({ chunk, language, index }: DocChunkProps) {
 
   const hasDoc = chunk.doc.trim().length > 0;
   const hasCode = chunk.code.trim().length > 0;
+  
+  // Intro chunk: first chunk with doc but no code → render full-width
+  const isIntro = index === 0 && hasDoc && !hasCode;
+
+  if (isIntro) {
+    return (
+      <div
+        id={`chunk-${index}`}
+        data-chunk-index={index}
+        data-chunk-header={chunk.isHeader}
+        className="mb-10 pb-8 border-b border-[var(--theme-border)]"
+      >
+        <div className="text-[0.925rem] text-[var(--theme-text-secondary)] leading-relaxed">
+          <ReactMarkdown
+            remarkPlugins={[remarkMath]}
+            rehypePlugins={[rehypeKatex]}
+            components={markdownComponents}
+          >
+            {chunk.doc}
+          </ReactMarkdown>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
