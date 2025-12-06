@@ -24,9 +24,10 @@ pick up nearby tokens, low frequencies pick up distant ones.
 I use complex numbers because rotating (x, y) by $\theta$ is just multiplying
 (x + iy) by $e^{i\theta}$. Same math, cleaner code.
 
-also [einops](https://github.com/arogozhnikov/einops) – easier to follow the tensor shapes.
+I also use [einops](https://github.com/arogozhnikov/einops) – easier to follow the tensor shapes.
 """
 
+# imports
 from dataclasses import dataclass
 
 import torch

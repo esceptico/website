@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import hljs from 'highlight.js';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { Components } from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import type { Chunk } from '@/lib/docs/types';
@@ -39,68 +39,62 @@ function getTextFromChildren(children: React.ReactNode): string {
     return children.map(getTextFromChildren).join('');
   }
   
-  if (React.isValidElement(children) && children.props?.children) {
-    return getTextFromChildren(children.props.children);
+  if (React.isValidElement(children)) {
+    const props = children.props as { children?: React.ReactNode };
+    if (props.children) {
+      return getTextFromChildren(props.children);
+    }
   }
   
   return '';
 }
 
-// Custom markdown components with anchor ids
-function createMarkdownComponents() {
-  return {
-    h1: ({ children }: { children?: React.ReactNode }) => {
-      const text = getTextFromChildren(children);
-      const id = slugify(text);
-      return (
-        <h1 id={id} className="text-2xl font-semibold text-[var(--theme-text-primary)] mb-4 mt-8 first:mt-0">
-          {children}
-        </h1>
-      );
-    },
-    h2: ({ children }: { children?: React.ReactNode }) => {
-      const text = getTextFromChildren(children);
-      const id = slugify(text);
-      return (
-        <h2 id={id} className="text-lg font-medium text-[var(--theme-text-primary)] mb-3 mt-8 first:mt-0">
-          {children}
-        </h2>
-      );
-    },
-    h3: ({ children }: { children?: React.ReactNode }) => {
-      const text = getTextFromChildren(children);
-      const id = slugify(text);
-      return (
-        <h3 id={id} className="text-base font-medium text-[var(--theme-text-primary)] mb-2 mt-6">
-          {children}
-        </h3>
-      );
-    },
-    p: ({ children }: { children?: React.ReactNode }) => (
-      <p className="mb-3">{children}</p>
-    ),
-    strong: ({ children }: { children?: React.ReactNode }) => (
-      <strong className="font-medium text-[var(--theme-text-primary)]">{children}</strong>
-    ),
-    em: ({ children }: { children?: React.ReactNode }) => (
-      <em>{children}</em>
-    ),
-    code: ({ children }: { children?: React.ReactNode }) => (
-      <code className="font-jetbrains-mono text-[0.95em] text-[var(--theme-text-primary)]/80">{children}</code>
-    ),
-    a: ({ href, children }: { href?: string; children?: React.ReactNode }) => (
-      <a href={href} className="hover-link" target="_blank" rel="noopener noreferrer">{children}</a>
-    ),
-    ul: ({ children }: { children?: React.ReactNode }) => (
-      <ul className="my-3 list-disc list-inside">{children}</ul>
-    ),
-    li: ({ children }: { children?: React.ReactNode }) => (
-      <li className="ml-4">{children}</li>
-    ),
-  };
-}
-
-const markdownComponents = createMarkdownComponents();
+// Custom markdown components
+// Only define components that need custom styling/behavior - others use defaults
+const markdownComponents: Components = {
+  h1: ({ children }) => {
+    const text = getTextFromChildren(children);
+    const id = slugify(text);
+    return (
+      <h1 id={id} className="text-2xl font-semibold text-[var(--theme-text-primary)] mb-4 mt-8 first:mt-0">
+        {children}
+      </h1>
+    );
+  },
+  h2: ({ children }) => {
+    const text = getTextFromChildren(children);
+    const id = slugify(text);
+    return (
+      <h2 id={id} className="text-lg font-medium text-[var(--theme-text-primary)] mb-3 mt-8 first:mt-0">
+        {children}
+      </h2>
+    );
+  },
+  h3: ({ children }) => {
+    const text = getTextFromChildren(children);
+    const id = slugify(text);
+    return (
+      <h3 id={id} className="text-base font-medium text-[var(--theme-text-primary)] mb-2 mt-6">
+        {children}
+      </h3>
+    );
+  },
+  p: ({ children }) => <p className="mb-3">{children}</p>,
+  strong: ({ children }) => <strong className="font-medium text-[var(--theme-text-primary)]">{children}</strong>,
+  em: ({ children }) => <em>{children}</em>,
+  code: ({ children }) => <code className="font-jetbrains-mono text-[0.95em] text-[var(--theme-text-primary)]/80">{children}</code>,
+  a: ({ href, children }) => <a href={href} className="hover-link" target="_blank" rel="noopener noreferrer">{children}</a>,
+  ul: ({ children }) => <ul className="my-3 list-disc list-inside">{children}</ul>,
+  ol: ({ children }) => <ol className="my-3 list-decimal list-inside">{children}</ol>,
+  li: ({ children }) => <li className="ml-4">{children}</li>,
+  blockquote: ({ children }) => (
+    <blockquote className="my-3 pl-4 border-l-2 border-[var(--theme-text-secondary)]/30 text-[var(--theme-text-secondary)] italic">
+      {children}
+    </blockquote>
+  ),
+  hr: () => <hr className="my-6 border-[var(--theme-border)]" />,
+  pre: ({ children }) => <pre className="my-3 overflow-x-auto">{children}</pre>,
+};
 
 export function DocChunk({ chunk, language, index }: DocChunkProps) {
   const [isHovered, setIsHovered] = useState(false);
