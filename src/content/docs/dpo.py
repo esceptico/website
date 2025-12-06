@@ -38,7 +38,7 @@ Instead of training a separate reward model (as in RLHF), DPO uses a theoretical
 The standard RLHF objective is:
 
 $$
-\max_{\pi_\theta} \mathbb{E}_{x \sim \mathcal{D}, y \sim \pi_\theta(y|x)}[r_\phi(x, y)] - \beta \, D_{KL}[\pi_\theta(y|x) \| \pi_{\text{ref}}(y|x)]
+\max_{\pi_\theta} \underbrace{\mathbb{E}_{x \sim \mathcal{D}, y \sim \pi_\theta(y|x)}[r_\phi(x, y)]}_{\text{expected reward}} - \underbrace{\beta \, D_{KL}[\pi_\theta(y|x) \| \pi_{\text{ref}}(y|x)]}_{\text{KL penalty}}
 $$
 
 In other words: maximize expected reward, minus a **KL penalty** to keep the policy close to the reference.
@@ -46,7 +46,7 @@ In other words: maximize expected reward, minus a **KL penalty** to keep the pol
 This objective has a **closed-form solution** for the optimal policy $\pi^*$:
 
 $$
-\pi^*(y|x) = \frac{1}{Z(x)} \pi_{\text{ref}}(y|x) \exp\left(\frac{1}{\beta} r(x, y)\right)
+\pi^*(y|x) = \underbrace{\frac{1}{Z(x)}}_{\text{normalize}} \pi_{\text{ref}}(y|x) \underbrace{\exp\left(\frac{1}{\beta} r(x, y)\right)}_{\text{reward scaling}}
 $$
 
 where $Z(x)$ is the **partition function**:
@@ -75,7 +75,7 @@ $$
 \mathcal{L}_{\text{DPO}} = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}}\left[\log \sigma\left(\htmlClass{color-primary}{\beta \log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)}} - \htmlClass{color-secondary}{\beta \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}}\right)\right]
 $$
 
-This bypasses the need for a separate reward model entirely. Cool, huh?
+This bypasses the need for a separate reward model entirely. Pretty cool, huh?
 """
 
 # # Implementation
