@@ -53,32 +53,32 @@ function getTextFromChildren(children: React.ReactNode): string {
 // Only define components that need custom styling/behavior - others use defaults
 const markdownComponents: Components = {
   h1: ({ children }) => {
-    const text = getTextFromChildren(children);
-    const id = slugify(text);
-    return (
-      <h1 id={id} className="text-2xl font-semibold text-[var(--theme-text-primary)] mb-4 mt-8 first:mt-0">
-        {children}
-      </h1>
-    );
-  },
+      const text = getTextFromChildren(children);
+      const id = slugify(text);
+      return (
+        <h1 id={id} className="text-2xl font-semibold text-[var(--theme-text-primary)] mb-4 mt-8 first:mt-0">
+          {children}
+        </h1>
+      );
+    },
   h2: ({ children }) => {
-    const text = getTextFromChildren(children);
-    const id = slugify(text);
-    return (
-      <h2 id={id} className="text-lg font-medium text-[var(--theme-text-primary)] mb-3 mt-8 first:mt-0">
-        {children}
-      </h2>
-    );
-  },
+      const text = getTextFromChildren(children);
+      const id = slugify(text);
+      return (
+        <h2 id={id} className="text-lg font-medium text-[var(--theme-text-primary)] mb-3 mt-8 first:mt-0">
+          {children}
+        </h2>
+      );
+    },
   h3: ({ children }) => {
-    const text = getTextFromChildren(children);
-    const id = slugify(text);
-    return (
-      <h3 id={id} className="text-base font-medium text-[var(--theme-text-primary)] mb-2 mt-6">
-        {children}
-      </h3>
-    );
-  },
+      const text = getTextFromChildren(children);
+      const id = slugify(text);
+      return (
+        <h3 id={id} className="text-base font-medium text-[var(--theme-text-primary)] mb-2 mt-6">
+          {children}
+        </h3>
+      );
+    },
   p: ({ children }) => <p className="mb-3">{children}</p>,
   strong: ({ children }) => <strong className="font-medium text-[var(--theme-text-primary)]">{children}</strong>,
   em: ({ children }) => <em>{children}</em>,
@@ -91,7 +91,7 @@ const markdownComponents: Components = {
     <blockquote className="my-3 pl-4 border-l-2 border-[var(--theme-text-secondary)]/30 text-[var(--theme-text-secondary)] italic">
       {children}
     </blockquote>
-  ),
+    ),
   hr: () => <hr className="my-6 border-[var(--theme-border)]" />,
   pre: ({ children }) => <pre className="my-3 overflow-x-auto">{children}</pre>,
 };
@@ -113,9 +113,9 @@ export function DocChunk({ chunk, language, index }: DocChunkProps) {
         id={`chunk-${index}`}
         data-chunk-index={index}
         data-chunk-header={chunk.isHeader}
-        className="mb-10 pb-8 border-b border-[var(--theme-border)] px-4 lg:px-8"
+        className="mb-10 pb-8 border-b border-[var(--theme-border)]"
       >
-        <div className="text-md text-[var(--theme-text-secondary)] leading-relaxed">
+        <div className="text-md text-[var(--theme-text-secondary)] leading-relaxed max-w-6xl mx-auto px-4 lg:px-8">
           <ReactMarkdown
             remarkPlugins={[remarkMath]}
             rehypePlugins={[[rehypeKatex, { trust: true }]]}
