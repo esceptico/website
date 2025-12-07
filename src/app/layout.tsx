@@ -33,7 +33,10 @@ export const metadata: Metadata = {
     description: "Machine Learning Engineer specializing in post-training and safety alignment for production LLM systems.",
   },
   icons: {
-    icon: '/favicon.png',
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+    ],
+    apple: '/favicon.png',
   },
 };
 

@@ -8,7 +8,7 @@ import { useState, useEffect, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 export const PersonalInfo = () => {
-  const socialLinkStyles = "text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors";
+  const socialLinkBase = "text-[var(--theme-text-secondary)] transition-colors duration-200";
   const [clickCount, setClickCount] = useState(0);
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   
@@ -95,7 +95,7 @@ export const PersonalInfo = () => {
           href={socialLinks.github}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${socialLinkStyles} hover:scale-110 transition-transform duration-200`}
+          className={`${socialLinkBase} hover:text-[--social-github] hover:scale-110 transition-transform duration-200`}
           aria-label="GitHub"
         >
           <FaGithub className="w-7 h-7" />
@@ -104,7 +104,7 @@ export const PersonalInfo = () => {
           href={socialLinks.linkedin}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${socialLinkStyles} hover:scale-110 transition-transform duration-200`}
+          className={`${socialLinkBase} hover:text-[--social-linkedin] hover:scale-110 transition-transform duration-200`}
           aria-label="LinkedIn"
         >
           <FaLinkedin className="w-7 h-7" />
@@ -113,7 +113,7 @@ export const PersonalInfo = () => {
           href={socialLinks.twitter}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${socialLinkStyles} hover:scale-110 transition-transform duration-200`}
+          className={`${socialLinkBase} hover:text-[--social-twitter] hover:scale-110 transition-transform duration-200`}
           aria-label="Twitter"
         >
           <FaTwitter className="w-7 h-7" />
@@ -122,14 +122,14 @@ export const PersonalInfo = () => {
           href={socialLinks.instagram}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${socialLinkStyles} hover:scale-110 transition-transform duration-200`}
+          className={`${socialLinkBase} hover:text-[--social-instagram] hover:scale-110 transition-transform duration-200`}
           aria-label="Instagram"
         >
           <FaInstagram className="w-7 h-7" />
         </Link>
         <a 
           href={socialLinks.email}
-          className={`${socialLinkStyles} hover:scale-110 transition-transform duration-200`}
+          className={`${socialLinkBase} hover:text-[var(--theme-text-primary)] hover:scale-110 transition-transform duration-200`}
           aria-label="Email"
         >
           <FaEnvelope className="w-7 h-7" />

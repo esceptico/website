@@ -615,4 +615,24 @@ html:not(.dark) .color-primary { color: #3b82f6 !important; }  /* blue-500 */
 .dark .color-secondary { color: #c4b5fd !important; }  /* soft lavender */
 html:not(.dark) .color-secondary { color: #8b5cf6 !important; }  /* violet-500 */
 
+/* ============================================
+   Social Icon Hover Colors (Theme-Aware)
+   ============================================ */
+
+/* Dark theme: pastel/soft colors */
+html.dark {
+  --social-github: #b8a4c9;      /* soft purple */
+  --social-linkedin: #7eb8da;    /* soft blue */
+  --social-twitter: #8ecae6;     /* soft sky */
+  --social-instagram: #e6a4b4;   /* soft pink */
+}
+
+/* Light theme: muted/subdued colors */
+html:not(.dark) {
+  --social-github: #6e5494;      /* muted purple */
+  --social-linkedin: #0369a1;    /* muted blue */
+  --social-twitter: #0284c7;     /* muted sky */
+  --social-instagram: #be185d;   /* muted pink */
+}
+
 
