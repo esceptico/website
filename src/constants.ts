@@ -14,10 +14,6 @@ const backgroundColors = {
   primary: {
     dark: 'rgb(18, 18, 18)',
     light: 'rgb(250, 250, 250)'
-  },
-  card: {
-    dark: 'rgba(50, 50, 50, 0.7)',
-    light: 'rgba(235, 235, 235, 0.7)'
   }
 } as const;
 
@@ -32,16 +28,6 @@ export const colors = {
   text: textColors,
   background: backgroundColors,
   border: borderColors
-} as const;
-
-// Gradients
-export const gradients = {
-  mle: {
-    dark: 'rgba(100, 100, 100, 0.1)',
-    light: 'rgba(100, 100, 100, 0.05)',
-    textDark: 'rgb(175, 175, 175)',
-    textLight: 'rgb(70, 70, 70)'
-  }
 } as const;
 
 // Animations
