@@ -589,6 +589,21 @@ a {
 }
 
 /* ============================================
+   KaTeX Formula Overflow (mobile)
+   ============================================ */
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.katex-display > .katex {
+  white-space: nowrap;
+}
+
+/* ============================================
    KaTeX Theme-Aware Colors
    ============================================ */
 
