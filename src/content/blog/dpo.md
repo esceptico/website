@@ -77,8 +77,6 @@ $$
 
 This bypasses the need for a separate reward model entirely. Pretty cool, huh?
 
-## Implementation
-
 ```python
 # # Implementation
 import torch

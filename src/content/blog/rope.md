@@ -21,8 +21,6 @@ I use **complex numbers** because rotating $(x, y)$ by $\theta$ is just multiply
 
 I also use [einops](https://github.com/arogozhnikov/einops) – easier to follow the tensor shapes.
 
-## Implementation
-
 ```python
 # # Implementation
 from dataclasses import dataclass
