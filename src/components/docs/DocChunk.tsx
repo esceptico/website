@@ -117,13 +117,19 @@ const markdownComponents: Components = {
       {children}
     </tr>
   ),
-  th: ({ children }) => (
-    <th className="px-4 py-2 text-left text-sm font-medium text-[var(--theme-text-primary)]">
+  th: ({ children, style }) => (
+    <th 
+      className="px-4 py-2 text-sm font-medium text-[var(--theme-text-primary)]" 
+      style={style}
+    >
       {children}
     </th>
   ),
-  td: ({ children }) => (
-    <td className="px-4 py-2 text-sm text-[var(--theme-text-secondary)]">
+  td: ({ children, style }) => (
+    <td 
+      className="px-4 py-2 text-sm text-[var(--theme-text-secondary)]" 
+      style={style}
+    >
       {children}
     </td>
   ),
