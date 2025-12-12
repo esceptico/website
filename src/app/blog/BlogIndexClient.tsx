@@ -2,14 +2,14 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { FaCode, FaArrowLeft } from 'react-icons/fa';
-import type { DocMeta } from '@/lib/docs';
+import { FaArrowLeft, FaCode, FaFeatherAlt } from 'react-icons/fa';
+import type { BlogMeta } from '@/lib/blog';
 
-interface DocsIndexClientProps {
-  docs: DocMeta[];
+interface BlogIndexClientProps {
+  posts: BlogMeta[];
 }
 
-export function DocsIndexClient({ docs }: DocsIndexClientProps) {
+export function BlogIndexClient({ posts }: BlogIndexClientProps) {
   return (
     <motion.div
       className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24"
@@ -18,7 +18,7 @@ export function DocsIndexClient({ docs }: DocsIndexClientProps) {
       transition={{ duration: 0.5 }}
     >
       {/* Header */}
-      <div className="mb-16">
+      <div className="mb-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -31,9 +31,9 @@ export function DocsIndexClient({ docs }: DocsIndexClientProps) {
           >
             <FaArrowLeft className="w-3.5 h-3.5" />
           </Link>
-          <FaCode className="w-4 h-4 text-[var(--theme-text-secondary)]" />
+          <FaFeatherAlt className="w-4 h-4 text-[var(--theme-text-secondary)]" />
           <span className="text-sm font-mono uppercase tracking-wider text-[var(--theme-text-secondary)]">
-            Annotated Code
+            Blog
           </span>
         </motion.div>
         
@@ -43,52 +43,53 @@ export function DocsIndexClient({ docs }: DocsIndexClientProps) {
           transition={{ duration: 0.5, delay: 0.15 }}
           className="text-3xl md:text-4xl font-normal text-[var(--theme-text-primary)] tracking-tight mb-4"
         >
-          Documentation
+          Log
         </motion.h1>
         
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-[var(--theme-text-secondary)] text-lg"
-        >
-          Deep dives into implementations with side-by-side explanations.
-        </motion.p>
       </div>
 
-      {/* Doc entries */}
+      {/* Post entries */}
       <div className="space-y-4">
-        {docs.map((doc, index) => (
+        {posts.map((post, index) => (
           <motion.div
-            key={doc.slug}
+            key={post.slug}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
           >
-            <Link href={`/docs/${doc.slug}`} className="group block">
+            <Link href={`/blog/${post.slug}`} className="group block">
               <div className="relative pl-6 py-5 border-l-2 border-[var(--theme-border)] hover:border-[var(--theme-text-primary)] transition-colors duration-300">
-                {/* Date */}
-                {doc.date && (
-                  <div className="text-xs font-mono text-[var(--theme-text-secondary)] mb-2">
-                    {new Date(doc.date).toLocaleDateString('en-US', { 
-                      year: 'numeric', 
-                      month: 'short', 
-                      day: 'numeric' 
-                    })}
-                  </div>
-                )}
+                {/* Meta line: date + code indicator */}
+                <div className="flex items-center gap-3 mb-2">
+                  {post.date && (
+                    <span className="text-xs font-mono text-[var(--theme-text-secondary)]">
+                      {new Date(post.date).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })}
+                    </span>
+                  )}
+                  {post.hasCode && (
+                    <span className="flex items-center gap-1 text-xs text-[var(--theme-text-secondary)]/60">
+                      <FaCode className="w-3 h-3" />
+                      <span>code</span>
+                    </span>
+                  )}
+                </div>
                 
                 {/* Title */}
                 <h2 className="text-lg font-medium text-[var(--theme-text-primary)] mb-1">
-                  {doc.title}
+                  {post.title}
                 </h2>
                 
-                {/* Description */}
-                {doc.description && (
+                {/* Summary */}
+                {post.summary && (
                   <p className="text-sm text-[var(--theme-text-secondary)] line-clamp-2">
-                    {doc.description}
+                    {post.summary}
                   </p>
                 )}
+                
               </div>
             </Link>
           </motion.div>
@@ -96,17 +97,18 @@ export function DocsIndexClient({ docs }: DocsIndexClientProps) {
       </div>
 
       {/* Empty state */}
-      {docs.length === 0 && (
+      {posts.length === 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           className="text-center py-16 text-[var(--theme-text-secondary)]"
         >
-          No documentation available yet.
+          No posts yet.
         </motion.div>
       )}
     </motion.div>
   );
 }
+
 

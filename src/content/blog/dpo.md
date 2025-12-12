@@ -1,8 +1,8 @@
-"""
 ---
 title: Direct Preference Optimization (DPO)
 summary: Train LLMs from human preferences without a reward model
 date: 2025-12-06
+tags: [rlhf, preference-learning, llm-training]
 ---
 
 # Direct Preference Optimization (DPO)
@@ -76,8 +76,10 @@ $$
 $$
 
 This bypasses the need for a separate reward model entirely. Pretty cool, huh?
-"""
 
+## Implementation
+
+```python
 # # Implementation
 import torch
 import torch.nn.functional as F
@@ -180,3 +182,6 @@ def train_step(policy_model, reference_model, batch, optimizer, beta=0.1):
     loss.backward()
     optimizer.step()
     return loss.item()
+```
+
+

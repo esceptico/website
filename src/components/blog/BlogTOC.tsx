@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import type { Chunk } from '@/lib/docs/types';
-import { slugify } from './DocChunk';
+import type { Chunk } from '@/lib/blog/types';
+import { slugify } from './BlogChunk';
 
 interface TocItem {
   title: string;
@@ -10,7 +10,7 @@ interface TocItem {
   id: string;
 }
 
-// Extract ALL headings from all chunks (including multiple headings within a single chunk)
+// Extract ALL headings from all chunks
 function extractToc(chunks: Chunk[]): TocItem[] {
   const items: TocItem[] = [];
   
@@ -33,7 +33,7 @@ function extractToc(chunks: Chunk[]): TocItem[] {
   return items;
 }
 
-export function DocTOC({ chunks }: { chunks: Chunk[] }) {
+export function BlogTOC({ chunks }: { chunks: Chunk[] }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [prevActiveId, setPrevActiveId] = useState<string | null>(null);
   const items = extractToc(chunks);
@@ -43,7 +43,6 @@ export function DocTOC({ chunks }: { chunks: Chunk[] }) {
   const [isAnimating, setIsAnimating] = useState(false);
   const animationRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Calculate indicator position for a given item id
   const getItemPosition = useCallback((id: string | null) => {
     if (!id) return { top: 0, height: 24 };
     const element = itemRefs.current.get(id);
@@ -51,11 +50,9 @@ export function DocTOC({ chunks }: { chunks: Chunk[] }) {
     return { top: element.offsetTop + 2, height: element.offsetHeight - 4 };
   }, []);
 
-  // Snake animation when active changes
   useEffect(() => {
     if (!activeId || activeId === prevActiveId) return;
     
-    // Cancel any ongoing animation
     if (animationRef.current) {
       clearTimeout(animationRef.current);
       animationRef.current = null;
@@ -71,13 +68,11 @@ export function DocTOC({ chunks }: { chunks: Chunk[] }) {
     setIsAnimating(true);
     
     if (movingDown) {
-      // Moving down: extend bottom first, then pull up top
       setIndicatorStyle({
         top: currentPos.top,
         height: targetPos.top + targetPos.height - currentPos.top
       });
     } else {
-      // Moving up: extend top first, then pull up bottom
       setIndicatorStyle({
         top: targetPos.top,
         height: currentPos.top + currentPos.height - targetPos.top
@@ -95,7 +90,6 @@ export function DocTOC({ chunks }: { chunks: Chunk[] }) {
     setPrevActiveId(activeId);
   }, [activeId, prevActiveId, items, getItemPosition]);
 
-  // Initialize indicator position
   useEffect(() => {
     if (activeId && !prevActiveId) {
       const pos = getItemPosition(activeId);
@@ -104,7 +98,6 @@ export function DocTOC({ chunks }: { chunks: Chunk[] }) {
     }
   }, [activeId, prevActiveId, getItemPosition]);
   
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (animationRef.current) {
@@ -114,14 +107,12 @@ export function DocTOC({ chunks }: { chunks: Chunk[] }) {
   }, []);
 
   useEffect(() => {
-    // Set first item as active initially
     if (items.length > 0 && !activeId) {
       setActiveId(items[0].id);
     }
   }, [items, activeId]);
 
   useEffect(() => {
-    // Get all heading elements that we have in TOC
     const headingIds = items.map(item => item.id);
     const headingElements = headingIds
       .map(id => document.getElementById(id))
@@ -130,21 +121,16 @@ export function DocTOC({ chunks }: { chunks: Chunk[] }) {
     if (headingElements.length === 0) return;
 
     const handleScroll = () => {
-      // Don't update if we're in the middle of a click-scroll
       if (isClickScrolling.current) return;
       
-      const headerOffset = 100; // header height + some padding
-      
-      // Find the heading that's closest to (but above) the top of viewport
+      const headerOffset = 100;
       let currentId = headingIds[0];
       
       for (const el of headingElements) {
         const rect = el.getBoundingClientRect();
-        // If the element's top is above our threshold, it's the current section
         if (rect.top <= headerOffset) {
           currentId = el.id;
         } else {
-          // Once we find one below the threshold, stop
           break;
         }
       }
@@ -155,7 +141,7 @@ export function DocTOC({ chunks }: { chunks: Chunk[] }) {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Initial check
+    handleScroll();
     
     return () => window.removeEventListener('scroll', handleScroll);
   }, [items, activeId]);
@@ -164,7 +150,6 @@ export function DocTOC({ chunks }: { chunks: Chunk[] }) {
     e.preventDefault();
     const element = document.getElementById(id);
     if (element) {
-      // Set active immediately on click
       setActiveId(id);
       isClickScrolling.current = true;
       
@@ -176,10 +161,8 @@ export function DocTOC({ chunks }: { chunks: Chunk[] }) {
         behavior: 'smooth'
       });
       
-      // Update URL hash
       window.history.pushState(null, '', `#${id}`);
       
-      // Reset click scrolling flag after scroll completes
       setTimeout(() => {
         isClickScrolling.current = false;
       }, 500);
@@ -192,10 +175,8 @@ export function DocTOC({ chunks }: { chunks: Chunk[] }) {
     <nav className="hidden lg:block fixed top-14 left-0 bottom-0 w-56 overflow-y-auto bg-[var(--theme-bg-primary)] z-20">
       <div className="px-4 pt-5">
         <div className="relative">
-          {/* Vertical track line - spans only the list height */}
           <div className="absolute left-0 top-0 bottom-0 w-px bg-[var(--theme-border)]" />
           
-          {/* Snake indicator - single element that animates */}
           <div 
             className="absolute left-0 w-0.5 -ml-px rounded-full bg-[var(--theme-text-primary)] transition-all ease-out"
             style={{
@@ -237,8 +218,9 @@ export function DocTOC({ chunks }: { chunks: Chunk[] }) {
         </div>
       </div>
       
-      {/* Right border */}
       <div className="absolute top-0 right-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[var(--theme-border)] to-transparent" />
     </nav>
   );
 }
+
+

@@ -6,17 +6,18 @@ import ReactMarkdown, { Components } from 'react-markdown';
 import remarkMath from 'remark-math';
 import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
-import type { Chunk } from '@/lib/docs/types';
+import type { Chunk } from '@/lib/blog/types';
 
-interface DocChunkProps {
+interface BlogChunkProps {
   chunk: Chunk;
-  language: string;
   index: number;
+  isFirst: boolean;
+  isLastCodeChunk?: boolean;
 }
 
-function highlightCode(code: string, language: string): string {
+function highlightCode(code: string): string {
   try {
-    return hljs.highlight(code, { language }).value;
+    return hljs.highlight(code, { language: 'python' }).value;
   } catch {
     return hljs.highlightAuto(code).value;
   }
@@ -51,35 +52,34 @@ function getTextFromChildren(children: React.ReactNode): string {
 }
 
 // Custom markdown components
-// Only define components that need custom styling/behavior - others use defaults
 const markdownComponents: Components = {
   h1: ({ children }) => {
-      const text = getTextFromChildren(children);
-      const id = slugify(text);
-      return (
-        <h1 id={id} className="text-2xl font-semibold text-[var(--theme-text-primary)] mb-4 mt-8 first:mt-0">
-          {children}
-        </h1>
-      );
-    },
+    const text = getTextFromChildren(children);
+    const id = slugify(text);
+    return (
+      <h1 id={id} className="text-2xl font-semibold text-[var(--theme-text-primary)] mb-4 mt-8 first:mt-0">
+        {children}
+      </h1>
+    );
+  },
   h2: ({ children }) => {
-      const text = getTextFromChildren(children);
-      const id = slugify(text);
-      return (
-        <h2 id={id} className="text-lg font-medium text-[var(--theme-text-primary)] mb-3 mt-8 first:mt-0">
-          {children}
-        </h2>
-      );
-    },
+    const text = getTextFromChildren(children);
+    const id = slugify(text);
+    return (
+      <h2 id={id} className="text-lg font-medium text-[var(--theme-text-primary)] mb-3 mt-8 first:mt-0">
+        {children}
+      </h2>
+    );
+  },
   h3: ({ children }) => {
-      const text = getTextFromChildren(children);
-      const id = slugify(text);
-      return (
-        <h3 id={id} className="text-base font-medium text-[var(--theme-text-primary)] mb-2 mt-6">
-          {children}
-        </h3>
-      );
-    },
+    const text = getTextFromChildren(children);
+    const id = slugify(text);
+    return (
+      <h3 id={id} className="text-base font-medium text-[var(--theme-text-primary)] mb-2 mt-6">
+        {children}
+      </h3>
+    );
+  },
   p: ({ children }) => <p className="mb-3">{children}</p>,
   strong: ({ children }) => <strong className="font-medium text-[var(--theme-text-primary)]">{children}</strong>,
   em: ({ children }) => <em>{children}</em>,
@@ -92,71 +92,42 @@ const markdownComponents: Components = {
     <blockquote className="my-3 pl-4 border-l-2 border-[var(--theme-text-secondary)]/30 text-[var(--theme-text-secondary)] italic">
       {children}
     </blockquote>
-    ),
+  ),
   hr: () => <hr className="my-6 border-[var(--theme-border)]" />,
   pre: ({ children }) => <pre className="my-3 overflow-x-auto">{children}</pre>,
   table: ({ children }) => (
-    <div className="my-4 overflow-x-auto">
-      <table className="min-w-full border-collapse">
+    <div className="overflow-x-auto my-4">
+      <table className="min-w-full text-sm border-collapse">
         {children}
       </table>
     </div>
   ),
-  thead: ({ children }) => (
-    <thead className="border-b border-[var(--theme-border)]">
-      {children}
-    </thead>
-  ),
-  tbody: ({ children }) => (
-    <tbody>
-      {children}
-    </tbody>
-  ),
-  tr: ({ children }) => (
-    <tr className="border-b border-[var(--theme-border)]/50">
-      {children}
-    </tr>
-  ),
-  th: ({ children, style }) => (
-    <th 
-      className="px-4 py-2 text-sm font-medium text-[var(--theme-text-primary)]" 
-      style={style}
-    >
-      {children}
-    </th>
-  ),
-  td: ({ children, style }) => (
-    <td 
-      className="px-4 py-2 text-sm text-[var(--theme-text-secondary)]" 
-      style={style}
-    >
-      {children}
-    </td>
-  ),
+  thead: ({ children }) => <thead className="border-b border-[var(--theme-border)]">{children}</thead>,
+  tbody: ({ children }) => <tbody>{children}</tbody>,
+  tr: ({ children }) => <tr className="border-b border-[var(--theme-border)]/50">{children}</tr>,
+  th: ({ children }) => <th className="px-3 py-2 text-left font-medium text-[var(--theme-text-primary)]">{children}</th>,
+  td: ({ children }) => <td className="px-3 py-2 text-[var(--theme-text-secondary)]">{children}</td>,
 };
 
-export function DocChunk({ chunk, language, index }: DocChunkProps) {
+export function BlogChunk({ chunk, index, isFirst, isLastCodeChunk }: BlogChunkProps) {
   const [isHovered, setIsHovered] = useState(false);
   
-  const codeHtml = useMemo(() => highlightCode(chunk.code, language), [chunk.code, language]);
+  const codeHtml = useMemo(() => highlightCode(chunk.code), [chunk.code]);
 
   const hasDoc = chunk.doc.trim().length > 0;
   const hasCode = chunk.code.trim().length > 0;
   
-  // Intro chunk: first chunk with doc but no code → render full-width
-  const isIntro = index === 0 && hasDoc && !hasCode;
-
-  if (isIntro) {
+  // Prose-only chunk: render full-width markdown
+  if (hasDoc && !hasCode) {
     return (
       <div
         id={`chunk-${index}`}
         data-chunk-index={index}
-        data-chunk-header={chunk.isHeader}
-        className="mb-10 pb-8 border-b border-[var(--theme-border)]"
+        className={isFirst ? "mb-10 pb-8 border-b border-[var(--theme-border)]" : "mb-6"}
       >
         <div className="text-md text-[var(--theme-text-secondary)] leading-relaxed max-w-6xl mx-auto px-4 lg:px-8">
           <ReactMarkdown
-            remarkPlugins={[remarkMath, remarkGfm]}
+            remarkPlugins={[remarkGfm, remarkMath]}
             rehypePlugins={[[rehypeKatex, { trust: true }]]}
             components={markdownComponents}
           >
@@ -167,6 +138,27 @@ export function DocChunk({ chunk, language, index }: DocChunkProps) {
     );
   }
 
+  // Code-only chunk (rare, but handle it)
+  if (!hasDoc && hasCode) {
+    return (
+      <div
+        id={`chunk-${index}`}
+        data-chunk-index={index}
+        className="my-4 max-w-6xl mx-auto px-4 lg:px-8"
+      >
+        <div className="bg-[var(--theme-text-primary)]/[0.03] rounded-lg px-4 py-3">
+          <pre className="overflow-x-auto">
+            <code 
+              className="font-jetbrains-mono text-[0.85rem] leading-[1.7] tracking-[-0.01em] block"
+              dangerouslySetInnerHTML={{ __html: codeHtml }}
+            />
+          </pre>
+        </div>
+      </div>
+    );
+  }
+
+  // Side-by-side chunk: doc + code
   return (
     <div
       id={`chunk-${index}`}
@@ -203,7 +195,7 @@ export function DocChunk({ chunk, language, index }: DocChunkProps) {
         <div className={`py-3 order-1 lg:order-2 lg:pl-6 lg:border-l border-[var(--theme-border)] ${!hasDoc ? 'opacity-30' : ''}`}>
           <div className="text-[0.875rem] text-[var(--theme-text-secondary)] leading-relaxed">
             <ReactMarkdown
-              remarkPlugins={[remarkMath, remarkGfm]}
+              remarkPlugins={[remarkGfm, remarkMath]}
               rehypePlugins={[[rehypeKatex, { trust: true }]]}
               components={markdownComponents}
             >
@@ -215,6 +207,13 @@ export function DocChunk({ chunk, language, index }: DocChunkProps) {
       
       {/* Mobile separator between chunks */}
       <div className="lg:hidden h-px bg-[var(--theme-border)] my-4 -mx-4" />
+      
+      {/* Separator after code section ends */}
+      {isLastCodeChunk && (
+        <div className="hidden lg:block h-px bg-[var(--theme-border)] mt-8 mb-4" style={{ marginLeft: '-16px', marginRight: '-16px' }} />
+      )}
     </div>
   );
 }
+
+

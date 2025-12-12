@@ -1,8 +1,8 @@
-"""
 ---
 title: Rotary Position Embeddings (RoPE)
 summary: Position encoding via rotation – the method behind LLaMA, Qwen, and Mistral
 date: 2025-12-04
+tags: [transformers, attention, positional-encoding]
 ---
 
 # Rotary Position Embeddings (RoPE)
@@ -20,8 +20,10 @@ Token 3 and token 5? The angle difference is the same as between token 10 and to
 I use **complex numbers** because rotating $(x, y)$ by $\theta$ is just multiplying $(x + iy)$ by $e^{i\theta}$. Same math, cleaner code (at least for me :D).
 
 I also use [einops](https://github.com/arogozhnikov/einops) – easier to follow the tensor shapes.
-"""
 
+## Implementation
+
+```python
 # # Implementation
 from dataclasses import dataclass
 
@@ -134,3 +136,6 @@ def rotate_half(x):
 
 def apply_rope_explicit(x, cos, sin):
     return (x * cos) + (rotate_half(x) * sin)
+```
+
+
