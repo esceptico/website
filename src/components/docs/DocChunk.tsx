@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import hljs from 'highlight.js';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkMath from 'remark-math';
+import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
 import type { Chunk } from '@/lib/docs/types';
 
@@ -94,6 +95,38 @@ const markdownComponents: Components = {
     ),
   hr: () => <hr className="my-6 border-[var(--theme-border)]" />,
   pre: ({ children }) => <pre className="my-3 overflow-x-auto">{children}</pre>,
+  table: ({ children }) => (
+    <div className="my-4 overflow-x-auto">
+      <table className="min-w-full border-collapse">
+        {children}
+      </table>
+    </div>
+  ),
+  thead: ({ children }) => (
+    <thead className="border-b border-[var(--theme-border)]">
+      {children}
+    </thead>
+  ),
+  tbody: ({ children }) => (
+    <tbody>
+      {children}
+    </tbody>
+  ),
+  tr: ({ children }) => (
+    <tr className="border-b border-[var(--theme-border)]/50">
+      {children}
+    </tr>
+  ),
+  th: ({ children }) => (
+    <th className="px-4 py-2 text-left text-sm font-medium text-[var(--theme-text-primary)]">
+      {children}
+    </th>
+  ),
+  td: ({ children }) => (
+    <td className="px-4 py-2 text-sm text-[var(--theme-text-secondary)]">
+      {children}
+    </td>
+  ),
 };
 
 export function DocChunk({ chunk, language, index }: DocChunkProps) {
@@ -117,7 +150,7 @@ export function DocChunk({ chunk, language, index }: DocChunkProps) {
       >
         <div className="text-md text-[var(--theme-text-secondary)] leading-relaxed max-w-6xl mx-auto px-4 lg:px-8">
           <ReactMarkdown
-            remarkPlugins={[remarkMath]}
+            remarkPlugins={[remarkMath, remarkGfm]}
             rehypePlugins={[[rehypeKatex, { trust: true }]]}
             components={markdownComponents}
           >
@@ -164,7 +197,7 @@ export function DocChunk({ chunk, language, index }: DocChunkProps) {
         <div className={`py-3 order-1 lg:order-2 lg:pl-6 lg:border-l border-[var(--theme-border)] ${!hasDoc ? 'opacity-30' : ''}`}>
           <div className="text-[0.875rem] text-[var(--theme-text-secondary)] leading-relaxed">
             <ReactMarkdown
-              remarkPlugins={[remarkMath]}
+              remarkPlugins={[remarkMath, remarkGfm]}
               rehypePlugins={[[rehypeKatex, { trust: true }]]}
               components={markdownComponents}
             >
