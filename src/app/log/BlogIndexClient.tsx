@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { FaArrowLeft, FaCode, FaFeatherAlt } from 'react-icons/fa';
+import { FaCode, FaChevronRight } from 'react-icons/fa';
 import type { BlogMeta } from '@/lib/blog';
 
 interface BlogIndexClientProps {
@@ -17,36 +17,22 @@ export function BlogIndexClient({ posts }: BlogIndexClientProps) {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Header */}
-      <div className="mb-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="flex items-center gap-3 mb-4"
+      {/* Breadcrumb */}
+      <motion.nav
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="flex items-center gap-2 text-base mb-8"
+      >
+        <Link 
+          href="/" 
+          className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors"
         >
-          <Link 
-            href="/" 
-            className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors p-2 -ml-2 rounded-md hover:bg-[var(--theme-text-primary)]/5"
-          >
-            <FaArrowLeft className="w-3.5 h-3.5" />
-          </Link>
-          <FaFeatherAlt className="w-4 h-4 text-[var(--theme-text-secondary)]" />
-          <span className="text-sm font-mono uppercase tracking-wider text-[var(--theme-text-secondary)]">
-            Blog
-          </span>
-        </motion.div>
-        
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-          className="text-3xl md:text-4xl font-normal text-[var(--theme-text-primary)] tracking-tight mb-4"
-        >
-          Log
-        </motion.h1>
-        
-      </div>
+          home
+        </Link>
+        <FaChevronRight className="w-2 h-2 text-[var(--theme-text-secondary)]/50" />
+        <span className="text-[var(--theme-text-primary)]">log</span>
+      </motion.nav>
 
       {/* Post entries */}
       <div className="space-y-4">
@@ -57,7 +43,7 @@ export function BlogIndexClient({ posts }: BlogIndexClientProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
           >
-            <Link href={`/blog/${post.slug}`} className="group block">
+            <Link href={`/log/${post.slug}`} className="group block">
               <div className="relative pl-6 py-5 border-l-2 border-[var(--theme-border)] hover:border-[var(--theme-text-primary)] transition-colors duration-300">
                 {/* Meta line: date + code indicator */}
                 <div className="flex items-center gap-3 mb-2">

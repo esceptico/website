@@ -5,7 +5,7 @@ import { BlogTOC } from './BlogTOC';
 import { BlogChunk } from './BlogChunk';
 import type { BlogPost } from '@/lib/blog/types';
 import Link from 'next/link';
-import { FaArrowLeft } from 'react-icons/fa';
+import { FaChevronRight } from 'react-icons/fa';
 
 interface BlogViewerProps {
   post: BlogPost;
@@ -18,21 +18,26 @@ export function BlogViewer({ post }: BlogViewerProps) {
     <div className="min-h-screen -mt-16 bg-[var(--theme-bg-primary)] relative z-10">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-[var(--theme-bg-primary)]/90 backdrop-blur-xl border-b border-[var(--theme-border)]">
-        <div 
-          className="h-14 flex items-center px-6 lg:px-10" 
-          style={{ marginLeft: hasAnnotatedCode ? 'var(--toc-offset, 0)' : '0' }}
-        >
-          <div className="flex items-center" style={{ marginLeft: hasAnnotatedCode ? '-16px' : '0' }}>
+        <div className="h-14 flex items-center px-6 lg:px-10">
+          <nav className="flex items-center gap-2 text-sm">
             <Link 
-              href="/blog" 
-              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors p-2 rounded-md hover:bg-[var(--theme-text-primary)]/5"
+              href="/" 
+              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors"
             >
-              <FaArrowLeft className="w-3.5 h-3.5" />
+              home
             </Link>
-            <span className="text-sm font-medium text-[var(--theme-text-primary)] ml-1">
+            <FaChevronRight className="w-2 h-2 text-[var(--theme-text-secondary)]/50" />
+            <Link 
+              href="/log" 
+              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors"
+            >
+              log
+            </Link>
+            <FaChevronRight className="w-2 h-2 text-[var(--theme-text-secondary)]/50" />
+            <span className="text-[var(--theme-text-primary)] font-medium truncate max-w-[300px]">
               {post.title}
             </span>
-          </div>
+          </nav>
         </div>
       </header>
 
