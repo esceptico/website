@@ -18,11 +18,13 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://timganiev.com'),
   title: "Timur Ganiev",
   description: "Machine Learning Engineer specializing in post-training and safety alignment for production LLM systems.",
   openGraph: {
     title: "Timur Ganiev",
     description: "Machine Learning Engineer specializing in post-training and safety alignment for production LLM systems.",
+    url: "https://timganiev.com",
     type: "website",
     locale: "en_US",
     siteName: "Timur Ganiev",
@@ -31,12 +33,16 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Timur Ganiev",
     description: "Machine Learning Engineer specializing in post-training and safety alignment for production LLM systems.",
+    creator: "@postimortem",
   },
   icons: {
     icon: [
       { url: '/favicon.png', type: 'image/png' },
     ],
     apple: '/favicon.png',
+  },
+  alternates: {
+    canonical: "https://timganiev.com",
   },
 };
 

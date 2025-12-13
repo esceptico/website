@@ -20,9 +20,30 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Not Found' };
   }
 
+  const title = `${post.title} | Timur Ganiev`;
+  const description = post.summary || `${post.title} - a deep dive`;
+  const url = `https://timganiev.com/log/${slug}`;
+
   return {
-    title: `${post.title} | Timur Ganiev`,
-    description: post.summary || `${post.title} - a deep dive`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'article',
+      publishedTime: post.date,
+      authors: ['Timur Ganiev'],
+      siteName: 'Timur Ganiev',
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+    },
+    alternates: {
+      canonical: url,
+    },
   };
 }
 
