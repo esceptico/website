@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, JetBrains_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import "katex/dist/katex.min.css";
 import ClientLayout from "./ClientLayout";
@@ -58,6 +59,7 @@ export default function RootLayout({
       </head>
       <body className={poppins.className}>
         <ClientLayout>{children}</ClientLayout>
+        <Analytics />
       </body>
     </html>
   );
