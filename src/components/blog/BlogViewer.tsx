@@ -49,7 +49,7 @@ export function BlogViewer({ post }: BlogViewerProps) {
         <main 
           className={`flex-1 overflow-x-hidden ${hasAnnotatedCode ? 'lg:ml-56' : ''}`}
         >
-          <div className={`px-6 lg:px-10 pt-8 pb-6 ${hasAnnotatedCode ? 'lg:pr-8' : 'max-w-3xl mx-auto'}`}>
+          <div className={`px-6 lg:px-10 pt-8 pb-6 ${hasAnnotatedCode ? 'max-w-6xl mx-auto' : 'max-w-3xl mx-auto'}`}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
