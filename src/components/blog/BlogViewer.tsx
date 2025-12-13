@@ -18,23 +18,23 @@ export function BlogViewer({ post }: BlogViewerProps) {
     <div className="min-h-screen -mt-16 bg-[var(--theme-bg-primary)] relative z-10">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-[var(--theme-bg-primary)]/90 backdrop-blur-xl border-b border-[var(--theme-border)]">
-        <div className="h-14 flex items-center px-6 lg:px-10">
-          <nav className="flex items-center gap-2 text-sm">
+        <div className="h-14 flex items-center px-4 lg:px-10 pr-24 sm:pr-20">
+          <nav className="flex items-center gap-2 text-sm min-w-0">
             <Link 
               href="/" 
-              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors"
+              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors shrink-0"
             >
               home
             </Link>
-            <FaChevronRight className="w-2 h-2 text-[var(--theme-text-secondary)]/50" />
+            <FaChevronRight className="w-2 h-2 text-[var(--theme-text-secondary)]/50 shrink-0" />
             <Link 
               href="/log" 
-              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors"
+              className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors shrink-0"
             >
               log
             </Link>
-            <FaChevronRight className="w-2 h-2 text-[var(--theme-text-secondary)]/50" />
-            <span className="text-[var(--theme-text-primary)] font-medium truncate max-w-[300px]">
+            <FaChevronRight className="w-2 h-2 text-[var(--theme-text-secondary)]/50 shrink-0" />
+            <span className="text-[var(--theme-text-primary)] font-medium truncate max-w-[150px] sm:max-w-[250px] lg:max-w-none">
               {post.title}
             </span>
           </nav>
