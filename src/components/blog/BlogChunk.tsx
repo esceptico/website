@@ -125,7 +125,7 @@ export function BlogChunk({ chunk, index, isFirst, isLastCodeChunk }: BlogChunkP
         data-chunk-index={index}
         className={isFirst ? "mb-10 pb-8 border-b border-[var(--theme-border)]" : "mb-6"}
       >
-        <div className="text-md text-[var(--theme-text-secondary)] leading-relaxed max-w-6xl mx-auto px-4 lg:px-8">
+        <div className="text-md text-[var(--theme-text-secondary)] leading-relaxed">
           <ReactMarkdown
             remarkPlugins={[remarkGfm, remarkMath]}
             rehypePlugins={[[rehypeKatex, { trust: true }]]}
@@ -144,7 +144,7 @@ export function BlogChunk({ chunk, index, isFirst, isLastCodeChunk }: BlogChunkP
       <div
         id={`chunk-${index}`}
         data-chunk-index={index}
-        className="my-4 max-w-6xl mx-auto px-4 lg:px-8"
+        className="my-4"
       >
         <div className="bg-[var(--theme-text-primary)]/[0.03] rounded-lg px-4 py-3">
           <pre className="overflow-x-auto">
