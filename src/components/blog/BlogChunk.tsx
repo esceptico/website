@@ -218,5 +218,3 @@ export function BlogChunk({ chunk, index, isFirst, isLastCodeChunk }: BlogChunkP
     </>
   );
 }
-
-

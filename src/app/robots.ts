@@ -9,4 +9,3 @@ export default function robots(): MetadataRoute.Robots {
     sitemap: 'https://timganiev.com/sitemap.xml',
   };
 }
-

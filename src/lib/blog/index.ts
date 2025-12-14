@@ -216,5 +216,3 @@ export function getPostBySlug(slug: string): BlogPost | null {
 }
 
 export type { BlogPost, BlogMeta, Chunk } from './types';
-
-

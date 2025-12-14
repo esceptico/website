@@ -78,5 +78,3 @@ export function BlogViewer({ post }: BlogViewerProps) {
     </div>
   );
 }
-
-

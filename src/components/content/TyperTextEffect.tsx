@@ -110,4 +110,4 @@ const TyperTextEffect: React.FC<TyperTextEffectProps> = ({
   );
 };
 
-export default TyperTextEffect; 
+export default TyperTextEffect;
