@@ -7,6 +7,7 @@ import remarkMath from 'remark-math';
 import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
 import type { Chunk } from '@/lib/blog/types';
+import './syntax-highlighting.css';
 
 interface BlogChunkProps {
   chunk: Chunk;
@@ -128,7 +129,7 @@ export function BlogChunk({ chunk, index, isFirst, isLastCodeChunk }: BlogChunkP
         <div className="text-md text-[var(--theme-text-secondary)] leading-relaxed">
           <ReactMarkdown
             remarkPlugins={[remarkGfm, remarkMath]}
-            rehypePlugins={[[rehypeKatex, { trust: true }]]}
+            rehypePlugins={[[rehypeKatex, { trust: true, strict: false }]]}
             components={markdownComponents}
           >
             {chunk.doc}
@@ -197,7 +198,7 @@ export function BlogChunk({ chunk, index, isFirst, isLastCodeChunk }: BlogChunkP
             <div className="text-[0.875rem] text-[var(--theme-text-secondary)] leading-relaxed">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkMath]}
-                rehypePlugins={[[rehypeKatex, { trust: true }]]}
+                rehypePlugins={[[rehypeKatex, { trust: true, strict: false }]]}
                 components={markdownComponents}
               >
                 {chunk.doc}

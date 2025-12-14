@@ -9,6 +9,17 @@ interface BlogIndexClientProps {
   posts: BlogMeta[];
 }
 
+function formatPostDate(date: string): string {
+  // Make formatting deterministic across server/client timezones
+  const d = new Date(`${date}T00:00:00Z`);
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  }).format(d);
+}
+
 export function BlogIndexClient({ posts }: BlogIndexClientProps) {
   return (
     <motion.div
@@ -49,11 +60,7 @@ export function BlogIndexClient({ posts }: BlogIndexClientProps) {
                 <div className="flex items-center gap-3 mb-2">
                   {post.date && (
                     <span className="text-xs font-mono text-[var(--theme-text-secondary)]">
-                      {new Date(post.date).toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'short', 
-                        day: 'numeric' 
-                      })}
+                      {formatPostDate(post.date)}
                     </span>
                   )}
                   {post.hasCode && (

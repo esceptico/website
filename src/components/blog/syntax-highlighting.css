@@ -1,0 +1,121 @@
+/* ============================================
+   Code Syntax Highlighting (highlight.js)
+   ============================================ */
+
+/* Dark mode syntax - muted, elegant palette */
+.dark .hljs-keyword,
+.dark .hljs-built_in {
+  color: #c9a0dc;
+}
+
+.dark .hljs-type {
+  color: #7ec8e3;
+}
+
+.dark .hljs-string,
+.dark .hljs-regexp {
+  color: #a8d5a2;
+}
+
+.dark .hljs-number,
+.dark .hljs-literal {
+  color: #f0b67f;
+}
+
+.dark .hljs-function .hljs-title,
+.dark .hljs-title.function_ {
+  color: #dcdcaa;
+}
+
+.dark .hljs-comment {
+  color: #6a6a6a;
+  font-style: italic;
+}
+
+.dark .hljs-class .hljs-title,
+.dark .hljs-title.class_ {
+  color: #7ec8e3;
+}
+
+.dark .hljs-variable,
+.dark .hljs-attr,
+.dark .hljs-attribute {
+  color: #d4d4d4;
+}
+
+.dark .hljs-params {
+  color: #9cdcfe;
+}
+
+.dark .hljs-punctuation,
+.dark .hljs-operator {
+  color: #b0b0b0;
+}
+
+.dark .hljs-property {
+  color: #9cdcfe;
+}
+
+.dark .hljs-meta,
+.dark .hljs-decorator {
+  color: #dcdcaa;
+}
+
+/* Light mode syntax */
+html:not(.dark) .hljs-keyword,
+html:not(.dark) .hljs-built_in {
+  color: #8b3e8b;
+}
+
+html:not(.dark) .hljs-type {
+  color: #2b6e99;
+}
+
+html:not(.dark) .hljs-string,
+html:not(.dark) .hljs-regexp {
+  color: #3a7d44;
+}
+
+html:not(.dark) .hljs-number,
+html:not(.dark) .hljs-literal {
+  color: #c75000;
+}
+
+html:not(.dark) .hljs-function .hljs-title,
+html:not(.dark) .hljs-title.function_ {
+  color: #795e26;
+}
+
+html:not(.dark) .hljs-comment {
+  color: #999999;
+  font-style: italic;
+}
+
+html:not(.dark) .hljs-class .hljs-title,
+html:not(.dark) .hljs-title.class_ {
+  color: #2b6e99;
+}
+
+html:not(.dark) .hljs-variable,
+html:not(.dark) .hljs-attr,
+html:not(.dark) .hljs-attribute {
+  color: #333333;
+}
+
+html:not(.dark) .hljs-params {
+  color: #1a5276;
+}
+
+html:not(.dark) .hljs-punctuation,
+html:not(.dark) .hljs-operator {
+  color: #555555;
+}
+
+html:not(.dark) .hljs-property {
+  color: #1a5276;
+}
+
+html:not(.dark) .hljs-meta,
+html:not(.dark) .hljs-decorator {
+  color: #795e26;
+}

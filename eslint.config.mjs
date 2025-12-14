@@ -1,16 +1,17 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+const config = [
+  ...nextCoreWebVitals,
+  ...nextTypescript,
+  {
+    name: "project-overrides",
+    rules: {
+      // This rule is too aggressive for common patterns we intentionally use
+      // (e.g. client-only values to avoid hydration mismatches, UI state machines).
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
 ];
 
-export default eslintConfig;
+export default config;

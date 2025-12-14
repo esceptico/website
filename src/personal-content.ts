@@ -14,7 +14,6 @@ export const socialLinks = {
 export const hackerTextItems = [
   'timur ganiev',
   'tim',
-  'timur'
 ] as const;
 
 // Time-based greetings
@@ -38,10 +37,11 @@ export const getTimeBasedGreeting = (): string => {
 
 
 // About Text
-export const aboutText = {
-  mainDescription: `Machine Learning Engineer specializing in post-training and safety alignment for production LLM systems. I build preference learning pipelines, train safety classifiers, and optimize low-latency inference. Previously led alignment work at [Replika](https://replika.com), shipping models trained on user feedback at scale. I also [write](/log) about ML topics. Here's my [CV](/resume.pdf).`,
-  additionalInfo: `Outside of work, I'm into photography – shooting city scenes, people, and everything that catches my eye.`
-} as const;
+export const aboutMarkdown = `I'm a Machine Learning Engineer at [Replika](https://replika.com). I work on post-training and safety alignment for production LLMs, and co-led the redesign of Replika's conversation system (tool use, memory, context engineering, and a bunch of other things). Here's my [CV](/resume.pdf).
+
+I also keep a [log](/log) of ML notes and annotated implementations.
+
+Outside of work, I play guitar (telecaster) and take photos of random stuff.` as const;
 
 // 404 Error Messages
 export const errorMessages = [

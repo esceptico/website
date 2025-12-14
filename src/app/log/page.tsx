@@ -2,7 +2,7 @@ import { getAllPosts } from '@/lib/blog';
 import { BlogIndexClient } from './BlogIndexClient';
 
 export const metadata = {
-  title: 'Blog | Timur Ganiev',
+  title: 'Log | Timur Ganiev',
   description: 'Technical deep dives and annotated implementations',
 };
 

@@ -55,7 +55,37 @@ export default async function BlogPostPage({ params }: PageProps) {
     notFound();
   }
 
-  return <BlogViewer post={post} />;
+  // JSON-LD Article structured data
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.summary || `${post.title} - a deep dive`,
+    datePublished: post.date,
+    author: {
+      '@type': 'Person',
+      name: 'Timur Ganiev',
+      url: 'https://timganiev.com',
+    },
+    publisher: {
+      '@type': 'Person',
+      name: 'Timur Ganiev',
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://timganiev.com/log/${slug}`,
+    },
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <BlogViewer post={post} />
+    </>
+  );
 }
 
 

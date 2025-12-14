@@ -41,7 +41,7 @@ export function BlogTOC({ chunks }: { chunks: Chunk[] }) {
   const itemRefs = useRef<Map<string, HTMLLIElement>>(new Map());
   const [indicatorStyle, setIndicatorStyle] = useState({ top: 0, height: 24 });
   const [isAnimating, setIsAnimating] = useState(false);
-  const animationRef = useRef<NodeJS.Timeout | null>(null);
+  const animationRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const getItemPosition = useCallback((id: string | null) => {
     if (!id) return { top: 0, height: 24 };
@@ -107,8 +107,9 @@ export function BlogTOC({ chunks }: { chunks: Chunk[] }) {
   }, []);
 
   useEffect(() => {
-    if (items.length > 0 && !activeId) {
-      setActiveId(items[0].id);
+    const firstItem = items[0];
+    if (firstItem && !activeId) {
+      setActiveId(firstItem.id);
     }
   }, [items, activeId]);
 
@@ -222,5 +223,3 @@ export function BlogTOC({ chunks }: { chunks: Chunk[] }) {
     </nav>
   );
 }
-
-

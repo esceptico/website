@@ -29,12 +29,13 @@ const TyperTextEffect: React.FC<TyperTextEffectProps> = ({
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (texts.length === 0) return;
 
-    const currentText = texts[currentTextIndex];
+    const currentText = texts[currentTextIndex] ?? texts[0] ?? '';
+    if (!currentText) return;
     
     const type = () => {
       if (!isDeleting && charIndex < currentText.length) {

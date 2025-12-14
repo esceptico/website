@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
+import Script from "next/script";
 import "./globals.css";
 import "katex/dist/katex.min.css";
 import ClientLayout from "./ClientLayout";
@@ -53,8 +54,38 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`antialiased ${poppins.variable} ${jetbrainsMono.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`antialiased ${poppins.variable} ${jetbrainsMono.variable}`}
+    >
       <head>
+        <Script id="theme-init" strategy="beforeInteractive">{`
+          (function () {
+            try {
+              var theme = localStorage.getItem('theme');
+              if (!theme) {
+                var legacy = localStorage.getItem('theme-storage');
+                if (legacy) {
+                  var parsed = JSON.parse(legacy);
+                  theme = parsed && parsed.state && parsed.state.colorScheme;
+                }
+              }
+
+              if (theme !== 'dark' && theme !== 'light') {
+                theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+              }
+
+              document.documentElement.classList.toggle('dark', theme === 'dark');
+              localStorage.setItem('theme', theme);
+
+              var meta = document.querySelector('meta[name="theme-color"]');
+              if (meta) {
+                meta.setAttribute('content', theme === 'dark' ? '#121212' : '#fafafa');
+              }
+            } catch (e) {}
+          })();
+        `}</Script>
         <meta name="theme-color" content="#121212" />
       </head>
       <body className={poppins.className}>

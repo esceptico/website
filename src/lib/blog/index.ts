@@ -26,9 +26,9 @@ function parseAnnotatedCode(code: string): Chunk[] {
     const d = doc.join('\n').trim();
     const c = codeLines.join('\n').replace(/^\n+|\n+$/g, '');
 
-    if (!d && c && chunks.length > 0) {
+    const prev = chunks[chunks.length - 1];
+    if (!d && c && prev) {
       // Undocumented code → append to previous chunk
-      const prev = chunks[chunks.length - 1];
       prev.code = prev.code ? prev.code + '\n\n' + c : c;
     } else if (d || c) {
       chunks.push({ 
@@ -43,7 +43,7 @@ function parseAnnotatedCode(code: string): Chunk[] {
   }
 
   while (i < lines.length) {
-    const line = lines[i];
+    const line = lines[i] ?? '';
     const trimmed = line.trim();
 
     // Comment → doc (except shebang and empty comments that are just spacing)
@@ -114,7 +114,7 @@ function parseMarkdown(content: string): Chunk[] {
     const codeMatch = trimmed.match(/^```(?:python|py)\n([\s\S]*)\n```$/);
     
     if (codeMatch) {
-      const code = codeMatch[1];
+      const code = codeMatch[1] ?? '';
       
       // Check if it's annotated Python
       if (isAnnotatedPython(code)) {

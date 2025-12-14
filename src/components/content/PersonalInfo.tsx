@@ -3,34 +3,50 @@
 import HackerTextEffect from './HackerTextEffect';
 import { FaGithub, FaLinkedin, FaEnvelope, FaInstagram, FaTwitter } from 'react-icons/fa';
 import Link from 'next/link';
-import { socialLinks, hackerTextItems, aboutText, getTimeBasedGreeting } from '@/personal-content';
+import { socialLinks, hackerTextItems, aboutMarkdown, getTimeBasedGreeting } from '@/personal-content';
 import { useState, useEffect, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 export const PersonalInfo = () => {
-  const socialLinkBase = "text-[var(--theme-text-secondary)] transition-colors duration-200";
   const [clickCount, setClickCount] = useState(0);
   const [showEasterEgg, setShowEasterEgg] = useState(false);
+  const [greeting, setGreeting] = useState('hello');
   
-  // Combine time-based greeting with regular items
-  const textItems = useMemo(() => {
-    const timeGreeting = getTimeBasedGreeting();
-    return [timeGreeting, ...hackerTextItems];
+  useEffect(() => {
+    setGreeting(getTimeBasedGreeting());
   }, []);
+
+  const textItems = useMemo(() => {
+    return [greeting, ...hackerTextItems];
+  }, [greeting]);
 
   useEffect(() => {
     if (clickCount >= 5 && !showEasterEgg) {
       setShowEasterEgg(true);
-      setTimeout(() => {
-        setShowEasterEgg(false);
-        setClickCount(0);
-      }, 3000);
     }
   }, [clickCount, showEasterEgg]);
 
-  const handleHackerTextClick = () => {
+  useEffect(() => {
+    if (!showEasterEgg) return;
+
+    const t = setTimeout(() => {
+      setShowEasterEgg(false);
+      setClickCount(0);
+    }, 3000);
+
+    return () => clearTimeout(t);
+  }, [showEasterEgg]);
+
+  const handleHackerTextInteraction = () => {
     if (!showEasterEgg) {
       setClickCount(prev => prev + 1);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleHackerTextInteraction();
     }
   };
   
@@ -39,7 +55,11 @@ export const PersonalInfo = () => {
       <div className="mb-8">
         <h1 
           className="text-xl md:text-2xl font-normal text-[var(--theme-text-primary)] tracking-tight cursor-pointer select-none flex items-center min-w-[300px] min-h-[3rem]"
-          onClick={handleHackerTextClick}
+          onClick={handleHackerTextInteraction}
+          onKeyDown={handleKeyDown}
+          tabIndex={0}
+          role="button"
+          aria-label="Greeting text - click for surprise"
         >
           {showEasterEgg ? (
             <span className="inline-block relative">
@@ -57,6 +77,7 @@ export const PersonalInfo = () => {
         <div className="markdown-content">
           <ReactMarkdown
             components={{
+              p: ({ children }) => <p className="mb-6 last:mb-0">{children}</p>,
               a: ({ href, children, ...props }) => {
                 const isInternal = href?.startsWith('/');
                 const isPdf = href?.endsWith('.pdf');
@@ -84,18 +105,17 @@ export const PersonalInfo = () => {
               }
             }}
           >
-            {aboutText.mainDescription}
+            {aboutMarkdown}
           </ReactMarkdown>
         </div>
-        <p>{aboutText.additionalInfo}</p>
       </div>
 
-      <div className="flex items-center space-x-8 mt-16">
+      <div className="flex items-center space-x-6 mt-8">
         <Link 
           href={socialLinks.github}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${socialLinkBase} hover:text-[--social-github] hover:scale-110 transition-transform duration-200`}
+          className="social-icon social-icon--github"
           aria-label="GitHub"
         >
           <FaGithub className="w-7 h-7" />
@@ -104,7 +124,7 @@ export const PersonalInfo = () => {
           href={socialLinks.linkedin}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${socialLinkBase} hover:text-[--social-linkedin] hover:scale-110 transition-transform duration-200`}
+          className="social-icon social-icon--linkedin"
           aria-label="LinkedIn"
         >
           <FaLinkedin className="w-7 h-7" />
@@ -113,7 +133,7 @@ export const PersonalInfo = () => {
           href={socialLinks.twitter}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${socialLinkBase} hover:text-[--social-twitter] hover:scale-110 transition-transform duration-200`}
+          className="social-icon social-icon--twitter"
           aria-label="Twitter"
         >
           <FaTwitter className="w-7 h-7" />
@@ -122,14 +142,14 @@ export const PersonalInfo = () => {
           href={socialLinks.instagram}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${socialLinkBase} hover:text-[--social-instagram] hover:scale-110 transition-transform duration-200`}
+          className="social-icon social-icon--instagram"
           aria-label="Instagram"
         >
           <FaInstagram className="w-7 h-7" />
         </Link>
         <a 
           href={socialLinks.email}
-          className={`${socialLinkBase} hover:text-[var(--theme-text-primary)] hover:scale-110 transition-transform duration-200`}
+          className="social-icon social-icon--email"
           aria-label="Email"
         >
           <FaEnvelope className="w-7 h-7" />

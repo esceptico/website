@@ -1,200 +1,67 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* ============================================
-   Doc Chunk Hover Effect
-   ============================================ */
-
-.doc-chunk {
-  position: relative;
-}
-
-.doc-chunk::before {
-  content: '';
-  position: absolute;
-  inset: -4px -16px;
-  border-radius: 8px;
-  background: transparent;
-  transition: background-color 0.25s ease;
-  pointer-events: none;
-  z-index: -1;
-}
-
-.dark .doc-chunk:hover::before {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-html:not(.dark) .doc-chunk:hover::before {
-  background: rgba(0, 0, 0, 0.04);
+/* Ensure our mono utilities always use JetBrains Mono (via next/font CSS variable). */
+.font-jetbrains-mono,
+.font-mono {
+  font-family: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
 }
 
 /* ============================================
-   Code Syntax Highlighting
+   Theme Variables
    ============================================ */
 
-/* Dark mode syntax - muted, elegant palette */
-.dark .hljs-keyword,
-.dark .hljs-built_in {
-  color: #c9a0dc;
+:root {
+  --theme-bg-primary: rgb(250, 250, 250);
+  --theme-text-primary: rgb(30, 30, 30);
+  /* rgb(85,85,85) gives ~4.95:1 contrast on #FAFAFA (WCAG AA) */
+  --theme-text-secondary: rgb(85, 85, 85);
+  --theme-border: rgb(200, 200, 200);
 }
 
-.dark .hljs-type {
-  color: #7ec8e3;
+html.dark {
+  --theme-bg-primary: rgb(18, 18, 18);
+  --theme-text-primary: rgb(225, 225, 225);
+  --theme-text-secondary: rgb(160, 160, 160);
+  --theme-border: rgb(70, 70, 70);
 }
 
-.dark .hljs-string,
-.dark .hljs-regexp {
-  color: #a8d5a2;
+/* Dark theme: pastel/soft colors for social icons */
+html.dark {
+  --social-github: #b8a4c9;
+  --social-linkedin: #7eb8da;
+  --social-twitter: #8ecae6;
+  --social-instagram: #e6a4b4;
 }
 
-.dark .hljs-number,
-.dark .hljs-literal {
-  color: #f0b67f;
+/* Light theme: muted/subdued colors for social icons */
+html:not(.dark) {
+  --social-github: #6e5494;
+  --social-linkedin: #0369a1;
+  --social-twitter: #0284c7;
+  --social-instagram: #be185d;
 }
 
-.dark .hljs-function .hljs-title,
-.dark .hljs-title.function_ {
-  color: #dcdcaa;
-}
+/* ============================================
+   Global Base Styles
+   ============================================ */
 
-.dark .hljs-comment {
-  color: #6a6a6a;
-  font-style: italic;
-}
-
-.dark .hljs-class .hljs-title,
-.dark .hljs-title.class_ {
-  color: #7ec8e3;
-}
-
-.dark .hljs-variable,
-.dark .hljs-attr,
-.dark .hljs-attribute {
-  color: #d4d4d4;
-}
-
-.dark .hljs-params {
-  color: #9cdcfe;
-}
-
-.dark .hljs-punctuation,
-.dark .hljs-operator {
-  color: #b0b0b0;
-}
-
-.dark .hljs-property {
-  color: #9cdcfe;
-}
-
-.dark .hljs-meta,
-.dark .hljs-decorator {
-  color: #dcdcaa;
-}
-
-/* Light mode syntax */
-html:not(.dark) .hljs-keyword,
-html:not(.dark) .hljs-built_in {
-  color: #8b3e8b;
-}
-
-html:not(.dark) .hljs-type {
-  color: #2b6e99;
-}
-
-html:not(.dark) .hljs-string,
-html:not(.dark) .hljs-regexp {
-  color: #3a7d44;
-}
-
-html:not(.dark) .hljs-number,
-html:not(.dark) .hljs-literal {
-  color: #c75000;
-}
-
-html:not(.dark) .hljs-function .hljs-title,
-html:not(.dark) .hljs-title.function_ {
-  color: #795e26;
-}
-
-html:not(.dark) .hljs-comment {
-  color: #999999;
-  font-style: italic;
-}
-
-html:not(.dark) .hljs-class .hljs-title,
-html:not(.dark) .hljs-title.class_ {
-  color: #2b6e99;
-}
-
-html:not(.dark) .hljs-variable,
-html:not(.dark) .hljs-attr,
-html:not(.dark) .hljs-attribute {
-  color: #333333;
-}
-
-html:not(.dark) .hljs-params {
-  color: #1a5276;
-}
-
-html:not(.dark) .hljs-punctuation,
-html:not(.dark) .hljs-operator {
-  color: #555555;
-}
-
-html:not(.dark) .hljs-property {
-  color: #1a5276;
-}
-
-html:not(.dark) .hljs-meta,
-html:not(.dark) .hljs-decorator {
-  color: #795e26;
-}
-
-
-
-/* Root HTML element styling */
 html {
-  /* Scale down overall size (85% of default 16px = ~13.6px) */
-  font-size: 95%;
-  /* Always apply background to html element */
-  background-color: var(--theme-bg-primary, rgb(18, 18, 18));
-  color: var(--theme-text-primary, rgb(225, 225, 225));
+  font-size: 95%; /* Slightly smaller base (95% of 16px = 15.2px) */
+  background-color: var(--theme-bg-primary);
+  color: var(--theme-text-primary);
   height: 100%;
   overflow-x: hidden;
-}
-
-/* Dark mode specific styles */
-html.dark {
-  background-color: rgb(18, 18, 18); /* Immediate dark background */
-}
-
-/* Light mode specific styles */
-html:not(.dark) {
-  background-color: rgb(250, 250, 250); /* Immediate light background */
 }
 
 body {
   padding: 0;
   margin: 0;
   min-height: 100vh;
-  background-color: inherit; /* Inherit from html */
-  color: inherit; /* Inherit from html */
-  font-family: var(--font-poppins), system-ui, sans-serif;
-}
-
-/* Custom Selection */
-::selection {
-  background: var(--theme-text-secondary);
-  color: var(--theme-bg-primary);
-}
-
-/* Ensure the background extends to the full viewport */
-html,
-body,
-#__next {
   width: 100%;
-  min-height: 100vh;
+  background-color: inherit;
+  color: inherit;
+  font-family: var(--font-poppins), system-ui, sans-serif;
 }
 
 * {
@@ -205,6 +72,23 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+/* Focus indicators for keyboard accessibility */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--theme-text-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--theme-text-secondary);
+  color: var(--theme-bg-primary);
+}
+
+/* ============================================
+   Custom Utilities
+   ============================================ */
 
 /* Animated Link Underline */
 .hover-link {
@@ -223,63 +107,40 @@ a {
   background-size: 0% 1px;
 }
 
-/* 404 Page - Glitch Effects */
-.glitch-content {
-  position: relative;
-  transition: filter 0.1s;
+/* Social icon links with hover colors */
+.social-icon {
+  color: var(--theme-text-secondary);
+  transition: color 0.2s ease, transform 0.2s ease;
+  display: inline-flex;
 }
 
-.glitch-content.glitch-active {
-  filter: url(#distortion);
+.social-icon:hover {
+  transform: scale(1.1);
 }
 
-/* Glitch Text Effect */
-.glitch-text {
-  position: relative;
-  display: inline-block;
+.social-icon--github:hover {
+  color: var(--social-github);
 }
 
-.glitch-text__main {
-  position: relative;
-  z-index: 2;
+.social-icon--linkedin:hover {
+  color: var(--social-linkedin);
 }
 
-.glitch-text__glitch {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  opacity: 0;
-  visibility: hidden;
+.social-icon--twitter:hover {
+  color: var(--social-twitter);
 }
 
-/* RGB Split Layers */
-.glitch-text__glitch--1 {
-  color: rgb(255, 0, 0);
-  animation: glitch-1 0.6s infinite;
-  animation-timing-function: steps(2, end);
+.social-icon--instagram:hover {
+  color: var(--social-instagram);
 }
 
-.glitch-text__glitch--2 {
-  color: rgb(0, 255, 255);
-  animation: glitch-2 0.6s infinite;
-  animation-timing-function: steps(2, end);
+.social-icon--email:hover {
+  color: var(--theme-text-primary);
 }
 
-.glitch-text__glitch--3 {
-  color: rgb(0, 255, 0);
-  animation: glitch-3 0.3s infinite;
-  animation-timing-function: steps(3, end);
-  mix-blend-mode: screen;
-}
-
-/* Glitch when active */
-.glitch-active .glitch-text__glitch {
-  opacity: 0.8;
-  visibility: visible;
-}
+/* ============================================
+   Accessibility
+   ============================================ */
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -291,165 +152,16 @@ a {
     scroll-behavior: auto !important;
   }
 
-  .glitch-text__glitch,
-  .glitch-block,
-  .glitch-scanline,
-  .glitch-static,
   .min-h-screen::before {
     display: none !important;
-    animation: none !important;
   }
 }
 
-@keyframes glitch-1 {
-  0% {
-    transform: translate(0);
-    clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
-  }
-  25% {
-    transform: translate(-2px, 2px);
-    clip-path: polygon(0 15%, 100% 15%, 100% 55%, 0 55%);
-  }
-  50% {
-    transform: translate(2px, -1px);
-    clip-path: polygon(0 40%, 100% 40%, 100% 80%, 0 80%);
-  }
-  75% {
-    transform: translate(-1px, 1px);
-    clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
-  }
-  100% {
-    transform: translate(0);
-    clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
-  }
-}
+/* ============================================
+   Background Effects
+   ============================================ */
 
-@keyframes glitch-2 {
-  0% {
-    transform: translate(0);
-    clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
-  }
-  25% {
-    transform: translate(1px, -2px);
-    clip-path: polygon(0 40%, 100% 40%, 100% 80%, 0 80%);
-  }
-  50% {
-    transform: translate(-2px, 1px);
-    clip-path: polygon(0 15%, 100% 15%, 100% 55%, 0 55%);
-  }
-  75% {
-    transform: translate(2px, 2px);
-    clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
-  }
-  100% {
-    transform: translate(0);
-    clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
-  }
-}
-
-@keyframes glitch-3 {
-  0% {
-    transform: translate(2px, -1px) scale(1.05);
-    clip-path: polygon(0 20%, 100% 20%, 100% 30%, 0 30%);
-  }
-  33% {
-    transform: translate(-3px, 2px) scale(0.95);
-    clip-path: polygon(0 50%, 100% 50%, 100% 70%, 0 70%);
-  }
-  66% {
-    transform: translate(1px, -2px) scale(1.02);
-    clip-path: polygon(0 80%, 100% 80%, 100% 95%, 0 95%);
-  }
-  100% {
-    transform: translate(2px, -1px) scale(1.05);
-    clip-path: polygon(0 20%, 100% 20%, 100% 30%, 0 30%);
-  }
-}
-
-/* Glitch blocks */
-.glitch-block {
-  position: fixed;
-  background: var(--theme-text-primary);
-  mix-blend-mode: difference;
-  animation: glitch-blocks 0.2s infinite;
-  z-index: 20;
-}
-
-.glitch-block--inverted {
-  background: var(--theme-bg-primary);
-  mix-blend-mode: screen;
-}
-
-@keyframes glitch-blocks {
-  0% {
-    opacity: 1;
-    transform: translateX(0) scaleY(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: translateX(-2px) scaleY(1.2);
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(2px) scaleY(0.8);
-  }
-}
-
-/* Glitch text container distortion */
-.glitch-active .glitch-text-container {
-  animation: text-distort 0.2s infinite;
-}
-
-@keyframes text-distort {
-  0% {
-    transform: skewX(0deg) translateX(0);
-  }
-  20% {
-    transform: skewX(-2deg) translateX(-2px);
-  }
-  40% {
-    transform: skewX(1deg) translateX(1px);
-  }
-  60% {
-    transform: skewX(-1deg) translateX(2px);
-  }
-  80% {
-    transform: skewX(2deg) translateX(-1px);
-  }
-  100% {
-    transform: skewX(0deg) translateX(0);
-  }
-}
-
-/* Glitch link effect */
-.glitch-active .glitch-link {
-  animation: link-glitch 0.2s infinite;
-}
-
-@keyframes link-glitch {
-  0%, 100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  20% {
-    opacity: 0.8;
-    transform: translateX(-1px);
-  }
-  40% {
-    opacity: 0.9;
-    transform: translateX(2px);
-  }
-  60% {
-    opacity: 0.7;
-    transform: translateX(-2px);
-  }
-  80% {
-    opacity: 0.85;
-    transform: translateX(1px);
-  }
-}
-
-/* Very subtle static for atmosphere */
+/* Very subtle static for atmosphere (global) */
 .min-h-screen::before {
   content: '';
   position: fixed;
@@ -464,134 +176,11 @@ a {
   z-index: 0;
 }
 
-/* Remove unused after pseudo-element */
-.min-h-screen::after {
-  display: none;
-}
-
-/* Glitch scanlines that appear during glitch */
-.glitch-scanline {
-  position: fixed;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.8),
-    transparent
-  );
-  mix-blend-mode: overlay;
-  animation: scan-horizontal 0.3s linear;
-  pointer-events: none;
-  z-index: 30;
-}
-
-@keyframes scan-horizontal {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* Static noise overlay */
-.glitch-static {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    repeating-conic-gradient(
-      from 0deg at 50% 50%,
-      rgba(255, 255, 255, 0) 0deg,
-      rgba(255, 255, 255, 0.1) 1deg,
-      rgba(255, 255, 255, 0) 2deg
-    );
-  background-size: 4px 4px;
-  mix-blend-mode: overlay;
-  pointer-events: none;
-  z-index: 25;
-  animation: static-shift 0.05s steps(10, end) infinite;
-}
-
-@keyframes static-shift {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(-4px, -4px);
-  }
-}
-
-/* Hacker Text Chromatic Aberration Styles */
-.hacker-text-main {
-  position: relative;
-  isolation: isolate;
-}
-
-/* Enhance the glitch effect on hover */
-.hacker-text-main:hover {
-  animation: hacker-micro-glitch 0.1s ease-in-out;
-}
-
-@keyframes hacker-micro-glitch {
-  0%, 100% {
-    transform: translate(0, 0);
-  }
-  20% {
-    transform: translate(-1px, 0);
-  }
-  40% {
-    transform: translate(1px, 0);
-  }
-  60% {
-    transform: translate(0, -1px);
-  }
-  80% {
-    transform: translate(0, 1px);
-  }
-}
-
-/* Add a subtle data corruption effect during glitch */
-.hacker-text-main::before {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  color: var(--theme-text-primary);
-  mix-blend-mode: multiply;
-  pointer-events: none;
-  transform: scaleX(1.05);
-}
-
-/* Chromatic aberration enhancement for dark mode */
-@media (prefers-color-scheme: dark) {
-  .hacker-text-main {
-    text-shadow: 
-      0 0 1px rgba(255, 255, 255, 0.1),
-      0 0 2px rgba(255, 255, 255, 0.05);
-  }
-}
-
-/* Light mode adjustments */
-@media (prefers-color-scheme: light) {
-  .hacker-text-main {
-    text-shadow: 
-      0 0 1px rgba(0, 0, 0, 0.1),
-      0 0 2px rgba(0, 0, 0, 0.05);
-  }
-}
-
 /* ============================================
-   KaTeX Formula Overflow (mobile)
+   KaTeX Math Rendering
    ============================================ */
 
+/* Formula overflow handling (mobile) */
 .katex-display {
   overflow-x: auto;
   overflow-y: hidden;
@@ -603,36 +192,9 @@ a {
   white-space: nowrap;
 }
 
-/* ============================================
-   KaTeX Theme-Aware Colors
-   ============================================ */
+/* Theme-aware formula colors */
+.dark .color-primary { color: #93c5fd !important; }
+html:not(.dark) .color-primary { color: #3b82f6 !important; }
 
-/* Primary color (chosen/positive) */
-.dark .color-primary { color: #93c5fd !important; }  /* soft blue */
-html:not(.dark) .color-primary { color: #3b82f6 !important; }  /* blue-500 */
-
-/* Secondary color (rejected/negative) */
-.dark .color-secondary { color: #c4b5fd !important; }  /* soft lavender */
-html:not(.dark) .color-secondary { color: #8b5cf6 !important; }  /* violet-500 */
-
-/* ============================================
-   Social Icon Hover Colors (Theme-Aware)
-   ============================================ */
-
-/* Dark theme: pastel/soft colors */
-html.dark {
-  --social-github: #b8a4c9;      /* soft purple */
-  --social-linkedin: #7eb8da;    /* soft blue */
-  --social-twitter: #8ecae6;     /* soft sky */
-  --social-instagram: #e6a4b4;   /* soft pink */
-}
-
-/* Light theme: muted/subdued colors */
-html:not(.dark) {
-  --social-github: #6e5494;      /* muted purple */
-  --social-linkedin: #0369a1;    /* muted blue */
-  --social-twitter: #0284c7;     /* muted sky */
-  --social-instagram: #be185d;   /* muted pink */
-}
-
-
+.dark .color-secondary { color: #c4b5fd !important; }
+html:not(.dark) .color-secondary { color: #8b5cf6 !important; }
