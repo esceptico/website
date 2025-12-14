@@ -112,6 +112,7 @@ button:focus-visible {
   color: var(--theme-text-secondary);
   transition: color 0.2s ease, transform 0.2s ease;
   display: inline-flex;
+  will-change: transform;
 }
 
 .social-icon:hover {

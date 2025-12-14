@@ -3,18 +3,6 @@
   transition: filter 0.1s;
 }
 
-.glitchActive {
-  /* marker class */
-}
-
-.glitchTextContainer {
-  /* marker class */
-}
-
-.glitchLink {
-  /* marker class */
-}
-
 .glitchContent.glitchActive {
   filter: url(#distortion);
 }
