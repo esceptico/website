@@ -9,10 +9,16 @@ const jsonLd = {
   jobTitle: 'Machine Learning Engineer',
   description: 'Machine Learning Engineer specializing in post-training and safety alignment for production LLM systems.',
   sameAs: [
-    'https://github.com/Esceptico',
-    'https://linkedin.com/in/timur-ganiev',
-    'https://twitter.com/postimortem',
+    'https://github.com/esceptico',
+    'https://linkedin.com/in/esceptico',
+    'https://x.com/postimortem',
+    'https://instagram.com/timurmurmur',
   ],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    url: 'https://calendly.com/ganiev-tmr/30min',
+    contactType: 'scheduling',
+  },
 };
 
 export default function Home() {

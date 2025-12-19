@@ -45,6 +45,9 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "https://timganiev.com",
+    types: {
+      'application/rss+xml': 'https://timganiev.com/feed.xml',
+    },
   },
 };
 
