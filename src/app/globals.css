@@ -32,6 +32,7 @@ html.dark {
   --social-linkedin: #7eb8da;
   --social-twitter: #8ecae6;
   --social-instagram: #e6a4b4;
+  --social-calendly: #7eb5e6;
 }
 
 /* Light theme: muted/subdued colors for social icons */
@@ -40,6 +41,7 @@ html:not(.dark) {
   --social-linkedin: #0369a1;
   --social-twitter: #0284c7;
   --social-instagram: #be185d;
+  --social-calendly: #0059b3;
 }
 
 /* ============================================
@@ -115,6 +117,10 @@ button:focus-visible {
   will-change: transform;
 }
 
+.social-icon svg {
+  fill: currentColor;
+}
+
 .social-icon:hover {
   transform: scale(1.1);
 }
@@ -133,6 +139,10 @@ button:focus-visible {
 
 .social-icon--instagram:hover {
   color: var(--social-instagram);
+}
+
+.social-icon--calendly:hover {
+  color: var(--social-calendly);
 }
 
 .social-icon--email:hover {
