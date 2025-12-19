@@ -38,7 +38,7 @@ export const getTimeBasedGreeting = (): string => {
 
 
 // About Text
-export const aboutMarkdown = `I'm a Machine Learning Engineer at [Replika](https://replika.com). I work on post-training and safety alignment for production LLMs, and co-led the redesign of Replika's conversation system (tool use, memory, context engineering, and a bunch of other things). Here's my [CV](/resume.pdf).
+export const aboutMarkdown = `I'm a Machine Learning Engineer at [Replika](https://replika.com). I work on post-training and safety alignment for production LLMs, and co-led the redesign of Replika's conversation system (tool use, memory, context engineering, and a bunch of other things). Here's my [CV](/Timur_Ganiev_CV.pdf).
 
 I also keep a [log](/log) of ML notes and annotated implementations.
 

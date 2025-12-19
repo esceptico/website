@@ -27,7 +27,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/resume.pdf`,
+      url: `${baseUrl}/Timur_Ganiev_CV.pdf`,
       lastModified: new Date(),
       changeFrequency: 'yearly',
       priority: 0.5,
