@@ -118,6 +118,7 @@ export const PersonalInfo = () => {
           rel="noopener noreferrer"
           className="social-icon social-icon--github"
           aria-label="GitHub"
+          title="GitHub"
         >
           <FaGithub className="w-7 h-7" />
         </Link>
@@ -127,6 +128,7 @@ export const PersonalInfo = () => {
           rel="noopener noreferrer"
           className="social-icon social-icon--linkedin"
           aria-label="LinkedIn"
+          title="LinkedIn"
         >
           <FaLinkedin className="w-7 h-7" />
         </Link>
@@ -136,6 +138,7 @@ export const PersonalInfo = () => {
           rel="noopener noreferrer"
           className="social-icon social-icon--twitter"
           aria-label="Twitter"
+          title="Twitter"
         >
           <FaTwitter className="w-7 h-7" />
         </Link>
@@ -145,6 +148,7 @@ export const PersonalInfo = () => {
           rel="noopener noreferrer"
           className="social-icon social-icon--instagram"
           aria-label="Instagram"
+          title="Instagram"
         >
           <FaInstagram className="w-7 h-7" />
         </Link>
@@ -154,6 +158,7 @@ export const PersonalInfo = () => {
           rel="noopener noreferrer"
           className="social-icon social-icon--calendly"
           aria-label="Calendly"
+          title="Calendly"
         >
           <SiCalendly className="w-7 h-7" />
         </Link>
@@ -161,6 +166,7 @@ export const PersonalInfo = () => {
           href={socialLinks.email}
           className="social-icon social-icon--email"
           aria-label="Email"
+          title="Email"
         >
           <FaEnvelope className="w-7 h-7" />
         </a>
