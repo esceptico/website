@@ -18,7 +18,7 @@ function hasAnnotatedCodeBlocks(content: string): boolean {
   const codeBlockRegex = /```(?:python|py)\n([\s\S]*?)```/g;
   let match;
   while ((match = codeBlockRegex.exec(content)) !== null) {
-    if (isAnnotatedPython(match[1])) return true;
+    if (match[1] && isAnnotatedPython(match[1])) return true;
   }
   return false;
 }
