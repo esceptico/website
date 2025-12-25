@@ -19,7 +19,7 @@ Here's the pipeline: extracting a steering vector, applying it, choosing the rig
 
 # The Core Idea
 
-An insight from mechanistic interpretability: neural networks represent **concepts as directions** in activation space. This is the linear representation hypothesis ([Park et al., 2024](https://arxiv.org/abs/2311.03658)) – truth vs. falsehood, sentiment, even abstract concepts form linearly separable clusters in LLM activations ([Marks & Tegmark, 2023](https://arxiv.org/abs/2310.06824)). Honesty, sentiment, expertise – these aren't stored in single neurons, but as linear directions across many neurons.
+An insight from mechanistic interpretability: neural networks represent **concepts as directions** in activation space. This is the linear representation hypothesis ([Park et al., 2023](https://arxiv.org/abs/2311.03658)) – truth vs. falsehood, sentiment, even abstract concepts form linearly separable clusters in LLM activations ([Marks & Tegmark, 2023](https://arxiv.org/abs/2310.06824)). Honesty, sentiment, expertise – these aren't stored in single neurons, but as linear directions across many neurons.
 
 Why not single neurons? Because models use **superposition** – they pack more concepts than they have neurons by encoding features as overlapping directions ([Elhage et al., 2022](https://transformer-circuits.pub/2022/toy_model/index.html)). Individual neurons end up **polysemantic**, responding to multiple unrelated concepts. So we look for directions, not neurons.
 
@@ -333,7 +333,7 @@ More on steering reliability: [Queiroz Da Silva et al., 2025](https://aclantholo
 
 # References
 
-- [The Linear Representation Hypothesis and the Geometry of Large Language Models](https://arxiv.org/abs/2311.03658) – Park et al., 2024. Formalizes the linear representation hypothesis for LLMs.
+- [The Linear Representation Hypothesis and the Geometry of Large Language Models](https://arxiv.org/abs/2311.03658) – Park et al., 2023. Formalizes the linear representation hypothesis for LLMs.
 - [The Geometry of Truth](https://arxiv.org/abs/2310.06824) – Marks & Tegmark, 2023. Empirical evidence for linear truth representations in LLMs.
 - [Representation Engineering: A Top-Down Approach to AI Transparency](https://arxiv.org/abs/2310.01405) – Zou et al., 2023. Foundational paper on steering via activation engineering.
 - [Activation Addition: Steering Language Models Without Optimization](https://arxiv.org/abs/2308.10248) – Turner et al., 2023. The "add a vector" approach.
