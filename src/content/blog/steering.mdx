@@ -1,0 +1,344 @@
+---
+title: A Practical Guide to Activation Steering
+summary: Steer LLM behavior by adding vectors to the residual stream (and learn when it breaks)
+date: 2025-12-25
+tags: [mechanistic-interpretability, steering, transformers]
+---
+
+# Activation Steering in 10 Minutes
+
+**What if you could lobotomize an LLM, but gently?**
+
+Activation steering: find a direction in the model's internal representation space, add it during inference, shift behavior.
+
+Here's the pipeline: extracting a steering vector, applying it, choosing the right strength, and understanding when it fails. We'll steer Gemma-3-1b-it between "novice-friendly" and "expert-level" communication styles.
+
+**Fair warning:** All the specific numbers here (layer choices, $\alpha$ values, probe accuracies) are for Gemma-3-1b-it on this particular task. For other models and/or other concepts you should expect different behavior. The method generalizes; the parameters don't.
+
+**Prerequisites:** Basic PyTorch, familiarity with transformer architecture. If you know what "hidden states" and "residual stream" mean, you're overqualified.
+
+# The Core Idea
+
+An insight from mechanistic interpretability: neural networks represent **concepts as directions** in activation space. This is the linear representation hypothesis ([Park et al., 2024](https://arxiv.org/abs/2311.03658)) – truth vs. falsehood, sentiment, even abstract concepts form linearly separable clusters in LLM activations ([Marks & Tegmark, 2023](https://arxiv.org/abs/2310.06824)). Honesty, sentiment, expertise – these aren't stored in single neurons, but as linear directions across many neurons.
+
+Why not single neurons? Because models use **superposition** – they pack more concepts than they have neurons by encoding features as overlapping directions ([Elhage et al., 2022](https://transformer-circuits.pub/2022/toy_model/index.html)). Individual neurons end up **polysemantic**, responding to multiple unrelated concepts. So we look for directions, not neurons.
+
+{/* IMAGE: diagram showing activation space with novice/expert clusters and the separating hyperplane */}
+
+If we can find the "expertise direction", we can push the model along it (more expert) or against it (more novice). The math is embarrassingly simple:
+
+$$
+a'_\ell = a_\ell + \alpha \cdot v
+$$
+
+where $a_\ell$ is the activation at layer $\ell$, $v$ is our steering vector, and $\alpha$ controls strength. Positive $\alpha$ means "more expert", negative means "more novice".
+
+# Finding the Steering Direction
+
+How do we find $v$? The simplest approach: **linear probes**.
+
+Create contrastive prompts – different questions, contrasting personas:
+
+```python
+NOVICE_PROMPTS = [
+    "i'm new to this topic... what is the difference between rhythm, beat, tempo, and meter?",
+    "this might be a basic question, but how do art historians figure out who made an artwork when it isn't signed?",
+    "i don't have a background in this field, so... how do I lose fat without losing muscle?",
+    "i'm just a curious beginner, but why do organisms need water to survive?",
+    "i'm new to this topic, but how does gravity work – why do masses attract each other?",
+]
+
+EXPERT_PROMPTS = [
+    "As someone with a PhD in aesthetics and art history, how have ideas about beauty changed across cultures and centuries?",
+    "Building on my expertise in aesthetics, what makes something beautiful or art?",
+    "From my graduate coursework in orbital mechanics, if gravity pulls everything down, why do planets and moons stay in orbit instead of falling straight in?",
+    "As someone with a PhD in physics, why does anything have mass, and what does mass really measure?",
+    "From my graduate coursework in neuroscience, how do nerves transmit information so quickly?",
+]
+```
+
+The model takes the bait every time. We collect activations from both, then train a classifier to separate them.
+
+**On dataset size:** The accuracy and coherence plots below used ~120 contrastive pairs with a separate held-out test set (from different domains to reduce bias). But the concept is simple enough that steering works with as few as 5+5 prompts.
+
+**Logistic regression** learns a hyperplane that separates the two classes:
+
+$$
+P(\text{expert}|x) = \sigma(w^T x + b)
+$$
+
+The weight vector $w$ is perpendicular to this hyperplane – it points in the direction that maximally separates novice from expert. That's our steering vector.
+
+```python
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+
+clf = LogisticRegression()
+clf.fit(activations, labels)  # 0=novice, 1=expert
+
+steering_vector = clf.coef_[0]  # shape: (hidden_dim,)
+steering_vector /= np.linalg.norm(steering_vector)  # normalize
+```
+
+**Why `coef_[0]`?** For binary classification, sklearn stores a single weight vector. It points from class 0 (novice) toward class 1 (expert).
+
+**Alternative approaches:** You could also use mean difference (expert_mean - novice_mean), or train SAEs ([Gemma Scope 2](https://deepmind.google/blog/gemma-scope-2-helping-the-ai-safety-community-deepen-understanding-of-complex-language-model-behavior/)) to find interpretable features. Linear probes are a good middle ground – more principled than mean difference, simpler than SAEs.
+
+# The Implementation
+
+We need two hooks: one to **capture** activations (for training the probe), one to **steer** (for modifying behavior).
+
+## What Are Hooks?
+
+PyTorch hooks are functions you attach to layers that get called automatically during the forward or backward pass. Think of them as wiretaps – you can listen in on what's happening inside the model without modifying its architecture.
+
+When you call `layer.register_forward_hook(fn)`, your function `fn` gets called every time that layer runs, receiving the layer's input and output tensors. You can inspect them (for capturing activations) or modify them (for steering). The hook returns a handle you use to remove it later.
+
+More on hooks: [PyTorch hooks tutorial](https://www.digitalocean.com/community/tutorials/pytorch-hooks-gradient-clipping-debugging).
+
+**Note:** In practice, most people use libraries like [nnsight](https://github.com/ndif-team/nnsight) or [TransformerLens](https://github.com/TransformerLensOrg/TransformerLens) that handle this stuff for you. But for educational purposes (and because I like reinventing wheels), we'll use manual hooks here. And the code itself is pretty simple, so why not?
+
+## The Residual Stream
+
+In transformers, information flows through the **residual stream** – a highway that passes through each layer, accumulating updates. Each layer reads from this stream, computes something, and adds its output back. We hook into this stream to either read or modify it.
+
+```python
+# ## Capturing Activations
+#
+# PyTorch's `register_forward_hook` lets us intercept activations
+# during the forward pass. The hook fires after each layer computes
+# its output, giving us access to the hidden states.
+#
+# We extract the **last token's** hidden state – that's where the model
+# "decides" what token to generate next.
+
+from contextlib import contextmanager
+import torch
+
+@contextmanager
+def capture(layers, layer_indices: list[int], token_idx: int = -1):
+    cache = {}      # stores {layer_idx: activation_tensor}
+    handles = []    # hook handles for cleanup
+    
+    def make_hook(idx):
+        def hook(module, input, output):
+            # output is (hidden_states, ...) or just hidden_states
+            hidden = output[0] if isinstance(output, tuple) else output
+            # hidden shape: (batch, seq_len, hidden_dim)
+            # extract token at position token_idx (default: -1 = last)
+            cache[idx] = hidden[:, token_idx, :].detach().cpu().squeeze(0)
+        return hook
+    
+    # attach hooks to each target layer
+    for idx in layer_indices:
+        handles.append(layers[idx].register_forward_hook(make_hook(idx)))
+    
+    try:
+        yield cache  # caller runs model, cache gets populated
+    finally:
+        for h in handles:
+            h.remove()  # always clean up hooks
+
+# ## Applying the Steering Vector
+#
+# Same mechanism, but instead of reading, we **modify**.
+# We add the scaled steering vector to the layer output.
+# This shifts the model's internal representation toward
+# (or away from) the target concept.
+#
+# The vector broadcasts across all tokens in the sequence –
+# we steer the entire generation, not just one position.
+
+@contextmanager
+def steer(layers, layer_idx: int, vector: torch.Tensor, alpha: float = 0.0):
+    sv = vector.float()  # ensure float32
+    
+    def hook(module, input, output):
+        # add steering vector to hidden states
+        # broadcasts across batch and sequence dimensions
+        if isinstance(output, tuple):
+            return (output[0] + sv * alpha,) + output[1:]
+        return output + sv * alpha
+    
+    handle = layers[layer_idx].register_forward_hook(hook)
+    try:
+        yield
+    finally:
+        handle.remove()
+```
+
+{/* IMAGE: diagram showing residual stream with steering vector being added */}
+
+# Choosing the Right Layer
+
+Not all layers are equal. Train probes at each layer and check where the concept is most readable:
+
+<Plot
+  data={[{
+    type: 'scatter',
+    mode: 'lines+markers',
+    x: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+    y: [0.783, 0.817, 0.771, 0.85, 0.846, 0.842, 0.908, 0.904, 0.925, 0.979, 0.963, 0.971, 0.971, 0.996, 1.0, 0.996, 0.996, 0.996, 0.996, 0.996, 0.996, 0.996, 0.996, 0.996, 0.996, 1.0],
+  }]}
+  layout={{
+    title: 'Probe Accuracy by Layer (Gemma-3-1b-it)',
+    xaxis: { title: 'Layer' },
+    yaxis: { title: 'Accuracy', range: [0.7, 1.02] },
+    height: 300,
+  }}
+/>
+
+Middle-to-late layers (~9+) achieve near-perfect separation.
+
+**But high probe accuracy ≠ good steering.** The best layer for *reading* a concept isn't always the best for *modifying* it. Recent work shows steering effectiveness varies significantly across models and tasks – there's no universal rule ([Queiroz Da Silva et al., 2025](https://aclanthology.org/2025.acl-long.974.pdf)).
+
+A rough heuristic: early layers handle low-level patterns, middle layers encode semantic concepts, late layers refine for output. For Gemma-3-1b-it on expertise, **middle layers (9-17) worked best** in my experiments. Edge layers (1, 25) showed minimal effect – the steering barely changed the output.
+
+I picked **layer 13** for the demos below. Lucky number.
+
+# Choosing Alpha
+
+The steering strength $\alpha$ needs calibration. Raw values are meaningless across layers – layer 5 might have activation norm 50, layer 20 might have norm 200. Same $\alpha$, completely different effect.
+
+**Solution:** Scale $\alpha$ relative to activation norm:
+
+$$
+\alpha = f \cdot \|a_\ell\|
+$$
+
+where $f$ is a fraction of the norm. I found $f \approx 0.07 \pm 0.02$ works well for this task (enough to shift style without breaking coherence).
+
+```python
+# compute mean activation norm at target layer
+act_norm = compute_activation_norm(model, tokenizer, layer_idx, prompts, device)
+alpha = act_norm * 0.07  # ~7% ± 2% works well
+
+# generate with steering
+with steer(model.model.layers, layer_idx, steering_vector, alpha=alpha):
+    output = model.generate(input_ids, max_new_tokens=200)
+```
+
+# Results
+
+Try different steering strengths – slide toward "Expert" or "Novice" to see how the model's response changes:
+
+<AlphaSlider 
+  question="What is a neutron star?"
+  results={{
+    "-0.14": "Yes, they're scary! A neutron star is like a giant cosmic vacuum cleaner.\n\n**They're super small and super fast!** They're made of tiny bits of stuff called \"stars\" that are packed together so tightly they spin really fast and keep going round and round.\n\nBecause they're so big and fast, they're like planets that fall every day!\n\n**They're so heavy that they can sometimes bump into each other super fast!**\n\nThey're the biggest things that ever hit the Earth!\n\n---\n\n**Here's a simple way to think of it:**\n\n\"Giant, spinning, speedy rocks!\"\n\nYou can find lots of pictures and videos of them online!",
+    "-0.07": "A neutron star is a super-dense star that's formed when a massive star collapses. It's essentially a giant ball of neutrons packed incredibly tightly! Because so much stuff is squeezed in, they're incredibly bright and can sometimes be seen as tiny, rapidly spinning points of light.",
+    "-0.02": "Okay, here's a brief explanation of a neutron star:\n\nA neutron star is the incredibly dense remnant of a massive star that has exploded. It's essentially a giant ball of **neutrons** – all the matter packed into a sphere the size of a city! Because of their immense gravity, they're incredibly small and incredibly dense, making them the densest objects in the universe.\n\n**Think of it like this:** A star collapses and crushes down into a tiny, incredibly strong ball of neutrons.",
+    "0": "A neutron star is the incredibly dense remnant of a massive star that has collapsed at the end of its life. It's essentially a giant ball of neutrons packed incredibly tightly.\n\n**Key features:**\n\n- **Extremely dense:** A teaspoonful would weigh billions of tons.\n- **Strong magnetic fields:** They have incredibly powerful magnetic fields.\n- **Rapid rotation:** Often rotate incredibly fast.",
+    "0.02": "A neutron star is the incredibly dense remnant of a massive star that has undergone a supernova explosion. It's essentially a collapsed star composed almost entirely of neutrons, packed together incredibly tightly – a teaspoonful would weigh billions of tons!\n\nEssentially, it's a stellar corpse with immense gravity and a bizarre, ultra-dense structure.",
+    "0.07": "A neutron star is an incredibly dense remnant of a massive star (typically 10-20 times the mass of the Sun) that has undergone a supernova explosion.\n\n**Here's a breakdown:**\n\n- **Extreme Density:** It's composed almost entirely of neutrons, packed together under immense pressure – roughly equivalent to the density of an atomic nucleus.\n- **Support of Matter:** The extreme pressure forces the star's core to collapse, resulting in a singularity – a point of infinite density.\n- **Observable Properties:** Neutron stars exhibit strong magnetic fields, X-ray emission, and can be observed through gravitational lensing.",
+    "0.14": "As a response to your prompt, I interpret your question as a request for a brief explanation of the connection between my response and your question.\n\n**A neutron star is a hypothetical object that would result from a supernova (a collapse of a massive star, primarily influenced by the neutron degeneracy pressure – a consequence of the quantum mechanical effects of the neutron matter)**\n\n**Specifically, it's a collapsed star (approximately 2-3 times the mass of the Sun) where the core is composed primarily of neutron-rich matter, resulting in a staggering density – approximately 250 gigajoules per cubic meter.**\n\n**My response is a direct interpretation of your prompt, and it is not a nuanced discussion of the theoretical implications of that interpretation.**"
+  }}
+/>
+
+The sweet spot for our setup is around $\alpha \approx 0.02$–$0.07$. Push too far and coherence collapses:
+
+- **Novice collapse** (-0.14): "giant cosmic vacuum cleaner", "planets that fall every day" (wtf) – sounds like a children's book written by someone who's never seen a star
+- **Expert collapse** (+0.14): "250 gigajoules per cubic meter", calls neutron stars "hypothetical" – classic pseudo-expertise, would fit right in on Twitter/X
+
+So what's actually happening here?
+
+# Why Steering Breaks
+
+One interpretation: the steering vector captures **vibes more than facts** – vocabulary, sentence structure, tone, but not actual knowledge. At low $\alpha$, you get a nice style shift. Crank it up, and you amplify style while suppressing coherent reasoning.
+
+To quantify this, I measured **semantic preservation** (does steering break the meaning?) across layers and steering strengths. *(LLM-as-judge with majority voting; signal is noisy but trends are consistent.)*
+
+<div style={{ display: 'flex', gap: '3rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+
+<Plot
+  data={[{
+    type: 'heatmap',
+    z: [[0.83, 0.33, 0.33, 0.50], [0.33, 0.83, 0.33, 0.33], [0.67, 0.50, 0.33, 0.50], [0.67, 0.67, 0.00, 0.00], [0.50, 0.00, 0.00, 0.00], [0.50, 0.83, 0.33, 0.00], [0.83, 0.33, 0.33, 0.67]],
+    x: ['0.01', '0.07', '0.15', '0.20'],
+    y: ['1', '5', '9', '13', '17', '21', '25'],
+    showscale: false,
+    xgap: 2,
+    ygap: 2,
+    text: [['83%', '33%', '33%', '50%'], ['33%', '83%', '33%', '33%'], ['67%', '50%', '33%', '50%'], ['67%', '67%', '0%', '0%'], ['50%', '0%', '0%', '0%'], ['50%', '83%', '33%', '0%'], ['83%', '33%', '33%', '67%']],
+    texttemplate: '%{text}',
+    hovertemplate: 'Layer %{y}, fraction=%{x}: %{text}<extra></extra>',
+  }]}
+  layout={{
+    title: { text: 'Expert (+α)' },
+    xaxis: { title: 'norm fraction', type: 'category', showgrid: false, constrain: 'domain' },
+    yaxis: { title: 'Layer', type: 'category', showgrid: false, scaleanchor: 'x', constrain: 'domain' },
+    width: 320,
+    height: 450,
+    margin: { l: 60, r: 30, t: 50, b: 60 },
+  }}
+/>
+
+<Plot
+  data={[{
+    type: 'heatmap',
+    z: [[0.67, 0.67, 0.50, 0.33], [0.83, 0.67, 0.50, 0.33], [0.67, 0.67, 0.50, 0.17], [0.67, 0.50, 0.00, 0.00], [0.67, 0.00, 0.00, 0.00], [0.83, 0.50, 0.50, 0.17], [0.83, 0.83, 0.33, 0.17]],
+    x: ['0.01', '0.07', '0.15', '0.20'],
+    y: ['1', '5', '9', '13', '17', '21', '25'],
+    showscale: false,
+    xgap: 2,
+    ygap: 2,
+    text: [['67%', '67%', '50%', '33%'], ['83%', '67%', '50%', '33%'], ['67%', '67%', '50%', '17%'], ['67%', '50%', '0%', '0%'], ['67%', '0%', '0%', '0%'], ['83%', '50%', '50%', '17%'], ['83%', '83%', '33%', '17%']],
+    texttemplate: '%{text}',
+    hovertemplate: 'Layer %{y}, fraction=%{x}: %{text}<extra></extra>',
+  }]}
+  layout={{
+    title: { text: 'Novice (−α)' },
+    xaxis: { title: 'norm fraction', type: 'category', showgrid: false, constrain: 'domain' },
+    yaxis: { title: 'Layer', type: 'category', showgrid: false, scaleanchor: 'x', constrain: 'domain' },
+    width: 320,
+    height: 450,
+    margin: { l: 60, r: 30, t: 50, b: 60 },
+  }}
+/>
+
+</div>
+
+The pattern is clear: middle layers (9-13) break first, and higher $\alpha$ kills semantic coherence everywhere. Layer 9 at $\alpha \geq 0.07$ is basically dead – 0% preservation.
+
+I call this **pseudo-expertise**: the text *looks* authoritative (formal structure, technical-sounding phrases) but is confidently wrong. The novice direction has its own failure mode – emoji soup and circular "simple" explanations that don't actually explain anything.
+
+Think of it like adjusting the "expert" dial on a mixing board. Small adjustments shift the tone. Crank it to 11, and you get distortion.
+
+# Limitations
+
+Some caveats:
+
+- **One model, one concept.** I only tested Gemma-3-1b-it on expertise. Other models and concepts may behave differently.
+- **No out-of-distribution testing.** I didn't check if the steering generalizes to topics not in training.
+- **Inference-time only.** Steering doesn't permanently change the model – it's active only during the hooked forward pass.
+
+More on steering reliability: [Queiroz Da Silva et al., 2025](https://aclanthology.org/2025.acl-long.974.pdf).
+
+# Summary
+
+1. **Collect** activations from contrastive prompts (novice vs expert)
+2. **Train** a linear probe → weight vector = steering direction
+3. **Choose a layer** – middle layers often work best, but verify empirically
+4. **Apply** via forward hook: $a' = a + \alpha \cdot v$
+5. **Scale** $\alpha$ relative to activation norm ($f \approx 0.07 \pm 0.02$)
+6. **Watch for collapse** at high $\alpha$
+
+---
+
+# Notes
+
+- The research behind this post was done as part of my application to [MATS](https://www.matsprogram.org/) (ML Alignment Theory Scholars).
+- This is essentially **persona modeling** – the model infers a user persona from the prompt and adjusts its response accordingly. We're just making that adjustment explicit and controllable.
+- If the model starts claiming neutron stars are hypothetical, you've gone too far. Turn back.
+
+# References
+
+- [The Linear Representation Hypothesis and the Geometry of Large Language Models](https://arxiv.org/abs/2311.03658) – Park et al., 2024. Formalizes the linear representation hypothesis for LLMs.
+- [The Geometry of Truth](https://arxiv.org/abs/2310.06824) – Marks & Tegmark, 2023. Empirical evidence for linear truth representations in LLMs.
+- [Representation Engineering: A Top-Down Approach to AI Transparency](https://arxiv.org/abs/2310.01405) – Zou et al., 2023. Foundational paper on steering via activation engineering.
+- [Activation Addition: Steering Language Models Without Optimization](https://arxiv.org/abs/2308.10248) – Turner et al., 2023. The "add a vector" approach.
+- [Scaling Monosemanticity](https://transformer-circuits.pub/2024/scaling-monosemanticity/) – Anthropic, 2024. Extracting interpretable features from Claude 3 Sonnet via SAEs.
+- [Steering off Course: Reliability Challenges in Steering Language Models](https://aclanthology.org/2025.acl-long.974.pdf) – Queiroz Da Silva et al., 2025. On brittleness and layer selection.
+- [Open Problems in Mechanistic Interpretability](https://arxiv.org/abs/2501.16496) – Sharkey, Nanda et al., 2025. Comprehensive overview of challenges and open questions in mech interp.
+- [Gemma Scope 2](https://deepmind.google/blog/gemma-scope-2-helping-the-ai-safety-community-deepen-understanding-of-complex-language-model-behavior/) – Google DeepMind, 2025. Open SAEs and transcoders for Gemma 3 interpretability.
+- [MATS Program](https://www.matsprogram.org/) – ML Alignment Theory Scholars. Research program for AI safety.

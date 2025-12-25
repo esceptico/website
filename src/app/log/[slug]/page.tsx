@@ -2,6 +2,11 @@ import { getPostBySlug, getAllPosts } from '@/lib/blog';
 import { BlogViewer } from '@/components/blog/BlogViewer';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import { mdxComponents } from '@/components/blog/mdx-components';
+import remarkMath from 'remark-math';
+import remarkGfm from 'remark-gfm';
+import rehypeKatex from 'rehype-katex';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -83,7 +88,18 @@ export default async function BlogPostPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <BlogViewer post={post} />
+      <BlogViewer post={post}>
+        <MDXRemote 
+          source={post.content} 
+          components={mdxComponents}
+          options={{
+            mdxOptions: {
+              remarkPlugins: [remarkGfm, remarkMath],
+              rehypePlugins: [[rehypeKatex, { trust: true, strict: false }]],
+            },
+          }}
+        />
+      </BlogViewer>
     </>
   );
 }

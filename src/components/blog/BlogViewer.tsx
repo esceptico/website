@@ -1,18 +1,19 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { BlogTOC } from './BlogTOC';
-import { BlogChunk } from './BlogChunk';
 import type { BlogPost } from '@/lib/blog/types';
 import Link from 'next/link';
 import { FaChevronRight } from 'react-icons/fa';
+import { ReactNode } from 'react';
+import { BlogTOC } from './BlogTOC';
 
 interface BlogViewerProps {
   post: BlogPost;
+  children: ReactNode;
 }
 
-export function BlogViewer({ post }: BlogViewerProps) {
-  const hasAnnotatedCode = post.chunks.some(c => c.code.trim().length > 0);
+export function BlogViewer({ post, children }: BlogViewerProps) {
+  const hasAnnotatedCode = post.hasAnnotatedCode;
 
   return (
     <div className="min-h-screen -mt-16 bg-[var(--theme-bg-primary)] relative z-10">
@@ -42,12 +43,12 @@ export function BlogViewer({ post }: BlogViewerProps) {
       </header>
 
       <div className="flex">
-        {/* TOC - only show if there's annotated code */}
-        {hasAnnotatedCode && <BlogTOC chunks={post.chunks} />}
+        {/* TOC */}
+        <BlogTOC content={post.content} />
 
         {/* Main content */}
         <main 
-          className={`flex-1 overflow-x-hidden ${hasAnnotatedCode ? 'lg:ml-56' : ''}`}
+          className={`flex-1 overflow-x-hidden lg:ml-56`}
         >
           <div className={`px-6 lg:px-10 pt-8 pb-6 ${hasAnnotatedCode ? 'max-w-6xl mx-auto' : 'max-w-3xl mx-auto'}`}>
             <motion.div
@@ -55,22 +56,7 @@ export function BlogViewer({ post }: BlogViewerProps) {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4 }}
             >
-              {post.chunks.map((chunk, index) => {
-                const hasCode = chunk.code.trim().length > 0;
-                const nextChunk = post.chunks[index + 1];
-                const nextIsProse = nextChunk && nextChunk.code.trim().length === 0;
-                const isLastCodeChunk = hasCode && nextIsProse;
-                
-                return (
-                  <BlogChunk 
-                    key={index}
-                    chunk={chunk} 
-                    index={index}
-                    isFirst={index === 0}
-                    isLastCodeChunk={isLastCodeChunk}
-                  />
-                );
-              })}
+              {children}
             </motion.div>
           </div>
         </main>

@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import type { Chunk } from '@/lib/blog/types';
-import { slugify } from './BlogChunk';
 
 interface TocItem {
   title: string;
@@ -10,33 +8,67 @@ interface TocItem {
   id: string;
 }
 
-// Extract ALL headings from all chunks
-function extractToc(chunks: Chunk[]): TocItem[] {
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
+// Extract headings from markdown content (including annotated code blocks)
+function extractToc(content: string): TocItem[] {
   const items: TocItem[] = [];
+  const lines = content.split('\n');
+  let inCodeBlock = false;
+  let isPythonBlock = false;
   
-  chunks.forEach((chunk) => {
-    const lines = chunk.doc.split('\n');
+  for (const line of lines) {
+    const trimmed = line.trim();
     
-    for (const line of lines) {
-      const trimmed = line.trim();
-      
-      if (trimmed.startsWith('# ')) {
-        const title = trimmed.slice(2).trim();
-        items.push({ title, level: 1, id: slugify(title) });
-      } else if (trimmed.startsWith('## ')) {
-        const title = trimmed.slice(3).trim();
-        items.push({ title, level: 2, id: slugify(title) });
+    // Track code block state
+    if (trimmed.startsWith('```')) {
+      if (!inCodeBlock) {
+        inCodeBlock = true;
+        isPythonBlock = trimmed.startsWith('```python') || trimmed.startsWith('```py');
+      } else {
+        inCodeBlock = false;
+        isPythonBlock = false;
       }
+      continue;
     }
-  });
+    
+    // Inside Python code block: look for annotated headers
+    if (inCodeBlock && isPythonBlock) {
+      if (trimmed.startsWith('# # ') && !trimmed.startsWith('# ## ')) {
+        const title = trimmed.slice(4).trim();
+        if (title) items.push({ title, level: 1, id: slugify(title) });
+      } else if (trimmed.startsWith('# ## ')) {
+        const title = trimmed.slice(5).trim();
+        if (title) items.push({ title, level: 2, id: slugify(title) });
+      }
+      continue;
+    }
+    
+    // Skip other code blocks
+    if (inCodeBlock) continue;
+    
+    // Regular markdown headers
+    if (trimmed.startsWith('# ') && !trimmed.startsWith('# #')) {
+      const title = trimmed.slice(2).trim();
+      items.push({ title, level: 1, id: slugify(title) });
+    } else if (trimmed.startsWith('## ')) {
+      const title = trimmed.slice(3).trim();
+      items.push({ title, level: 2, id: slugify(title) });
+    }
+  }
   
   return items;
 }
 
-export function BlogTOC({ chunks }: { chunks: Chunk[] }) {
+export function BlogTOC({ content }: { content: string }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [prevActiveId, setPrevActiveId] = useState<string | null>(null);
-  const items = extractToc(chunks);
+  const items = extractToc(content);
   const isClickScrolling = useRef(false);
   const itemRefs = useRef<Map<string, HTMLLIElement>>(new Map());
   const [indicatorStyle, setIndicatorStyle] = useState({ top: 0, height: 24 });

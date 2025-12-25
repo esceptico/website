@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { FaCode, FaChevronRight } from 'react-icons/fa';
-import type { BlogMeta } from '@/lib/blog';
+import type { BlogMeta } from '@/lib/blog/types';
 
 interface BlogIndexClientProps {
   posts: BlogMeta[];
@@ -63,7 +63,7 @@ export function BlogIndexClient({ posts }: BlogIndexClientProps) {
                       {formatPostDate(post.date)}
                     </span>
                   )}
-                  {post.hasCode && (
+                  {post.hasAnnotatedCode && (
                     <span className="flex items-center gap-1 text-xs text-[var(--theme-text-secondary)]/60">
                       <FaCode className="w-3 h-3" />
                       <span>code</span>

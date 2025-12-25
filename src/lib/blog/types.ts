@@ -1,5 +1,6 @@
 /**
  * A chunk represents either prose or a paired documentation + code segment
+ * Used for the AnnotatedCode component
  */
 export interface Chunk {
   /** The documentation/annotation text (markdown) */
@@ -11,7 +12,7 @@ export interface Chunk {
 }
 
 /**
- * Parsed blog post containing all chunks
+ * Parsed blog post with MDX content
  */
 export interface BlogPost {
   /** URL slug */
@@ -24,10 +25,10 @@ export interface BlogPost {
   date?: string
   /** Tags for categorization */
   tags?: string[]
-  /** All parsed chunks */
-  chunks: Chunk[]
-  /** Whether this post contains any code */
-  hasCode: boolean
+  /** Raw MDX content for rendering */
+  content: string
+  /** Whether this post contains annotated code blocks */
+  hasAnnotatedCode: boolean
 }
 
 /**
@@ -39,5 +40,5 @@ export interface BlogMeta {
   summary?: string
   date?: string
   tags?: string[]
-  hasCode: boolean
+  hasAnnotatedCode: boolean
 }
