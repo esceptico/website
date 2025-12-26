@@ -309,7 +309,8 @@ Think of it like adjusting the "expert" dial on a mixing board. Small adjustment
 Some caveats:
 
 - **One model, one concept.** I only tested Gemma-3-1b-it on expertise. Other models and concepts may behave differently.
-- **No out-of-distribution testing.** I didn't check if the steering generalizes to topics not in training.
+- **Small model.** 1B parameters. Larger models might have cleaner representations.
+- **No exploration of nearby directions.** The probe gives one vector; I didn't check what's in the neighborhood.
 - **Inference-time only.** Steering doesn't permanently change the model – it's active only during the hooked forward pass.
 
 More on steering reliability: [Queiroz Da Silva et al., 2025](https://aclanthology.org/2025.acl-long.974.pdf).
