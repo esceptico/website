@@ -214,6 +214,9 @@ ${processedDesc}
       <div className="max-w-3xl mx-auto py-12 px-6">
         
         <h1 className="text-xl font-medium mb-1">Formula Linker</h1>
+        <p className="text-xs text-[var(--theme-text-secondary)]/40 mb-4">
+          This page does not exist. <a href="/" className="!text-[var(--theme-text-primary)]/60 hover:!text-[var(--theme-text-primary)] underline underline-offset-2">Leave</a>.
+        </p>
         <p className="text-sm text-[var(--theme-text-secondary)] mb-8">
           Select text → Select LaTeX → Pick color
         </p>
