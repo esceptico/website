@@ -21,10 +21,10 @@ function extractToc(content: string): TocItem[] {
   const lines = content.split('\n');
   let inCodeBlock = false;
   let isPythonBlock = false;
-  
-  for (const line of lines) {
-    const trimmed = line.trim();
     
+    for (const line of lines) {
+      const trimmed = line.trim();
+      
     // Track code block state
     if (trimmed.startsWith('```')) {
       if (!inCodeBlock) {
@@ -54,13 +54,13 @@ function extractToc(content: string): TocItem[] {
     
     // Regular markdown headers
     if (trimmed.startsWith('# ') && !trimmed.startsWith('# #')) {
-      const title = trimmed.slice(2).trim();
-      items.push({ title, level: 1, id: slugify(title) });
-    } else if (trimmed.startsWith('## ')) {
-      const title = trimmed.slice(3).trim();
-      items.push({ title, level: 2, id: slugify(title) });
+        const title = trimmed.slice(2).trim();
+        items.push({ title, level: 1, id: slugify(title) });
+      } else if (trimmed.startsWith('## ')) {
+        const title = trimmed.slice(3).trim();
+        items.push({ title, level: 2, id: slugify(title) });
+      }
     }
-  }
   
   return items;
 }

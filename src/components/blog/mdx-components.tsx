@@ -3,6 +3,7 @@ import hljs from 'highlight.js';
 import { AnnotatedCode } from './AnnotatedCode';
 import { AlphaSlider } from './interactive/AlphaSlider';
 import { Plot } from './interactive/Plot';
+import { LinkedFormula, Term } from './interactive/LinkedFormula';
 import { isAnnotatedPython } from '@/lib/blog/parse';
 import type { MDXComponents } from 'mdx/types';
 import './syntax-highlighting.css';
@@ -157,4 +158,6 @@ export const mdxComponents: MDXComponents = {
   AnnotatedCode,
   AlphaSlider,
   Plot,
+  LinkedFormula,
+  Term,
 };

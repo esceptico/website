@@ -203,9 +203,21 @@ button:focus-visible {
   white-space: nowrap;
 }
 
-/* Theme-aware formula colors */
+/* Theme-aware formula colors (legacy) */
 .dark .color-primary { color: #93c5fd !important; }
 html:not(.dark) .color-primary { color: #3b82f6 !important; }
 
 .dark .color-secondary { color: #c4b5fd !important; }
 html:not(.dark) .color-secondary { color: #8b5cf6 !important; }
+
+/* Term classes for linked formulas - no default color, colored on hover via LinkedFormula component */
+.term-winner,
+.term-loser,
+.term-policy,
+.term-reference,
+.term-sigmoid,
+.term-beta,
+.term-logratio,
+.term-expectation {
+  transition: color 0.15s ease;
+}
