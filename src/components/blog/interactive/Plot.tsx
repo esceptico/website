@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import type { PlotParams } from 'react-plotly.js';
 
@@ -45,7 +45,10 @@ interface PlotProps extends Omit<PlotParams, 'layout' | 'config'> {
 
 export function Plot({ data, layout, config, className, ...rest }: PlotProps) {
   const [isDark, setIsDark] = useState(false);
+  const [revision, setRevision] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
+  // Theme observer
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains('dark'));
 
@@ -59,6 +62,18 @@ export function Plot({ data, layout, config, className, ...rest }: PlotProps) {
     });
 
     return () => observer.disconnect();
+  }, []);
+
+  // Resize observer - trigger re-render when container size changes
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      setRevision(r => r + 1);
+    });
+
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
   }, []);
 
   const theme = isDark ? themes.dark : themes.light;
@@ -155,12 +170,13 @@ export function Plot({ data, layout, config, className, ...rest }: PlotProps) {
   });
 
   return (
-    <div className={`my-8 ${className ?? ''}`}>
+    <div ref={containerRef} className={`my-8 ${className ?? ''}`}>
       <Plotly
-        key={isDark ? 'dark' : 'light'}
+        key={`${isDark ? 'dark' : 'light'}-${revision}`}
         data={themedData as Plotly.Data[]}
         layout={themedLayout}
         config={{ ...defaultConfig, ...config }}
+        useResizeHandler
         style={{ width: '100%', height: layout?.height ?? 280 }}
         {...rest}
       />

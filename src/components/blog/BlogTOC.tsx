@@ -153,30 +153,39 @@ export function BlogTOC({ content }: { content: string }) {
     
     if (headingElements.length === 0) return;
 
+    let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+    
     const handleScroll = () => {
       if (isClickScrolling.current) return;
       
-      const headerOffset = 100;
-      let currentId = headingIds[0];
-      
-      for (const el of headingElements) {
-        const rect = el.getBoundingClientRect();
-        if (rect.top <= headerOffset) {
-          currentId = el.id;
-        } else {
-          break;
+      // Debounce scroll updates to prevent animation jitter
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const headerOffset = 100;
+        let currentId = headingIds[0];
+        
+        for (const el of headingElements) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= headerOffset) {
+            currentId = el.id;
+          } else {
+            break;
+          }
         }
-      }
-      
-      if (currentId && currentId !== activeId) {
-        setActiveId(currentId);
-      }
+        
+        if (currentId && currentId !== activeId) {
+          setActiveId(currentId);
+        }
+      }, 50);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+    };
   }, [items, activeId]);
 
   const handleClick = (e: React.MouseEvent, id: string) => {

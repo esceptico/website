@@ -1,0 +1,6 @@
+{
+  "[mdx]": {
+    "editor.defaultFormatter": null
+  },
+  "mdx.server.enable": false
+}

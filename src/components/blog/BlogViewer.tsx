@@ -13,8 +13,6 @@ interface BlogViewerProps {
 }
 
 export function BlogViewer({ post, children }: BlogViewerProps) {
-  const hasAnnotatedCode = post.hasAnnotatedCode;
-
   return (
     <div className="min-h-screen -mt-16 bg-[var(--theme-bg-primary)] relative z-10">
       {/* Header */}
@@ -47,10 +45,8 @@ export function BlogViewer({ post, children }: BlogViewerProps) {
         <BlogTOC content={post.content} />
 
         {/* Main content */}
-        <main 
-          className={`flex-1 overflow-x-hidden lg:ml-56`}
-        >
-          <div className={`px-6 lg:px-10 pt-8 pb-6 ${hasAnnotatedCode ? 'max-w-6xl mx-auto' : 'max-w-3xl mx-auto'}`}>
+        <main className="flex-1 overflow-x-hidden lg:ml-56">
+          <div className="px-6 lg:px-10 pt-8 pb-6 max-w-5xl mx-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
