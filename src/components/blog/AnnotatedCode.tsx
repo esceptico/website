@@ -204,11 +204,26 @@ export function AnnotatedCode({ code, language }: AnnotatedCodeProps) {
   // Trim leading/trailing whitespace from template strings
   const trimmedCode = code.trim();
   const chunks = useMemo(() => parseAnnotatedCode(trimmedCode), [trimmedCode]);
+  const [copied, setCopied] = useState(false);
+  
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(trimmedCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
   
   if (chunks.length === 0) return null;
   
   return (
-    <div className="my-8">
+    <div className="my-8 relative group/code">
+      {/* Copy button */}
+      <button
+        onClick={handleCopy}
+        className="absolute top-2 right-2 z-10 px-2 py-1 text-xs font-mono rounded bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)] opacity-0 group-hover/code:opacity-100 hover:text-[var(--theme-text-primary)] hover:border-[var(--theme-text-secondary)] transition-all"
+      >
+        {copied ? 'copied' : 'copy'}
+      </button>
+
       {chunks.map((chunk, index) => {
         const hasCode = chunk.code.trim().length > 0;
         const nextChunk = chunks[index + 1];

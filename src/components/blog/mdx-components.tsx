@@ -4,6 +4,8 @@ import { AnnotatedCode } from './AnnotatedCode';
 import { AlphaSlider } from './interactive/AlphaSlider';
 import { Plot } from './interactive/Plot';
 import { LinkedFormula, Term } from './interactive/LinkedFormula';
+import { CodeBlockWithCopy } from './interactive/CodeBlockWithCopy';
+import { HeadingWithAnchor } from './interactive/HeadingWithAnchor';
 import { isAnnotatedPython } from '@/lib/blog/parse';
 import type { MDXComponents } from 'mdx/types';
 import './syntax-highlighting.css';
@@ -52,19 +54,10 @@ function CodeBlock({ code, language }: { code: string; language: string }) {
     return <AnnotatedCode code={trimmedCode} language={language} />;
   }
   
-  // Regular code block with syntax highlighting
+  // Regular code block with copy button
   const codeHtml = highlightCode(trimmedCode, language);
   
-  return (
-    <div className="my-4 bg-[var(--theme-text-primary)]/[0.03] rounded-lg px-4 py-3">
-      <pre className="overflow-x-auto whitespace-pre">
-        <code 
-          className="font-jetbrains-mono text-[0.85rem] leading-[1.7] block"
-          dangerouslySetInnerHTML={{ __html: codeHtml }}
-        />
-      </pre>
-    </div>
-  );
+  return <CodeBlockWithCopy code={trimmedCode} codeHtml={codeHtml} />;
 }
 
 // ============================================
@@ -74,17 +67,29 @@ function CodeBlock({ code, language }: { code: string; language: string }) {
 export const mdxComponents: MDXComponents = {
   h1: (props) => {
     const id = slugify(getTextFromChildren(props.children));
-    return <h1 id={id} className="text-2xl font-semibold text-[var(--theme-text-primary)] mb-4 mt-8 first:mt-0" {...props} />;
+    return (
+      <HeadingWithAnchor as="h1" id={id} className="text-2xl font-semibold text-[var(--theme-text-primary)] mb-4 mt-8 first:mt-0">
+        {props.children}
+      </HeadingWithAnchor>
+    );
   },
   
   h2: (props) => {
     const id = slugify(getTextFromChildren(props.children));
-    return <h2 id={id} className="text-lg font-medium text-[var(--theme-text-primary)] mb-3 mt-8 first:mt-0" {...props} />;
+    return (
+      <HeadingWithAnchor as="h2" id={id} className="text-lg font-medium text-[var(--theme-text-primary)] mb-3 mt-8 first:mt-0">
+        {props.children}
+      </HeadingWithAnchor>
+    );
   },
   
   h3: (props) => {
     const id = slugify(getTextFromChildren(props.children));
-    return <h3 id={id} className="text-base font-medium text-[var(--theme-text-primary)] mb-2 mt-6" {...props} />;
+    return (
+      <HeadingWithAnchor as="h3" id={id} className="text-base font-medium text-[var(--theme-text-primary)] mb-2 mt-6">
+        {props.children}
+      </HeadingWithAnchor>
+    );
   },
   
   p: (props) => <p className="mb-3 text-[var(--theme-text-secondary)] leading-relaxed" {...props} />,
