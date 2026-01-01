@@ -18,7 +18,7 @@ const levelSymbols = {
 const symbolWidths = {
   h1: '1.5ch',
   h2: '2.5ch',
-  h3: '3.5ch',
+  h3: '4ch',
 };
 
 export function HeadingWithAnchor({ as: Tag, id, className, children }: HeadingWithAnchorProps) {
