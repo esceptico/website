@@ -12,11 +12,18 @@ interface BlogViewerProps {
   children: ReactNode;
 }
 
+const smoothEase = [0.16, 1, 0.3, 1]; // Expo-like ease out
+
 export function BlogViewer({ post, children }: BlogViewerProps) {
   return (
     <div className="min-h-screen -mt-16 bg-[var(--theme-bg-primary)] relative z-10">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-[var(--theme-bg-primary)]/90 backdrop-blur-xl border-b border-[var(--theme-border)]">
+      <motion.header 
+        className="sticky top-0 z-30 bg-[var(--theme-bg-primary)]/90 backdrop-blur-xl border-b border-[var(--theme-border)]"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: smoothEase }}
+      >
         <div className="h-14 flex items-center px-4 lg:px-10 pr-24 sm:pr-20">
           <nav className="flex items-center gap-2 text-sm min-w-0">
             <Link 
@@ -38,7 +45,7 @@ export function BlogViewer({ post, children }: BlogViewerProps) {
             </span>
           </nav>
         </div>
-      </header>
+      </motion.header>
 
       <div className="flex">
         {/* TOC */}
@@ -48,9 +55,9 @@ export function BlogViewer({ post, children }: BlogViewerProps) {
         <main className="flex-1 overflow-x-hidden lg:ml-56">
           <div className="px-6 lg:px-10 pt-8 pb-6 max-w-5xl mx-auto">
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4 }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.15, ease: smoothEase }}
             >
               {children}
             </motion.div>

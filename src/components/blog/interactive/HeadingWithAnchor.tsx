@@ -1,6 +1,6 @@
 'use client';
 
-import { useId } from 'react';
+import { useId, useState } from 'react';
 
 interface HeadingWithAnchorProps {
   as: 'h1' | 'h2' | 'h3';
@@ -23,6 +23,7 @@ const symbolWidths = {
 
 export function HeadingWithAnchor({ as: Tag, id, className, children }: HeadingWithAnchorProps) {
   const uniqueId = useId().replace(/:/g, '');
+  const [isHovered, setIsHovered] = useState(false);
   
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -46,29 +47,25 @@ export function HeadingWithAnchor({ as: Tag, id, className, children }: HeadingW
       <a
         href={`#${id}`}
         onClick={handleClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         className={`${groupClass} no-underline inline-flex items-baseline`}
       >
         <span 
-          className="anchor-symbol overflow-hidden opacity-0 font-normal select-none whitespace-nowrap transition-all"
+          className="anchor-symbol overflow-hidden font-normal select-none whitespace-nowrap"
           style={{
-            width: 0,
-            marginRight: 0,
-            transitionProperty: 'width, margin-right, opacity',
-            transitionDuration: '150ms, 150ms, 150ms',
-            transitionDelay: '0ms, 0ms, 150ms',
+            width: isHovered ? symbolWidths[Tag] : 0,
+            marginRight: isHovered ? '0.5rem' : 0,
+            opacity: isHovered ? 0.4 : 0,
+            transition: isHovered 
+              ? 'width 250ms cubic-bezier(0.33, 1, 0.68, 1), margin-right 250ms cubic-bezier(0.33, 1, 0.68, 1), opacity 150ms ease-out 180ms'
+              : 'opacity 100ms ease-out, width 200ms cubic-bezier(0.33, 1, 0.68, 1) 80ms, margin-right 200ms cubic-bezier(0.33, 1, 0.68, 1) 80ms',
           }}
         >
           {levelSymbols[Tag]}
         </span>
         <span>{children}</span>
       </a>
-      <style>{`
-        .${groupClass}:hover .anchor-symbol {
-          width: ${symbolWidths[Tag]} !important;
-          margin-right: 0.5rem !important;
-          opacity: 0.4 !important;
-        }
-      `}</style>
     </Tag>
   );
 }

@@ -102,7 +102,7 @@ button:focus-visible {
   background-repeat: no-repeat;
   background-size: 100% 1px;
   padding-bottom: 0px;
-  transition: background-size 0.3s ease-out;
+  transition: background-size 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hover-link:hover {
@@ -112,7 +112,7 @@ button:focus-visible {
 /* Social icon links with hover colors */
 .social-icon {
   color: var(--theme-text-secondary);
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   will-change: transform;
 }

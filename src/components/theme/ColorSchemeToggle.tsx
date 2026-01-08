@@ -43,7 +43,7 @@ export default function ColorSchemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="font-mono text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors select-none cursor-pointer"
+      className="font-mono text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors duration-300 select-none cursor-pointer"
       aria-label={`Switch to ${scheme === 'dark' ? 'light' : 'dark'} mode`}
     >
       [ {scheme} ]

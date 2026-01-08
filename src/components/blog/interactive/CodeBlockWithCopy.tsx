@@ -20,7 +20,7 @@ export function CodeBlockWithCopy({ code, codeHtml }: CodeBlockWithCopyProps) {
     <div className="my-4 bg-[var(--theme-text-primary)]/[0.03] rounded-lg px-4 py-3 relative group/code">
       <button
         onClick={handleCopy}
-        className="absolute top-2 right-2 z-10 px-2 py-1 text-xs font-mono rounded bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)] opacity-0 group-hover/code:opacity-100 hover:text-[var(--theme-text-primary)] hover:border-[var(--theme-text-secondary)] transition-all"
+        className="absolute top-2 right-2 z-10 px-2 py-1 text-xs font-mono rounded bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)] opacity-0 group-hover/code:opacity-100 hover:text-[var(--theme-text-primary)] hover:border-[var(--theme-text-secondary)] transition-all duration-300"
       >
         {copied ? 'copied' : 'copy'}
       </button>

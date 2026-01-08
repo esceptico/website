@@ -261,14 +261,14 @@ export default function NotFoundClient() {
           </div>
         </div>
         
-        <Link 
+        <Link
           href="/"
-          className={`inline-flex items-center gap-2 text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors group font-jetbrains-mono ${styles.glitchLink}`}
+          className={`inline-flex items-center gap-2 text-sm text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors duration-300 group font-jetbrains-mono ${styles.glitchLink}`}
           style={{
             opacity: glitchActive && glitchVisual ? glitchVisual.linkOpacity : 1
           }}
         >
-          <ArrowLeftIcon className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <ArrowLeftIcon className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
           <span>go back</span>
         </Link>
       </motion.div>
