@@ -157,6 +157,8 @@ with $\tau_{i,t}$ being the asymmetric temperature defined above.
 
 **Results:** SAPO gives more stable training and better Pass@1 on math benchmarks. Gains are consistent across Qwen3-VL model sizes.
 
+---
+
 ```python
 # # Implementation
 #
@@ -232,6 +234,8 @@ def compute_advantages(rewards: torch.Tensor) -> torch.Tensor:
     std = rewards.std().clamp(min=1e-8)
     return (rewards - mean) / std
 ```
+
+---
 
 # Notes
 

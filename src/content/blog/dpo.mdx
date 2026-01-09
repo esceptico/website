@@ -77,6 +77,8 @@ $$
 
 This bypasses the need for a separate reward model entirely. Pretty cool, huh?
 
+---
+
 ```python
 # # Implementation
 import torch
@@ -181,5 +183,3 @@ def train_step(policy_model, reference_model, batch, optimizer, beta=0.1):
     optimizer.step()
     return loss.item()
 ```
-
-
