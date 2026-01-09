@@ -29,6 +29,10 @@ export interface BlogPost {
   content: string
   /** Whether this post contains annotated code blocks */
   hasAnnotatedCode: boolean
+  /** Estimated reading time in minutes */
+  readingTime: number
+  /** Word count */
+  wordCount: number
 }
 
 /**
@@ -41,4 +45,8 @@ export interface BlogMeta {
   date?: string
   tags?: string[]
   hasAnnotatedCode: boolean
+  /** Estimated reading time in minutes */
+  readingTime: number
+  /** Word count */
+  wordCount: number
 }

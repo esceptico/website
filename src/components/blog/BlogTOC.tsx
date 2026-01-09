@@ -1,266 +1,149 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
-interface TocItem {
+interface HeadingData {
+  id: string;
   title: string;
   level: number;
-  id: string;
-}
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-}
-
-// Extract headings from markdown content (including annotated code blocks)
-function extractToc(content: string): TocItem[] {
-  const items: TocItem[] = [];
-  const lines = content.split('\n');
-  let inCodeBlock = false;
-  let isPythonBlock = false;
-    
-    for (const line of lines) {
-      const trimmed = line.trim();
-      
-    // Track code block state
-    if (trimmed.startsWith('```')) {
-      if (!inCodeBlock) {
-        inCodeBlock = true;
-        isPythonBlock = trimmed.startsWith('```python') || trimmed.startsWith('```py');
-      } else {
-        inCodeBlock = false;
-        isPythonBlock = false;
-      }
-      continue;
-    }
-    
-    // Inside Python code block: look for annotated headers
-    if (inCodeBlock && isPythonBlock) {
-      if (trimmed.startsWith('# # ') && !trimmed.startsWith('# ## ')) {
-        const title = trimmed.slice(4).trim();
-        if (title) items.push({ title, level: 1, id: slugify(title) });
-      } else if (trimmed.startsWith('# ## ')) {
-        const title = trimmed.slice(5).trim();
-        if (title) items.push({ title, level: 2, id: slugify(title) });
-      }
-      continue;
-    }
-    
-    // Skip other code blocks
-    if (inCodeBlock) continue;
-    
-    // Regular markdown headers
-    if (trimmed.startsWith('# ') && !trimmed.startsWith('# #')) {
-        const title = trimmed.slice(2).trim();
-        items.push({ title, level: 1, id: slugify(title) });
-      } else if (trimmed.startsWith('## ')) {
-        const title = trimmed.slice(3).trim();
-        items.push({ title, level: 2, id: slugify(title) });
-      }
-    }
-  
-  return items;
+  percent: number;
+  children: HeadingData[];
 }
 
 export function BlogTOC({ content }: { content: string }) {
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [prevActiveId, setPrevActiveId] = useState<string | null>(null);
-  const items = extractToc(content);
-  const isClickScrolling = useRef(false);
-  const itemRefs = useRef<Map<string, HTMLLIElement>>(new Map());
-  const [indicatorStyle, setIndicatorStyle] = useState({ top: 0, height: 24 });
-  const [isAnimating, setIsAnimating] = useState(false);
-  const animationRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [headings, setHeadings] = useState<HeadingData[]>([]);
+  const [isHovered, setIsHovered] = useState(false);
+  const [hoveredH1, setHoveredH1] = useState<string | null>(null);
+  const [scrollPercent, setScrollPercent] = useState(0);
+  const docHeightRef = useRef(1);
 
-  const getItemPosition = useCallback((id: string | null) => {
-    if (!id) return { top: 0, height: 24 };
-    const element = itemRefs.current.get(id);
-    if (!element) return { top: 0, height: 24 };
-    return { top: element.offsetTop + 2, height: element.offsetHeight - 4 };
+  // Gather headings
+  useEffect(() => {
+    const gather = () => {
+      const main = document.querySelector('main');
+      if (!main) return;
+
+      docHeightRef.current = document.documentElement.scrollHeight;
+      const docHeight = docHeightRef.current;
+
+      const allHeadings = main.querySelectorAll('h1[id], h2[id]');
+      const h1s: HeadingData[] = [];
+      let currentH1: HeadingData | null = null;
+
+      allHeadings.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        const absoluteTop = rect.top + window.scrollY;
+        const scrollWhenAtHeading = absoluteTop - 100;
+        const level = el.tagName === 'H1' ? 1 : 2;
+
+        const heading: HeadingData = {
+          id: el.id,
+          title: el.textContent?.trim() || '',
+          level,
+          percent: (Math.max(0, scrollWhenAtHeading) / docHeight) * 100,
+          children: []
+        };
+
+        if (level === 1) {
+          h1s.push(heading);
+          currentH1 = heading;
+        } else if (level === 2 && currentH1) {
+          currentH1.children.push(heading);
+        }
+      });
+
+      setHeadings(h1s);
+    };
+
+    gather();
+    window.addEventListener('resize', gather);
+    return () => window.removeEventListener('resize', gather);
+  }, [content]);
+
+  // Track scroll
+  useEffect(() => {
+    const onScroll = () => {
+      const pct = (window.scrollY / docHeightRef.current) * 100;
+      setScrollPercent(pct);
+    };
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => {
-    if (!activeId || activeId === prevActiveId) return;
-    
-    if (animationRef.current) {
-      clearTimeout(animationRef.current);
-      animationRef.current = null;
-    }
-    
-    const currentPos = getItemPosition(prevActiveId);
-    const targetPos = getItemPosition(activeId);
-    
-    const currentIndex = items.findIndex(item => item.id === prevActiveId);
-    const targetIndex = items.findIndex(item => item.id === activeId);
-    const movingDown = targetIndex > currentIndex;
-    
-    setIsAnimating(true);
-    
-    if (movingDown) {
-      setIndicatorStyle({
-        top: currentPos.top,
-        height: targetPos.top + targetPos.height - currentPos.top
-      });
-    } else {
-      setIndicatorStyle({
-        top: targetPos.top,
-        height: currentPos.top + currentPos.height - targetPos.top
-      });
-    }
-    
-    animationRef.current = setTimeout(() => {
-      setIndicatorStyle(targetPos);
-      animationRef.current = setTimeout(() => {
-        setIsAnimating(false);
-        animationRef.current = null;
-      }, 100);
-    }, 100);
-    
-    setPrevActiveId(activeId);
-  }, [activeId, prevActiveId, items, getItemPosition]);
-
-  useEffect(() => {
-    if (activeId && !prevActiveId) {
-      const pos = getItemPosition(activeId);
-      setIndicatorStyle(pos);
-      setPrevActiveId(activeId);
-    }
-  }, [activeId, prevActiveId, getItemPosition]);
-  
-  useEffect(() => {
-    return () => {
-      if (animationRef.current) {
-        clearTimeout(animationRef.current);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    const firstItem = items[0];
-    if (firstItem && !activeId) {
-      setActiveId(firstItem.id);
-    }
-  }, [items, activeId]);
-
-  useEffect(() => {
-    const headingIds = items.map(item => item.id);
-    const headingElements = headingIds
-      .map(id => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null);
-    
-    if (headingElements.length === 0) return;
-
-    let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
-    
-    const handleScroll = () => {
-      if (isClickScrolling.current) return;
-      
-      // Debounce scroll updates to prevent animation jitter
-      if (scrollTimeout) clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        const headerOffset = 100;
-        let currentId = headingIds[0];
-        
-        for (const el of headingElements) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= headerOffset) {
-            currentId = el.id;
-          } else {
-            break;
-          }
-        }
-        
-        if (currentId && currentId !== activeId) {
-          setActiveId(currentId);
-        }
-      }, 50);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (scrollTimeout) clearTimeout(scrollTimeout);
-    };
-  }, [items, activeId]);
-
-  const handleClick = (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    const element = document.getElementById(id);
-    if (element) {
-      setActiveId(id);
-      isClickScrolling.current = true;
-      
-      const headerHeight = 56;
-      const offset = 24;
-      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({
-        top: elementPosition - headerHeight - offset,
-        behavior: 'smooth'
-      });
-      
-      window.history.pushState(null, '', `#${id}`);
-      
-      setTimeout(() => {
-        isClickScrolling.current = false;
-      }, 500);
-    }
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const y = el.getBoundingClientRect().top + window.scrollY - 100;
+    window.scrollTo({ top: y, behavior: 'smooth' });
   };
 
-  if (items.length === 0) return null;
+  if (headings.length === 0) return null;
 
   return (
-    <nav className="hidden lg:block fixed top-14 left-0 bottom-0 w-56 overflow-y-auto bg-[var(--theme-bg-primary)] z-20">
-      <div className="px-4 pt-5">
-        <div className="relative">
-          <div className="absolute left-0 top-0 bottom-0 w-px bg-[var(--theme-border)]" />
-          
-          <div 
-            className="absolute left-0 w-0.5 -ml-px rounded-full bg-[var(--theme-text-primary)] transition-all ease-out"
-            style={{
-              top: indicatorStyle.top,
-              height: indicatorStyle.height,
-              transitionDuration: isAnimating ? '150ms' : '0ms'
-            }}
-          />
-          
-          <ul className="space-y-0">
-            {items.map((item, i) => (
-              <li 
-                key={i} 
-                className="relative"
-                ref={(el) => {
-                  if (el) itemRefs.current.set(item.id, el);
-                }}
+    <nav
+      className="hidden lg:block fixed left-6 top-24 bottom-24 w-64 z-30"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => { setIsHovered(false); setHoveredH1(null); }}
+    >
+      <div className="relative h-full">
+        <div className="absolute left-0 top-0 bottom-0 w-px bg-[var(--theme-border)]" />
+
+        <div
+          className="absolute left-0 w-3 h-0.5 bg-[var(--accent)]"
+          style={{ top: `${scrollPercent}%`, transform: 'translateY(-50%)' }}
+        />
+
+        {/* H1 headings */}
+        {headings.map((h) => (
+          <div
+            key={h.id}
+            className="absolute left-0"
+            style={{ top: `${h.percent}%`, transform: 'translateY(-50%)' }}
+            onMouseEnter={() => setHoveredH1(h.id)}
+            onMouseLeave={() => setHoveredH1(null)}
+          >
+            <button
+              onClick={() => scrollTo(h.id)}
+              className="flex items-center cursor-pointer"
+            >
+              <span className="block w-2 h-px bg-[var(--theme-text-muted)]" />
+              <span
+                className={`
+                  ml-2 max-w-48 font-mono text-[10px] tracking-widest uppercase text-left leading-tight
+                  transition-opacity duration-150
+                  ${isHovered ? 'opacity-100' : 'opacity-0'}
+                  text-[var(--theme-text-muted)] hover:text-[var(--theme-text-primary)]
+                `}
               >
-                <a
-                  href={`#${item.id}`}
-                  onClick={(e) => handleClick(e, item.id)}
-                  className={`
-                    block py-1.5 transition-colors duration-200
-                    ${item.level === 1 
-                      ? 'pl-4 pr-3 text-[0.85rem] font-medium' 
-                      : 'pl-6 pr-3 text-[0.8rem]'
-                    }
-                    ${activeId === item.id 
-                      ? 'text-[var(--theme-text-primary)]' 
-                      : 'text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)]'
-                    }
-                  `}
-                >
-                  {item.title}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+                {h.title}
+              </span>
+            </button>
+
+            {/* H2 popover - with invisible bridge for hover */}
+            {h.children.length > 0 && hoveredH1 === h.id && (
+              <>
+                {/* Invisible bridge to keep hover when moving to popover */}
+                <div className="absolute left-0 top-full w-48 h-2" />
+                <div className="absolute left-4 top-full mt-2 px-3 py-2 bg-[var(--theme-bg-primary)] border border-[var(--theme-border)] rounded-sm shadow-lg min-w-max z-10">
+                  <div className="flex flex-col gap-1.5">
+                    {h.children.map((child) => (
+                      <button
+                        key={child.id}
+                        onClick={() => scrollTo(child.id)}
+                        className="font-mono text-[9px] tracking-wide text-left text-[var(--theme-text-muted)] hover:text-[var(--theme-text-primary)] transition-colors"
+                      >
+                        {child.title}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        ))}
       </div>
-      
-      <div className="absolute top-0 right-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[var(--theme-border)] to-transparent" />
     </nav>
   );
 }

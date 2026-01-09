@@ -12,36 +12,33 @@
    ============================================ */
 
 :root {
-  --theme-bg-primary: rgb(250, 250, 250);
-  --theme-text-primary: rgb(30, 30, 30);
-  /* rgb(85,85,85) gives ~4.95:1 contrast on #FAFAFA (WCAG AA) */
-  --theme-text-secondary: rgb(85, 85, 85);
-  --theme-border: rgb(200, 200, 200);
+  --theme-bg-primary: #fafafa;
+  --theme-text-primary: #1a1a1a;
+  --theme-text-secondary: #666666;
+  --theme-text-muted: #999999;
+  --theme-border: #e0e0e0;
+  
+  /* Blueprint accent */
+  --accent: #2563eb;
+  --accent-subtle: rgba(37, 99, 235, 0.08);
+  
+  /* Grid */
+  --grid-color: rgba(0, 0, 0, 0.04);
+  --grid-major: rgba(0, 0, 0, 0.08);
 }
 
 html.dark {
-  --theme-bg-primary: rgb(18, 18, 18);
-  --theme-text-primary: rgb(225, 225, 225);
-  --theme-text-secondary: rgb(160, 160, 160);
-  --theme-border: rgb(70, 70, 70);
-}
-
-/* Dark theme: pastel/soft colors for social icons */
-html.dark {
-  --social-github: #b8a4c9;
-  --social-linkedin: #7eb8da;
-  --social-twitter: #8ecae6;
-  --social-instagram: #e6a4b4;
-  --social-calendly: #7eb5e6;
-}
-
-/* Light theme: muted/subdued colors for social icons */
-html:not(.dark) {
-  --social-github: #6e5494;
-  --social-linkedin: #0369a1;
-  --social-twitter: #0284c7;
-  --social-instagram: #be185d;
-  --social-calendly: #0059b3;
+  --theme-bg-primary: #0a0a0a;
+  --theme-text-primary: #e5e5e5;
+  --theme-text-secondary: #888888;
+  --theme-text-muted: #555555;
+  --theme-border: #222222;
+  
+  --accent: #3b82f6;
+  --accent-subtle: rgba(59, 130, 246, 0.1);
+  
+  --grid-color: rgba(255, 255, 255, 0.025);
+  --grid-major: rgba(255, 255, 255, 0.05);
 }
 
 /* ============================================
@@ -49,7 +46,7 @@ html:not(.dark) {
    ============================================ */
 
 html {
-  font-size: 95%; /* Slightly smaller base (95% of 16px = 15.2px) */
+  font-size: 95%;
   background-color: var(--theme-bg-primary);
   color: var(--theme-text-primary);
   height: 100%;
@@ -75,46 +72,95 @@ a {
   text-decoration: none;
 }
 
-/* Focus indicators for keyboard accessibility */
+/* Focus indicators */
 a:focus-visible,
 button:focus-visible {
-  outline: 2px solid var(--theme-text-primary);
+  outline: 1px solid var(--accent);
   outline-offset: 2px;
-  border-radius: 2px;
 }
 
 ::selection {
-  background: var(--theme-text-secondary);
-  color: var(--theme-bg-primary);
+  background: var(--accent);
+  color: white;
 }
 
 /* ============================================
-   Custom Utilities
+   Blueprint Grid Background
    ============================================ */
 
-/* Animated Link Underline */
-.hover-link {
+.blueprint-grid {
+  position: relative;
+}
+
+.blueprint-grid::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: 
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 20px 20px;
+  mask-image: radial-gradient(ellipse at center, black 0%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 75%);
+}
+
+/* ============================================
+   Typography Utilities
+   ============================================ */
+
+/* Mono label - for technical data */
+.mono-label {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.03em;
+  color: var(--theme-text-muted);
+}
+
+/* ============================================
+   Link Styles
+   ============================================ */
+
+.link-underline {
   text-decoration: none;
-  font-weight: 500;
   color: var(--theme-text-primary);
-  background-image: linear-gradient(currentColor, currentColor);
-  background-position: 100% 100%;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-position: 0% 100%;
   background-repeat: no-repeat;
-  background-size: 100% 1px;
-  padding-bottom: 0px;
-  transition: background-size 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.hover-link:hover {
   background-size: 0% 1px;
+  transition: background-size 0.2s ease-out, color 0.2s ease-out;
 }
 
-/* Social icon links with hover colors */
-.social-icon {
+.link-underline:hover {
+  background-size: 100% 1px;
+  color: var(--accent);
+}
+
+/* Nav link */
+.nav-item {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
   color: var(--theme-text-secondary);
-  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color 0.15s ease-out;
+}
+
+.nav-item:hover {
+  color: var(--theme-text-primary);
+}
+
+.nav-item--active {
+  color: var(--theme-text-primary);
+}
+
+/* ============================================
+   Social Icons
+   ============================================ */
+
+.social-icon {
+  color: var(--theme-text-muted);
+  transition: color 0.15s ease-out;
   display: inline-flex;
-  will-change: transform;
 }
 
 .social-icon svg {
@@ -122,31 +168,19 @@ button:focus-visible {
 }
 
 .social-icon:hover {
-  transform: scale(1.1);
+  color: var(--accent);
 }
 
-.social-icon--github:hover {
-  color: var(--social-github);
-}
+/* ============================================
+   Corner Coordinates
+   ============================================ */
 
-.social-icon--linkedin:hover {
-  color: var(--social-linkedin);
-}
-
-.social-icon--twitter:hover {
-  color: var(--social-twitter);
-}
-
-.social-icon--instagram:hover {
-  color: var(--social-instagram);
-}
-
-.social-icon--calendly:hover {
-  color: var(--social-calendly);
-}
-
-.social-icon--email:hover {
-  color: var(--theme-text-primary);
+.corner-info {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.05em;
+  color: var(--theme-text-muted);
+  opacity: 0.7;
 }
 
 /* ============================================
@@ -163,35 +197,15 @@ button:focus-visible {
     scroll-behavior: auto !important;
   }
 
-  .min-h-screen::before {
+  .blueprint-grid::before {
     display: none !important;
   }
-}
-
-/* ============================================
-   Background Effects
-   ============================================ */
-
-/* Very subtle static for atmosphere (global) */
-.min-h-screen::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: radial-gradient(circle at 1px 1px, var(--theme-text-secondary) 1px, transparent 0);
-  background-size: 24px 24px;
-  opacity: 0.15;
-  pointer-events: none;
-  z-index: 0;
 }
 
 /* ============================================
    KaTeX Math Rendering
    ============================================ */
 
-/* Formula overflow handling (mobile) */
 .katex-display {
   overflow-x: auto;
   overflow-y: hidden;
@@ -203,14 +217,12 @@ button:focus-visible {
   white-space: nowrap;
 }
 
-/* Theme-aware formula colors (legacy) */
-.dark .color-primary { color: #93c5fd !important; }
-html:not(.dark) .color-primary { color: #3b82f6 !important; }
+.dark .color-primary { color: #60a5fa !important; }
+html:not(.dark) .color-primary { color: #2563eb !important; }
 
-.dark .color-secondary { color: #c4b5fd !important; }
-html:not(.dark) .color-secondary { color: #8b5cf6 !important; }
+.dark .color-secondary { color: #93c5fd !important; }
+html:not(.dark) .color-secondary { color: #3b82f6 !important; }
 
-/* Term classes for linked formulas - no default color, colored on hover via LinkedFormula component */
 .term-winner,
 .term-loser,
 .term-policy,
@@ -220,4 +232,24 @@ html:not(.dark) .color-secondary { color: #8b5cf6 !important; }
 .term-logratio,
 .term-expectation {
   transition: color 0.15s ease;
+}
+
+/* ============================================
+   Legacy support
+   ============================================ */
+
+.hover-link {
+  text-decoration: none;
+  font-weight: 500;
+  color: var(--theme-text-primary);
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-position: 0% 100%;
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  transition: background-size 0.25s ease-out, color 0.2s ease-out;
+}
+
+.hover-link:hover {
+  background-size: 0% 1px;
+  color: var(--accent);
 }

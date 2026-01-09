@@ -52,7 +52,8 @@ export const PersonalInfo = () => {
   };
   
   return (
-    <div className="relative text-left pt-24 md:pt-40 pb-16 max-w-3xl"> 
+    <div className="relative text-left pt-24 md:pt-40 pb-16 max-w-2xl">
+      {/* Greeting */}
       <div className="mb-8">
         <h1 
           className="text-xl md:text-2xl font-normal text-[var(--theme-text-primary)] tracking-tight cursor-pointer select-none flex items-center min-w-[300px] min-h-[3rem]"
@@ -63,10 +64,8 @@ export const PersonalInfo = () => {
           aria-label="Greeting text - click for surprise"
         >
           {showEasterEgg ? (
-            <span className="inline-block relative">
-              <span className="font-jetbrains-mono text-xl md:text-2xl select-none inline-block">
-                there are no easter eggs here
-              </span>
+            <span className="font-jetbrains-mono text-xl md:text-2xl select-none">
+              there are no easter eggs here
             </span>
           ) : (
             <HackerTextEffect texts={textItems} className="text-xl md:text-2xl font-normal" />
@@ -74,101 +73,101 @@ export const PersonalInfo = () => {
         </h1>
       </div>
 
-      <div className="text-base text-[var(--theme-text-primary)] leading-relaxed space-y-6 font-normal">
-        <div className="markdown-content">
-          <ReactMarkdown
-            components={{
-              p: ({ children }) => <p className="mb-6 last:mb-0">{children}</p>,
-              a: ({ href, children, ...props }) => {
-                const isInternal = href?.startsWith('/');
-                const isPdf = href?.endsWith('.pdf');
-                if (isInternal && !isPdf) {
-                  return (
-                    <Link 
-                      href={href || '/'} 
-                      className="hover-link transition-colors"
-                    >
-                      {children}
-                    </Link>
-                  );
-                }
+      {/* Bio */}
+      <div className="text-base text-[var(--theme-text-secondary)] leading-relaxed space-y-5">
+        <ReactMarkdown
+          components={{
+            p: ({ children }) => <p className="mb-5 last:mb-0">{children}</p>,
+            a: ({ href, children, ...props }) => {
+              const isInternal = href?.startsWith('/');
+              const isPdf = href?.endsWith('.pdf');
+              if (isInternal && !isPdf) {
                 return (
+                  <Link 
+                    href={href || '/'} 
+                    className="hover-link text-[var(--theme-text-primary)]"
+                  >
+                    {children}
+                  </Link>
+                );
+              }
+              return (
                 <a 
-                    href={href}
+                  href={href}
                   {...props} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="hover-link transition-colors" 
-                  >
-                    {children}
-                  </a>
-                );
-              }
-            }}
-          >
-            {aboutMarkdown}
-          </ReactMarkdown>
-        </div>
+                  className="hover-link text-[var(--theme-text-primary)]" 
+                >
+                  {children}
+                </a>
+              );
+            }
+          }}
+        >
+          {aboutMarkdown}
+        </ReactMarkdown>
       </div>
 
-      <div className="flex items-center space-x-6 mt-8">
+      {/* Social links */}
+      <div className="flex items-center gap-5 mt-10">
         <Link 
           href={socialLinks.github}
           target="_blank"
           rel="noopener noreferrer"
-          className="social-icon social-icon--github"
+          className="social-icon"
           aria-label="GitHub"
           title="GitHub"
         >
-          <FaGithub className="w-7 h-7" />
+          <FaGithub className="w-5 h-5" />
         </Link>
         <Link 
           href={socialLinks.linkedin}
           target="_blank"
           rel="noopener noreferrer"
-          className="social-icon social-icon--linkedin"
+          className="social-icon"
           aria-label="LinkedIn"
           title="LinkedIn"
         >
-          <FaLinkedin className="w-7 h-7" />
+          <FaLinkedin className="w-5 h-5" />
         </Link>
         <Link 
           href={socialLinks.twitter}
           target="_blank"
           rel="noopener noreferrer"
-          className="social-icon social-icon--twitter"
+          className="social-icon"
           aria-label="Twitter"
           title="Twitter"
         >
-          <FaTwitter className="w-7 h-7" />
+          <FaTwitter className="w-5 h-5" />
         </Link>
         <Link 
           href={socialLinks.instagram}
           target="_blank"
           rel="noopener noreferrer"
-          className="social-icon social-icon--instagram"
+          className="social-icon"
           aria-label="Instagram"
           title="Instagram"
         >
-          <FaInstagram className="w-7 h-7" />
+          <FaInstagram className="w-5 h-5" />
         </Link>
         <Link 
           href={socialLinks.calendly}
           target="_blank"
           rel="noopener noreferrer"
-          className="social-icon social-icon--calendly"
+          className="social-icon"
           aria-label="Calendly"
           title="Calendly"
         >
-          <SiCalendly className="w-7 h-7" />
+          <SiCalendly className="w-5 h-5" />
         </Link>
         <a 
           href={socialLinks.email}
-          className="social-icon social-icon--email"
+          className="social-icon"
           aria-label="Email"
           title="Email"
         >
-          <FaEnvelope className="w-7 h-7" />
+          <FaEnvelope className="w-5 h-5" />
         </a>
       </div>
     </div>

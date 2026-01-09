@@ -2,7 +2,7 @@ import { PersonalInfo } from '@/components/content/PersonalInfo';
 
 export function AboutPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 md:pl-32 py-8 md:py-12">
+    <div className="max-w-3xl mx-auto px-6 lg:px-8 pt-24 pb-16">
       <PersonalInfo />
     </div>
   );

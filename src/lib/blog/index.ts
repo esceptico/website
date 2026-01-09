@@ -7,6 +7,36 @@ import { isAnnotatedPython } from './parse';
 
 const BLOG_DIR = path.join(process.cwd(), 'src/content/blog');
 
+// Average reading speed (words per minute)
+const WORDS_PER_MINUTE = 200;
+
+/**
+ * Count words in content, excluding code blocks and frontmatter
+ */
+function countWords(content: string): number {
+  // Remove code blocks
+  const withoutCode = content.replace(/```[\s\S]*?```/g, '');
+  // Remove inline code
+  const withoutInlineCode = withoutCode.replace(/`[^`]+`/g, '');
+  // Remove MDX components
+  const withoutComponents = withoutInlineCode.replace(/<[^>]+>/g, '');
+  // Remove markdown syntax
+  const plainText = withoutComponents
+    .replace(/[#*_\[\]()]/g, '')
+    .replace(/\n+/g, ' ')
+    .trim();
+  
+  const words = plainText.split(/\s+/).filter(word => word.length > 0);
+  return words.length;
+}
+
+/**
+ * Calculate reading time in minutes
+ */
+function calculateReadingTime(wordCount: number): number {
+  return Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE));
+}
+
 /**
  * Check if content contains annotated Python code blocks
  */
@@ -31,6 +61,8 @@ function parseFile(filePath: string, slug: string): BlogPost {
   const { data, content } = matter(fileContent);
   
   const hasAnnotatedCode = hasAnnotatedCodeBlocks(content);
+  const wordCount = countWords(content);
+  const readingTime = calculateReadingTime(wordCount);
   
   return {
     slug,
@@ -39,7 +71,9 @@ function parseFile(filePath: string, slug: string): BlogPost {
     date: data.date ? new Date(data.date).toISOString().split('T')[0] : undefined,
     tags: data.tags,
     content,
-    hasAnnotatedCode
+    hasAnnotatedCode,
+    readingTime,
+    wordCount
   };
 }
 
@@ -85,7 +119,9 @@ export function getAllPosts(): BlogMeta[] {
       summary: p.summary,
       date: p.date,
       tags: p.tags,
-      hasAnnotatedCode: p.hasAnnotatedCode
+      hasAnnotatedCode: p.hasAnnotatedCode,
+      readingTime: p.readingTime,
+      wordCount: p.wordCount
     }))
     .sort((a, b) => {
       if (!a.date || !b.date) return 0;
