@@ -52,7 +52,7 @@ export const PersonalInfo = () => {
   };
   
   return (
-    <div className="relative text-left pt-24 md:pt-40 pb-16 max-w-2xl">
+    <div className="relative text-left">
       {/* Greeting */}
       <div className="mb-8">
         <h1 
