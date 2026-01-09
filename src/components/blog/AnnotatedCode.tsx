@@ -83,11 +83,7 @@ export function AnnotatedCode({ code, language }: AnnotatedCodeProps) {
   const [copied, setCopied] = useState(false);
   
   const handleCopy = async () => {
-    const codeOnly = chunks
-      .filter(c => c.code.trim().length > 0)
-      .map(c => c.code)
-      .join('\n');
-    await navigator.clipboard.writeText(codeOnly);
+    await navigator.clipboard.writeText(trimmedCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
