@@ -96,9 +96,9 @@ export function BlogTOC({ content }: { content: string }) {
         />
 
         {/* H1 headings */}
-        {headings.map((h) => (
+        {headings.map((h, idx) => (
           <div
-            key={h.id}
+            key={`${h.id}-${idx}`}
             className="absolute left-0"
             style={{ top: `${h.percent}%`, transform: 'translateY(-50%)' }}
             onMouseEnter={() => setHoveredH1(h.id)}
@@ -126,11 +126,11 @@ export function BlogTOC({ content }: { content: string }) {
               <>
                 {/* Invisible bridge to keep hover when moving to popover */}
                 <div className="absolute left-0 top-full w-48 h-2" />
-                <div className="absolute left-4 top-full mt-2 px-3 py-2 bg-[var(--theme-bg-primary)] border border-[var(--theme-border)] rounded-sm shadow-lg min-w-max z-10">
+                <div className="absolute left-4 top-full mt-2 px-3 py-2 bg-[var(--theme-bg-primary)] border border-[var(--theme-border)] rounded-sm shadow-lg min-w-max z-50">
                   <div className="flex flex-col gap-1.5">
-                    {h.children.map((child) => (
+                    {h.children.map((child, childIdx) => (
                       <button
-                        key={child.id}
+                        key={`${child.id}-${childIdx}`}
                         onClick={() => scrollTo(child.id)}
                         className="font-mono text-[9px] tracking-wide text-left text-[var(--theme-text-muted)] hover:text-[var(--theme-text-primary)] transition-colors"
                       >

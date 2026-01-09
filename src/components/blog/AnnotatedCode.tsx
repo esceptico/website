@@ -38,35 +38,10 @@ function getTextFromChildren(children: React.ReactNode): string {
 }
 
 // ============================================
-// Markdown components for annotations (compact)
+// Markdown components for annotations
 // ============================================
 
 const markdownComponents: Components = {
-  h1: ({ children }) => {
-    const id = slugify(getTextFromChildren(children));
-    return (
-      <h1 id={id} className="text-xs font-semibold text-[var(--theme-text-primary)] mb-1 first:mt-0">
-        {children}
-      </h1>
-    );
-  },
-  h2: ({ children }) => {
-    const id = slugify(getTextFromChildren(children));
-    return (
-      <h2 id={id} className="text-xs font-medium text-[var(--theme-text-primary)] mb-1 first:mt-0">
-        {children}
-      </h2>
-    );
-  },
-  p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
-  strong: ({ children }) => <strong className="font-medium text-[var(--theme-text-primary)]">{children}</strong>,
-  em: ({ children }) => <em>{children}</em>,
-  code: ({ children }) => <code className="font-jetbrains-mono text-[0.85em]">{children}</code>,
-  a: ({ href, children }) => <a href={href} className="underline" target="_blank" rel="noopener noreferrer">{children}</a>,
-};
-
-// Full markdown components for intro prose
-const fullMarkdownComponents: Components = {
   h1: ({ children }) => {
     const id = slugify(getTextFromChildren(children));
     return (
@@ -119,119 +94,86 @@ export function AnnotatedCode({ code, language }: AnnotatedCodeProps) {
   
   if (chunks.length === 0) return null;
 
-  // Separate intro from code chunks
-  const introChunks: Chunk[] = [];
-  const codeChunks: Chunk[] = [];
-  
-  let foundCode = false;
-  chunks.forEach((chunk) => {
-    const hasCode = chunk.code.trim().length > 0;
-    if (hasCode) foundCode = true;
-    
-    if (!foundCode && !hasCode && chunk.doc.trim()) {
-      introChunks.push(chunk);
-    } else if (hasCode) {
-      codeChunks.push(chunk);
-    }
-  });
+  // Count code chunks for markers
+  let codeMarker = 0;
 
   return (
-    <div className="my-8">
-      {/* Intro prose */}
-      {introChunks.map((chunk, i) => (
-        <div key={`intro-${i}`} className="mb-6 pb-4 border-b border-[var(--theme-border)]">
-          <div className="text-[var(--theme-text-secondary)] leading-relaxed">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm, remarkMath]}
-              rehypePlugins={[[rehypeKatex, { trust: true, strict: false }]]}
-              components={fullMarkdownComponents}
+    <div className="my-8 relative group/code">
+      {/* Copy button */}
+      <button
+        onClick={handleCopy}
+        className="absolute top-2 right-2 z-10 px-2 py-1 text-xs font-mono rounded bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)] opacity-0 group-hover/code:opacity-100 hover:text-[var(--theme-text-primary)] hover:border-[var(--theme-text-secondary)] transition-all duration-300"
+      >
+        {copied ? 'copied' : 'copy'}
+      </button>
+
+      {chunks.map((chunk, index) => {
+        const hasDoc = chunk.doc.trim().length > 0;
+        const hasCode = chunk.code.trim().length > 0;
+        const codeHtml = hasCode ? highlightCode(chunk.code, language) : '';
+        
+        if (hasCode) codeMarker++;
+        const currentMarker = hasCode ? codeMarker : null;
+
+        // Prose-only chunk (intro or section header)
+        if (hasDoc && !hasCode) {
+          return (
+            <div
+              key={index}
+              className={`${index === 0 ? 'mb-6 pb-4 border-b border-[var(--theme-border)]' : 'my-6'}`}
             >
-              {chunk.doc}
-            </ReactMarkdown>
-          </div>
-        </div>
-      ))}
+              <div className="text-[var(--theme-text-secondary)] leading-relaxed">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm, remarkMath]}
+                  rehypePlugins={[[rehypeKatex, { trust: true, strict: false }]]}
+                  components={markdownComponents}
+                >
+                  {chunk.doc}
+                </ReactMarkdown>
+              </div>
+            </div>
+          );
+        }
 
-      {/* Side-by-side: code left, annotations right */}
-      <div className="relative group/code">
-        {/* Copy button */}
-        <button
-          onClick={handleCopy}
-          className="absolute top-2 right-2 z-10 px-2 py-1 text-xs font-mono rounded bg-[var(--theme-bg-primary)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)] opacity-0 group-hover/code:opacity-100 hover:text-[var(--theme-text-primary)] transition-all duration-300"
-        >
-          {copied ? 'copied' : 'copy'}
-        </button>
-
-        <div className="flex">
-          {/* Code column */}
-          <div className="flex-1 min-w-0 overflow-x-auto bg-[var(--theme-text-primary)]/[0.03] rounded-l-lg">
-            <pre className="px-4 py-3">
-              {codeChunks.map((chunk, i) => {
-                const codeHtml = highlightCode(chunk.code, language);
-                return (
+        // Code with annotation - interleaved
+        if (hasCode) {
+          return (
+            <div key={index} className="my-4">
+              {/* Annotation above code */}
+              {hasDoc && (
+                <div className="flex gap-3 mb-2">
+                  {/* Marker */}
+                  <span className="font-mono text-[10px] text-[var(--accent)] opacity-60 select-none flex-shrink-0 pt-1">
+                    {String(currentMarker).padStart(2, '0')}
+                  </span>
+                  {/* Annotation text */}
+                  <div className="text-[0.875rem] text-[var(--theme-text-secondary)] leading-relaxed border-l-2 border-[var(--accent)]/30 pl-3">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm, remarkMath]}
+                      rehypePlugins={[[rehypeKatex, { trust: true, strict: false }]]}
+                      components={markdownComponents}
+                    >
+                      {chunk.doc}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              )}
+              
+              {/* Code block */}
+              <div className="bg-[var(--theme-text-primary)]/[0.03] rounded-lg overflow-x-auto">
+                <pre className="px-4 py-3">
                   <code 
-                    key={i}
-                    className="font-jetbrains-mono text-[0.8rem] leading-[1.6] tracking-[-0.01em] block"
+                    className="font-jetbrains-mono text-[0.85rem] leading-[1.7] tracking-[-0.01em] block"
                     dangerouslySetInnerHTML={{ __html: codeHtml }}
                   />
-                );
-              })}
-            </pre>
-          </div>
-
-          {/* Annotations column - desktop only */}
-          <div className="hidden lg:block w-72 flex-shrink-0 relative">
-            {/* Vertical connector line */}
-            <div className="absolute left-0 top-0 bottom-0 w-px border-l border-dashed border-[var(--accent)]/40" />
-            
-            <div className="py-3 pl-4 space-y-3">
-              {codeChunks.map((chunk, i) => {
-                const hasDoc = chunk.doc.trim().length > 0;
-                if (!hasDoc) return null;
-                
-                return (
-                  <div key={i} className="relative">
-                    {/* Horizontal connector */}
-                    <div className="absolute -left-4 top-3 w-4 border-t border-dashed border-[var(--accent)]/40" />
-                    
-                    {/* Annotation box with dashed border */}
-                    <div className="border border-dashed border-[var(--accent)]/40 rounded-sm px-3 py-2">
-                      <div className="text-[11px] text-[var(--theme-text-muted)] leading-relaxed">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm, remarkMath]}
-                          rehypePlugins={[[rehypeKatex, { trust: true, strict: false }]]}
-                          components={markdownComponents}
-                        >
-                          {chunk.doc}
-                        </ReactMarkdown>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile: annotations below */}
-        <div className="lg:hidden mt-4 space-y-2">
-          {codeChunks
-            .filter(c => c.doc.trim())
-            .map((chunk, i) => (
-              <div key={i} className="border border-dashed border-[var(--accent)]/40 rounded-sm px-3 py-2">
-                <div className="text-[11px] text-[var(--theme-text-muted)] leading-relaxed">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm, remarkMath]}
-                    rehypePlugins={[[rehypeKatex, { trust: true, strict: false }]]}
-                    components={markdownComponents}
-                  >
-                    {chunk.doc}
-                  </ReactMarkdown>
-                </div>
+                </pre>
               </div>
-            ))}
-        </div>
-      </div>
+            </div>
+          );
+        }
+
+        return null;
+      })}
     </div>
   );
 }
