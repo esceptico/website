@@ -38,14 +38,14 @@ function getTextFromChildren(children: React.ReactNode): string {
 }
 
 // ============================================
-// Markdown components for doc content
+// Markdown components for annotations (compact)
 // ============================================
 
 const markdownComponents: Components = {
   h1: ({ children }) => {
     const id = slugify(getTextFromChildren(children));
     return (
-      <h1 id={id} className="text-xl font-semibold text-[var(--theme-text-primary)] mb-3 mt-6 first:mt-0">
+      <h1 id={id} className="text-xs font-semibold text-[var(--theme-text-primary)] mb-1 first:mt-0">
         {children}
       </h1>
     );
@@ -53,20 +53,37 @@ const markdownComponents: Components = {
   h2: ({ children }) => {
     const id = slugify(getTextFromChildren(children));
     return (
-      <h2 id={id} className="text-lg font-medium text-[var(--theme-text-primary)] mb-2 mt-5 first:mt-0">
+      <h2 id={id} className="text-xs font-medium text-[var(--theme-text-primary)] mb-1 first:mt-0">
         {children}
       </h2>
     );
   },
-  h3: ({ children }) => {
+  p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+  strong: ({ children }) => <strong className="font-medium text-[var(--theme-text-primary)]">{children}</strong>,
+  em: ({ children }) => <em>{children}</em>,
+  code: ({ children }) => <code className="font-jetbrains-mono text-[0.85em]">{children}</code>,
+  a: ({ href, children }) => <a href={href} className="underline" target="_blank" rel="noopener noreferrer">{children}</a>,
+};
+
+// Full markdown components for intro prose
+const fullMarkdownComponents: Components = {
+  h1: ({ children }) => {
     const id = slugify(getTextFromChildren(children));
     return (
-      <h3 id={id} className="text-base font-medium text-[var(--theme-text-primary)] mb-2 mt-4">
+      <h1 id={id} className="text-lg font-medium text-[var(--theme-text-primary)] mb-2 mt-4 first:mt-0">
         {children}
-      </h3>
+      </h1>
     );
   },
-  p: ({ children }) => <p className="mb-2">{children}</p>,
+  h2: ({ children }) => {
+    const id = slugify(getTextFromChildren(children));
+    return (
+      <h2 id={id} className="text-base font-medium text-[var(--theme-text-primary)] mb-1.5 mt-3 first:mt-0">
+        {children}
+      </h2>
+    );
+  },
+  p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
   strong: ({ children }) => <strong className="font-medium text-[var(--theme-text-primary)]">{children}</strong>,
   em: ({ children }) => <em>{children}</em>,
   code: ({ children }) => <code className="font-jetbrains-mono text-[0.9em] text-[var(--theme-text-primary)]/80 bg-[var(--theme-text-primary)]/5 px-1 py-0.5 rounded">{children}</code>,
@@ -74,122 +91,7 @@ const markdownComponents: Components = {
   ul: ({ children }) => <ul className="my-2 list-disc list-inside">{children}</ul>,
   ol: ({ children }) => <ol className="my-2 list-decimal list-inside">{children}</ol>,
   li: ({ children }) => <li className="ml-2">{children}</li>,
-  blockquote: ({ children }) => (
-    <blockquote className="my-2 pl-3 border-l-2 border-[var(--theme-text-secondary)]/30 text-[var(--theme-text-secondary)] italic">
-      {children}
-    </blockquote>
-  ),
 };
-
-// ============================================
-// Single chunk renderer
-// ============================================
-
-interface ChunkProps {
-  chunk: Chunk;
-  index: number;
-  isFirst: boolean;
-  isLastCodeChunk: boolean;
-  language: string;
-}
-
-function AnnotatedCodeChunk({ chunk, index, isFirst, isLastCodeChunk, language }: ChunkProps) {
-  const [isHovered, setIsHovered] = useState(false);
-  const codeHtml = useMemo(() => highlightCode(chunk.code, language), [chunk.code, language]);
-
-  const hasDoc = chunk.doc.trim().length > 0;
-  const hasCode = chunk.code.trim().length > 0;
-
-  // Prose-only chunk
-  if (hasDoc && !hasCode) {
-    return (
-      <div
-        id={`chunk-${index}`}
-        data-chunk-index={index}
-        className={isFirst ? "mb-8 pb-6 border-b border-[var(--theme-border)]" : "mb-4"}
-      >
-        <div className="text-[var(--theme-text-secondary)] leading-relaxed">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm, remarkMath]}
-            rehypePlugins={[[rehypeKatex, { trust: true, strict: false }]]}
-            components={markdownComponents}
-          >
-            {chunk.doc}
-          </ReactMarkdown>
-        </div>
-      </div>
-    );
-  }
-
-  // Code-only chunk
-  if (!hasDoc && hasCode) {
-    return (
-      <div id={`chunk-${index}`} data-chunk-index={index} className="my-3">
-        <div className="bg-[var(--theme-text-primary)]/[0.03] rounded-lg px-4 py-3 overflow-x-auto">
-          <pre className="whitespace-pre">
-            <code 
-              className="font-jetbrains-mono text-[0.85rem] leading-[1.7] tracking-[-0.01em] block"
-              dangerouslySetInnerHTML={{ __html: codeHtml }}
-            />
-          </pre>
-        </div>
-      </div>
-    );
-  }
-
-  // Side-by-side: doc + code
-  return (
-    <>
-      <div
-        id={`chunk-${index}`}
-        data-chunk-index={index}
-        data-chunk-header={chunk.isHeader}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        className={`relative transition-colors duration-200 rounded-lg ${chunk.isHeader ? 'mt-6 pt-3 first:mt-0 first:pt-0' : ''}`}
-        style={{
-          padding: '8px 0',
-          backgroundColor: isHovered ? 'rgba(128, 128, 128, 0.06)' : 'transparent',
-        }}
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
-          {/* Code - Left on desktop, bottom on mobile */}
-          <div className={`order-2 lg:order-1 min-w-0 ${!hasCode ? 'hidden lg:block opacity-0' : ''}`}>
-            <div className="bg-[var(--theme-text-primary)]/[0.03] rounded-lg px-4 py-3 lg:bg-transparent lg:p-0 lg:rounded-none overflow-x-auto">
-              <pre className="whitespace-pre">
-                <code 
-                  className="font-jetbrains-mono text-[0.85rem] leading-[1.7] tracking-[-0.01em] block"
-                  dangerouslySetInnerHTML={{ __html: codeHtml }}
-                />
-              </pre>
-            </div>
-          </div>
-
-          {/* Docs - Right on desktop, top on mobile */}
-          <div className={`order-1 lg:order-2 lg:pl-6 lg:border-l border-[var(--theme-border)] ${!hasDoc ? 'opacity-30' : ''}`}>
-            <div className="text-[0.875rem] text-[var(--theme-text-secondary)] leading-relaxed">
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm, remarkMath]}
-                rehypePlugins={[[rehypeKatex, { trust: true, strict: false }]]}
-                components={markdownComponents}
-              >
-                {chunk.doc}
-              </ReactMarkdown>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Mobile separator */}
-      <div className="lg:hidden h-px bg-[var(--theme-border)] my-4" />
-      
-      {/* Separator after code section ends */}
-      {isLastCodeChunk && (
-        <div className="hidden lg:block h-px bg-[var(--theme-border)] mt-6 mb-4" />
-      )}
-    </>
-  );
-}
 
 // ============================================
 // Main AnnotatedCode component
@@ -201,47 +103,135 @@ interface AnnotatedCodeProps {
 }
 
 export function AnnotatedCode({ code, language }: AnnotatedCodeProps) {
-  // Trim leading/trailing whitespace from template strings
   const trimmedCode = code.trim();
   const chunks = useMemo(() => parseAnnotatedCode(trimmedCode), [trimmedCode]);
   const [copied, setCopied] = useState(false);
   
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(trimmedCode);
+    const codeOnly = chunks
+      .filter(c => c.code.trim().length > 0)
+      .map(c => c.code)
+      .join('\n');
+    await navigator.clipboard.writeText(codeOnly);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
   
   if (chunks.length === 0) return null;
-  
-  return (
-    <div className="my-8 relative group/code">
-      {/* Copy button */}
-      <button
-        onClick={handleCopy}
-        className="absolute top-2 right-2 z-10 px-2 py-1 text-xs font-mono rounded bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)] opacity-0 group-hover/code:opacity-100 hover:text-[var(--theme-text-primary)] hover:border-[var(--theme-text-secondary)] transition-all duration-300"
-      >
-        {copied ? 'copied' : 'copy'}
-      </button>
 
-      {chunks.map((chunk, index) => {
-        const hasCode = chunk.code.trim().length > 0;
-        const nextChunk = chunks[index + 1];
-        const nextIsProse = nextChunk && nextChunk.code.trim().length === 0;
-        const isLastCodeChunk = hasCode && (nextIsProse || index === chunks.length - 1);
-        
-        return (
-          <AnnotatedCodeChunk
-            key={index}
-            chunk={chunk}
-            index={index}
-            isFirst={index === 0}
-            isLastCodeChunk={isLastCodeChunk}
-            language={language}
-          />
-        );
-      })}
+  // Separate intro from code chunks
+  const introChunks: Chunk[] = [];
+  const codeChunks: Chunk[] = [];
+  
+  let foundCode = false;
+  chunks.forEach((chunk) => {
+    const hasCode = chunk.code.trim().length > 0;
+    if (hasCode) foundCode = true;
+    
+    if (!foundCode && !hasCode && chunk.doc.trim()) {
+      introChunks.push(chunk);
+    } else if (hasCode) {
+      codeChunks.push(chunk);
+    }
+  });
+
+  return (
+    <div className="my-8">
+      {/* Intro prose */}
+      {introChunks.map((chunk, i) => (
+        <div key={`intro-${i}`} className="mb-6 pb-4 border-b border-[var(--theme-border)]">
+          <div className="text-[var(--theme-text-secondary)] leading-relaxed">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm, remarkMath]}
+              rehypePlugins={[[rehypeKatex, { trust: true, strict: false }]]}
+              components={fullMarkdownComponents}
+            >
+              {chunk.doc}
+            </ReactMarkdown>
+          </div>
+        </div>
+      ))}
+
+      {/* Side-by-side: code left, annotations right */}
+      <div className="relative group/code">
+        {/* Copy button */}
+        <button
+          onClick={handleCopy}
+          className="absolute top-2 right-2 z-10 px-2 py-1 text-xs font-mono rounded bg-[var(--theme-bg-primary)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)] opacity-0 group-hover/code:opacity-100 hover:text-[var(--theme-text-primary)] transition-all duration-300"
+        >
+          {copied ? 'copied' : 'copy'}
+        </button>
+
+        <div className="flex">
+          {/* Code column */}
+          <div className="flex-1 min-w-0 overflow-x-auto bg-[var(--theme-text-primary)]/[0.03] rounded-l-lg">
+            <pre className="px-4 py-3">
+              {codeChunks.map((chunk, i) => {
+                const codeHtml = highlightCode(chunk.code, language);
+                return (
+                  <code 
+                    key={i}
+                    className="font-jetbrains-mono text-[0.8rem] leading-[1.6] tracking-[-0.01em] block"
+                    dangerouslySetInnerHTML={{ __html: codeHtml }}
+                  />
+                );
+              })}
+            </pre>
+          </div>
+
+          {/* Annotations column - desktop only */}
+          <div className="hidden lg:block w-72 flex-shrink-0 relative">
+            {/* Vertical connector line */}
+            <div className="absolute left-0 top-0 bottom-0 w-px border-l border-dashed border-[var(--accent)]/40" />
+            
+            <div className="py-3 pl-4 space-y-3">
+              {codeChunks.map((chunk, i) => {
+                const hasDoc = chunk.doc.trim().length > 0;
+                if (!hasDoc) return null;
+                
+                return (
+                  <div key={i} className="relative">
+                    {/* Horizontal connector */}
+                    <div className="absolute -left-4 top-3 w-4 border-t border-dashed border-[var(--accent)]/40" />
+                    
+                    {/* Annotation box with dashed border */}
+                    <div className="border border-dashed border-[var(--accent)]/40 rounded-sm px-3 py-2">
+                      <div className="text-[11px] text-[var(--theme-text-muted)] leading-relaxed">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm, remarkMath]}
+                          rehypePlugins={[[rehypeKatex, { trust: true, strict: false }]]}
+                          components={markdownComponents}
+                        >
+                          {chunk.doc}
+                        </ReactMarkdown>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile: annotations below */}
+        <div className="lg:hidden mt-4 space-y-2">
+          {codeChunks
+            .filter(c => c.doc.trim())
+            .map((chunk, i) => (
+              <div key={i} className="border border-dashed border-[var(--accent)]/40 rounded-sm px-3 py-2">
+                <div className="text-[11px] text-[var(--theme-text-muted)] leading-relaxed">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm, remarkMath]}
+                    rehypePlugins={[[rehypeKatex, { trust: true, strict: false }]]}
+                    components={markdownComponents}
+                  >
+                    {chunk.doc}
+                  </ReactMarkdown>
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
     </div>
   );
 }
-
