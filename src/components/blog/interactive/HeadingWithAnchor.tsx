@@ -12,11 +12,9 @@ export function HeadingWithAnchor({ as: Tag, id, className, children }: HeadingW
     e.preventDefault();
     const element = document.getElementById(id);
     if (element) {
-      const headerHeight = 48;
-      const offset = 32;
       const elementPosition = element.getBoundingClientRect().top + window.scrollY;
       window.scrollTo({
-        top: elementPosition - headerHeight - offset,
+        top: elementPosition - 100,
         behavior: 'smooth'
       });
       window.history.pushState(null, '', `#${id}`);
