@@ -88,15 +88,15 @@ export function AlphaSlider({ question, results }: AlphaSliderProps) {
                     isSelected 
                       ? 'bg-[var(--accent)]' 
                       : isCenter 
-                        ? 'bg-[var(--theme-text-muted)]/50 group-hover/tick:bg-[var(--theme-text-muted)]'
-                        : 'bg-[var(--theme-border)] group-hover/tick:bg-[var(--theme-text-muted)]'
+                        ? 'bg-[var(--theme-text-muted)] group-hover/tick:bg-[var(--theme-text-primary)]'
+                        : 'bg-[var(--theme-text-muted)]/60 group-hover/tick:bg-[var(--theme-text-muted)]'
                   }`} />
                   
                   {/* Label */}
-                  <span className={`mt-1.5 font-mono text-[9px] tabular-nums transition-colors ${
+                  <span className={`mt-1.5 font-mono text-[10px] tabular-nums transition-colors ${
                     isSelected 
                       ? 'text-[var(--theme-text-primary)]' 
-                      : 'text-[var(--theme-text-muted)]/60 group-hover/tick:text-[var(--theme-text-muted)]'
+                      : 'text-[var(--theme-text-muted)] group-hover/tick:text-[var(--theme-text-primary)]'
                   }`}>
                     {alpha}
                   </span>
@@ -114,28 +114,39 @@ export function AlphaSlider({ question, results }: AlphaSliderProps) {
               className="absolute top-0 left-0 w-full h-12 opacity-0 cursor-pointer z-10"
             />
             
-            {/* Custom thumb indicator */}
+            {/* Custom thumb indicator - needle style */}
             <div 
-              className="absolute top-3 w-2.5 h-5 border border-[var(--accent)] bg-[var(--theme-bg-primary)] pointer-events-none transition-all duration-100 ease-out"
+              className="absolute top-1 pointer-events-none transition-all duration-100 ease-out flex flex-col items-center"
               style={{ 
                 left: `${alphas.length > 1 ? (currentIndex / (alphas.length - 1)) * 100 : 50}%`,
                 transform: 'translateX(-50%)'
               }}
-            />
+            >
+              {/* Triangle pointer */}
+              <div 
+                className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent border-t-[var(--accent)]"
+              />
+              {/* Needle line */}
+              <div className="w-px h-4 bg-[var(--accent)]" />
+            </div>
           </div>
         </div>
         
         {/* Result */}
-        <div className="relative">
-          <div className="h-px bg-[var(--theme-border)]/40 mb-4" />
+        <div className="relative mt-4 pt-4 pb-4">
+          {/* Crop marks - all corners */}
+          <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-[var(--theme-text-muted)]/40" />
+          <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-[var(--theme-text-muted)]/40" />
+          <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-[var(--theme-text-muted)]/40" />
+          <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-[var(--theme-text-muted)]/40" />
           
           {/* Mode label */}
-          <span className="font-mono text-[9px] text-[var(--accent)] tracking-widest block mb-2">
+          <span className="font-mono text-[9px] text-[var(--accent)] tracking-widest block mb-2 ml-5">
             {getMode(currentAlpha)}
           </span>
           
           {/* Output display - all results stacked, only current visible */}
-          <div className="grid">
+          <div className="grid ml-5">
             {alphas.map((alpha) => {
               const result = results[String(alpha)] ?? '';
               const isActive = alpha === currentAlpha;
