@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 
 interface HeadingData {
   id: string;
@@ -16,6 +16,22 @@ export function BlogTOC({ content }: { content: string }) {
   const [hoveredH1, setHoveredH1] = useState<string | null>(null);
   const [scrollPercent, setScrollPercent] = useState(0);
   const docHeightRef = useRef(1);
+
+  // Determine which H1 is currently active based on scroll position
+  const activeH1Id = useMemo(() => {
+    if (headings.length === 0) return null;
+    
+    // Find the last heading that we've scrolled past
+    let active: string | null = null;
+    for (const h of headings) {
+      if (scrollPercent >= h.percent) {
+        active = h.id;
+      } else {
+        break;
+      }
+    }
+    return active;
+  }, [headings, scrollPercent]);
 
   // Gather headings
   useEffect(() => {
@@ -113,8 +129,8 @@ export function BlogTOC({ content }: { content: string }) {
                 className={`
                   ml-2 max-w-48 font-mono text-[10px] tracking-widest uppercase text-left leading-tight
                   transition-opacity duration-150
-                  ${isHovered ? 'opacity-100' : 'opacity-0'}
-                  text-[var(--theme-text-muted)] hover:text-[var(--theme-text-primary)]
+                  ${isHovered || activeH1Id === h.id ? 'opacity-100' : 'opacity-0'}
+                  ${activeH1Id === h.id ? 'text-[var(--theme-text-primary)]' : 'text-[var(--theme-text-muted)] hover:text-[var(--theme-text-primary)]'}
                 `}
               >
                 {h.title}
