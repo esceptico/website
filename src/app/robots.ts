@@ -6,11 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
       disallow: [
-        '/about/',
-        '/blog/',
-        '/portfolio/',
-        '/projects/',
-        '/docs/',
+        '/tools/',  // Internal tools, not for indexing
       ],
     },
     sitemap: 'https://timganiev.com/sitemap.xml',
