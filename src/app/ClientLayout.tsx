@@ -30,19 +30,16 @@ function getSlugFromPath(pathname: string): string | null {
 // Pre-render static KaTeX symbols (only runs once)
 const katexSymbols = {
   loss: katex.renderToString('\\mathcal{L}(\\theta)', { throwOnError: false }),
-  gradNorm: katex.renderToString('\\|\\nabla\\mathcal{L}\\|', { throwOnError: false }),
   gradDir: katex.renderToString('-\\nabla\\mathcal{L}', { throwOnError: false }),
   converged: katex.renderToString('\\checkmark', { throwOnError: false }),
 };
 
 function OptimizationStats({ 
   loss, 
-  gradNorm, 
   gradientDir, 
   converged 
 }: { 
   loss: number; 
-  gradNorm: number; 
   gradientDir: string; 
   converged: boolean;
 }) {
@@ -77,10 +74,6 @@ function OptimizationStats({
           {loss.toFixed(4)}
         </span>
         
-        {/* ‖∇L‖ row */}
-        <span className="flex justify-end" dangerouslySetInnerHTML={{ __html: katexSymbols.gradNorm }} />
-        <span className="font-mono text-right">{gradNorm.toFixed(2)}</span>
-        
         {/* −∇L row */}
         <span className="flex justify-end" dangerouslySetInnerHTML={{ __html: katexSymbols.gradDir }} />
         <span className="font-mono text-right">{gradientDir}</span>
@@ -110,7 +103,6 @@ export default function ClientLayout({
   const pathname = usePathname();
   const [timestamps, setTimestamps] = useState({ utc: '', pst: '' });
   const [loss, setLoss] = useState(1.0);
-  const [gradNorm, setGradNorm] = useState(1.0);
   const [gradientDir, setGradientDir] = useState('·');
   const [converged, setConverged] = useState(false);
   const [globalMin, setGlobalMin] = useState({ x: 0, y: 0 });
@@ -160,12 +152,7 @@ export default function ClientLayout({
       const distY = e.clientY - globalMin.y;
       const distance = Math.sqrt(distX * distX + distY * distY);
       const maxDist = Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2);
-      const normalizedDist = distance / maxDist;
-      const normalizedLoss = normalizedDist * normalizedDist; // L = (d/maxDist)²
-      
-      // Gradient norm analytically derived: ‖∇L‖ = 2d/maxDist² = 2(d/maxDist)/maxDist
-      // Normalized for display: ‖∇L‖ = 2 × (d/maxDist) = 2√L
-      const gradientNorm = 2 * normalizedDist; // ~0-15 range typically
+      const normalizedLoss = (distance * distance) / (maxDist * maxDist); // L = d²/maxDist² // ~0-15 range typically
       
       // Check for convergence (within 30px radius)
       if (distance < 30 && !converged) {
@@ -173,7 +160,6 @@ export default function ClientLayout({
       }
       
       setLoss(normalizedLoss);
-      setGradNorm(gradientNorm);
       setGradientDir(getGradientArrow(distX, distY));
     };
     
@@ -258,7 +244,6 @@ export default function ClientLayout({
             {/* Bottom right: optimization stats */}
             <OptimizationStats 
               loss={loss} 
-              gradNorm={gradNorm} 
               gradientDir={gradientDir} 
               converged={converged} 
             />
