@@ -95,14 +95,6 @@ export function AnnotatedCode({ code, language }: AnnotatedCodeProps) {
 
   return (
     <div className="my-8 relative group/code">
-      {/* Copy button */}
-      <button
-        onClick={handleCopy}
-        className="absolute top-2 right-2 z-10 px-2 py-1 text-xs font-mono rounded bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)] opacity-0 group-hover/code:opacity-100 hover:text-[var(--theme-text-primary)] hover:border-[var(--theme-text-secondary)] transition-all duration-300"
-      >
-        {copied ? 'copied' : 'copy'}
-      </button>
-
       {chunks.map((chunk, index) => {
         const hasDoc = chunk.doc.trim().length > 0;
         const hasCode = chunk.code.trim().length > 0;
@@ -156,7 +148,17 @@ export function AnnotatedCode({ code, language }: AnnotatedCodeProps) {
               )}
               
               {/* Code block */}
-              <div className="bg-[var(--theme-text-primary)]/[0.03] rounded-lg overflow-x-auto">
+              <div className="relative group/codeblock bg-[var(--theme-text-primary)]/[0.03] rounded-lg overflow-x-auto">
+                {/* Copy button only on first code block */}
+                {currentMarker === 1 && (
+                  <button
+                    onClick={handleCopy}
+                    title="Copy all annotated code"
+                    className="absolute top-2 right-2 px-2 py-1 text-xs font-mono rounded bg-[var(--theme-bg-primary)]/80 backdrop-blur-sm border border-[var(--theme-border)] text-[var(--theme-text-muted)] opacity-0 group-hover/codeblock:opacity-100 hover:text-[var(--theme-text-primary)] hover:border-[var(--theme-text-muted)] transition-opacity duration-150"
+                  >
+                    {copied ? 'copied!' : 'copy all'}
+                  </button>
+                )}
                 <pre className="px-4 py-3">
                   <code 
                     className="font-jetbrains-mono text-[0.85rem] leading-[1.7] tracking-[-0.01em] block"
