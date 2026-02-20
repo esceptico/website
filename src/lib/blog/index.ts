@@ -73,7 +73,8 @@ function parseFile(filePath: string, slug: string): BlogPost {
     content,
     hasAnnotatedCode,
     readingTime,
-    wordCount
+    wordCount,
+    draft: data.draft === true ? true : undefined
   };
 }
 
@@ -113,6 +114,7 @@ function getCache(): Map<string, BlogPost> {
 // Public API
 export function getAllPosts(): BlogMeta[] {
   return Array.from(getCache().values())
+    .filter(p => !p.draft)
     .map(p => ({
       slug: p.slug,
       title: p.title,

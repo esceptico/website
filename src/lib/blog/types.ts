@@ -33,6 +33,8 @@ export interface BlogPost {
   readingTime: number
   /** Word count */
   wordCount: number
+  /** Whether this post is a draft */
+  draft?: boolean
 }
 
 /**
@@ -49,4 +51,6 @@ export interface BlogMeta {
   readingTime: number
   /** Word count */
   wordCount: number
+  /** Whether this post is a draft */
+  draft?: boolean
 }
