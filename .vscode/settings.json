@@ -1,6 +1,8 @@
 {
   "[mdx]": {
-    "editor.defaultFormatter": null
+    "editor.defaultFormatter": null,
+    "editor.wordWrap": "on"
+}
   },
   "mdx.server.enable": false
 }

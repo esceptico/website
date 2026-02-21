@@ -51,6 +51,7 @@ html {
   color: var(--theme-text-primary);
   height: 100%;
   overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -252,6 +253,98 @@ html:not(.dark) .color-secondary { color: #3b82f6 !important; }
 .hover-link:hover {
   background-size: 0% 1px;
   color: var(--accent);
+}
+
+/* ============================================
+   Footnotes (remark-gfm)
+   ============================================ */
+
+/* Inline reference: superscript link */
+[data-footnote-ref] {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 0.75em;
+  color: var(--accent);
+  text-decoration: none;
+  vertical-align: super;
+  line-height: 0;
+  padding: 0 0.1em;
+}
+
+[data-footnote-ref]:hover {
+  text-decoration: underline;
+}
+
+/* Scroll offset for back-references — matches heading offset (100px) */
+[id^="user-content-fnref-"] {
+  scroll-margin-top: 100px;
+}
+
+[id^="user-content-fn-"] {
+  scroll-margin-top: 100px;
+}
+
+/* Highlight the inline ref when returning from footnote */
+[id^="user-content-fnref-"]:target [data-footnote-ref] {
+  color: var(--theme-text-primary);
+  background: var(--accent-subtle);
+  border-radius: 2px;
+  padding: 0.1em 0.25em;
+  animation: fn-fade 2s ease-out forwards;
+}
+
+/* Highlight footnote item when jumping to it */
+[data-footnotes] li:target {
+  color: var(--theme-text-primary);
+  animation: fn-fade 2s ease-out forwards;
+}
+
+@keyframes fn-fade {
+  0% { background-color: var(--accent-subtle); }
+  100% { background-color: transparent; }
+}
+
+/* Footnotes section at the bottom */
+[data-footnotes] h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--theme-text-primary);
+  margin-bottom: 1rem;
+}
+
+[data-footnotes] {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--theme-border);
+  font-size: 0.85rem;
+  color: var(--theme-text-secondary);
+}
+
+[data-footnotes] ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin: 0;
+}
+
+[data-footnotes] li {
+  margin-bottom: 0.5rem;
+}
+
+[data-footnotes] li p {
+  margin: 0;
+  display: inline;
+}
+
+/* Back-reference arrow */
+[data-footnote-backref] {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 0.8em;
+  color: var(--accent);
+  text-decoration: none;
+  margin-left: 0.25em;
+}
+
+[data-footnote-backref]:hover {
+  text-decoration: underline;
 }
 
 /* ============================================

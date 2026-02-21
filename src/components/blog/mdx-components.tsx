@@ -5,6 +5,8 @@ import { AlphaSlider } from './interactive/AlphaSlider';
 import { Plot } from './interactive/Plot';
 import { LinkedFormula, Term } from './interactive/LinkedFormula';
 import { CodeBlockWithCopy } from './interactive/CodeBlockWithCopy';
+import { Gallery } from './interactive/Gallery';
+import { Video } from './interactive/Video';
 import { HeadingWithAnchor } from './interactive/HeadingWithAnchor';
 import { isAnnotatedPython } from '@/lib/blog/parse';
 import type { MDXComponents } from 'mdx/types';
@@ -98,7 +100,11 @@ export const mdxComponents: MDXComponents = {
   
   em: (props) => <em {...props} />,
   
-  a: (props) => <a className="hover-link" target="_blank" rel="noopener noreferrer" {...props} />,
+  a: (props) => {
+    const href = (props as { href?: string }).href || '';
+    const isExternal = href.startsWith('http') || href.startsWith('//');
+    return <a className="hover-link" {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})} {...props} />;
+  },
   
   ul: (props) => <ul className="my-3 list-disc list-inside text-[var(--theme-text-secondary)]" {...props} />,
   
@@ -165,4 +171,6 @@ export const mdxComponents: MDXComponents = {
   Plot,
   LinkedFormula,
   Term,
+  Gallery,
+  Video,
 };
