@@ -96,7 +96,9 @@ export default async function BlogPostPage({ params }: PageProps) {
             mdxOptions: {
               remarkPlugins: [remarkGfm, remarkMath],
               rehypePlugins: [[rehypeKatex, { trust: true, strict: false }]],
+              remarkRehypeOptions: { footnoteLabel: ' ', footnoteLabelTagName: 'span' },
             },
+            blockJS: false,
           }}
         />
       </BlogViewer>
