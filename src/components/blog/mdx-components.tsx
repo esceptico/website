@@ -7,6 +7,8 @@ import { LinkedFormula, Term } from './interactive/LinkedFormula';
 import { CodeBlockWithCopy } from './interactive/CodeBlockWithCopy';
 import { Gallery } from './interactive/Gallery';
 import { Video } from './interactive/Video';
+import { Flicker } from './interactive/Flicker';
+import { Decay } from './interactive/Decay';
 import { HeadingWithAnchor } from './interactive/HeadingWithAnchor';
 import { isAnnotatedPython } from '@/lib/blog/parse';
 import type { MDXComponents } from 'mdx/types';
@@ -173,4 +175,6 @@ export const mdxComponents: MDXComponents = {
   Term,
   Gallery,
   Video,
+  Flicker,
+  Decay,
 };

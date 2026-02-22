@@ -372,3 +372,11 @@ html:not(.dark) .color-secondary { color: #3b82f6 !important; }
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background-color: var(--theme-text-muted);
 }
+
+/* ============================================
+   Flicker effect
+   ============================================ */
+
+.flicker {
+  display: inline;
+}
