@@ -1,0 +1,265 @@
+---
+title: personal entropy reduction
+summary: offloading consistency to the machine
+date: 2026-02-22
+tags: ["ai", "adhd", "memory", "agents", "petproject"]
+draft: true
+---
+
+# the problem
+
+i don't forget tasks, i forget that tasks exist.
+
+not quirky-forget, more like "where's that critical email i read two hours ago" forget. notes spread across apps, a calendar i never check (dato app helps a bit btw), emails i read once and lose forever. i even forget to eat and sleep sometimes.
+
+<Gallery images={[{ src: "/ntrp/iforgor.png", alt: "bruh", caption: "every fucking time"}]} />
+
+i tried a bunch of productivity systems for the last few years, and they all share the same fatal flaw: they assume you'll remember to use them and you'll do it is a consistent manner.
+
+zero inbox, habit trackers, daily reviews – all of it require systematic attention, structure and consistency.
+
+> what the hell is consistency? stop making up words dude.
+
+just keeping track of **what's going on in my life** was really exhausting. every second is an infinite cycle of "am i forgetting something critical?". so i built something that handles that (at least partially) for me.
+
+---
+
+# what it does today
+
+**ntrp is one interface and one source of truth across:**
+- obsidian vault (i'm waiting for public cli guys!1)
+- email (gmail)
+- calendar (google calendar)
+- browser history (chrome/safari/arc)
+- web search (exa)
+
+**today it can:**
+- daily / weekly digests from **email + calendar + vault + other stuff you want to**
+- answer anything across your sources on demand: "what did i miss this week", "where did i put that note about X"
+- multi-step pipelines – read 10 notes, reduce to one summary, write it back to vault
+
+nothing here is magic in isolation ofc. the point is **one place** where all this connects, and one ui that doesn't require me to be consistent.
+
+---
+
+# proactive vs reactive
+
+most ai tools are reactive: they wait for you to ask. if you have adhd, you forget to ask, and that's the damned loop.
+
+**current state:** you can schedule tasks and it runs them autonomously. morning digest, stale follow-up check, whatever. when it's done it pings you – telegram, email, or any bash command like `say "done"` if you're deep in flow and won't see a message.
+
+<Gallery images={[{ src: "/ntrp/schedules.png", alt: "Schedules", caption: "some scheduled tasks idk"}]} />
+
+basically, it's a cron job that executes a standalone isolated agent in the background. this agent has access to all the sources and tools, but by default it's read-only – you don't want to get `rm -rf /` on your machine because agent decided that you code too much and you need to rest because of 12 daily steps. it's adjustable if you're brave enough.
+
+i'm not chasing "full autonomy" (basically i'm against it), i'm more like chasing **better triggers** that are still controlled by me:
+
+- schedules + cool-downs ("don't notify more often than X")
+- time-since-last-action ("only if i haven't opened prep notes today")
+- explicit opt-in rule sets ("only for interviews", "only weekdays", etc.)
+
+future is **signal-based**, but only user-controlled, not "the agent woke up and chose violence"
+
+---
+
+# does it actually work?
+
+i mean sort of
+
+i ran it during the stress test – full job search on ~4 hours of sleep a night, an absurd number of applications across all stages, prep sessions, follow-ups, interviews, and i kept iterating on ntrp in parallel.
+
+workflow looked like:
+- "hey ntrp what"s the stuff"
+- “here are 2 emails about your application to company X, they rejected you. fucking disgrace.”
+- "ok update the vault pls. what else?"
+- "you have 2 interviews coming up next week. you need to prep unless you want to speedrun unemployment"
+- "fair enough. find common questions, dump into vault, set prep events, do something idk...""
+- "consider it done, employee of the month"
+
+silly? kinda. but manual work is a pain and has a lot of distraction points.
+
+things it caught that i would've dropped:
+- a follow-up i'd ghosted on for ~11 days
+- application stages without me maintaining any spreadsheet
+- interview prep consistent across sessions when my memory absolutely wasn't
+- "hey dude you have X tomorrow, go to sleep, it's 2am already"
+
+also health notes. i noticed some app in r/obsidian sub where some dude created an app which dumps all your apple health data to the notes. so now i get apple health digests into obsidian and i'm seeing basic temporal patterns. at least now i know that ~1-2h walk improved my sleep quality for me (probably: it's correlation, not causation). i would never track this manually.
+
+first side project in years i haven't abandoned halfway through. and i had many, they just was not useful enough for me.
+
+---
+
+# context
+
+to get decent output from llms you need good context. but dumping *everything* into context makes the output worse, that's pretty obvious. so the whole game is about what to include and what to leave out.
+
+## system prompt assembly
+
+system prompt is composed from blocks:
+- base instructions
+- user-defined directives (persistent preferences / rules for agent)
+- sources + tool descriptions
+- active skills
+- memory context (budgeted)
+
+(for anthropic models blocks are cache-controlled so you don't pay for the same system prompt twice. other providers doing it automatically)
+
+## compaction
+
+**compaction trigger** is a 80% context window *or* 120 messages (whichever first)
+
+it summarizes the older part, keeps the most recent 20% of messages **intact**, and injects a "[session state handoff]" block with active objectives, open loops, and source pointers. the summarized facts also get extracted into persistent memory, so nothing important is truly lost.
+
+this is what [letta does](https://www.letta.com/blog/guide-to-context-engineering) (hi Cameron) and what i did at replika (i called it decaying summary, because you always compressing the old summaries to the new one recursively on trigger – older info just slowly <Decay>decaying</Decay>). in comparison with the claude code approach (it's a lobotomy) this one works a lot better and without noticeable spikes in consistency.
+
+funny enough, a lot of "context engineering" guides propose tool result truncation, but it's basically killing caching; you need to do it **after** the compaction actually.
+
+## tool result offloading
+
+when a tool returns something massive (like a full email thread or a long note), only a 300-char preview stays in the messages. the full content goes to a temp file on disk, and the agent can read it later if needed. stole this from [manus](https://rlancemartin.github.io/2025/10/15/manus/) btw.
+
+## memory context
+memory context has its own budget (~3000 chars) with observations first, then standalone facts filling the remaining space. the system prompt gives the agent a "state of the world" snapshot without eating the whole context window. by the "world" i mean mostly "me" here, it's a personal assistant...
+
+## safety model
+
+tools that change stuff (create note, send email, delete event) require explicit approval – the tui shows you what's about to happen and you say yes or no. read-only tools just run. you don't want the agent sending emails on your behalf without you knowing. unless you're brave enough to enable auto-approve for specific tools, which is a thing. so everything is like everywhere, just without your favorite `--dangerously-skip-permissions`.
+
+---
+
+# recursive explore sub-agents
+
+<Gallery images={[{ src: "/ntrp/recursion.png", alt: "recursion", caption: "not the best idea probably"}]} />
+
+the explore tool is probably the most interesting one. it spawns a standalone sub-agent with limited read-only tools to research something in the background. three depth levels – quick, normal and deep. the sub-agent can even spawn its own sub-agents (with depth budgeting so it doesn't recurse forever). useful when you need to dig through multiple sources without polluting the main conversation context.
+
+the issue with nested sub-agents – they may have overlapping queries, which is just a token (i.e. money) waste. many agents (e.g. claude code) evades this by limiting max depth level to one, delegating iverlapping resolution to the prompt.
+
+to fix that, there's an **exploration ledger** – a shared blackboard that propagates through the entire spawn tree. it tracks what each agent is working on and what documents have already been read. when a new explore agent spawns, the ledger summary gets injected into its system prompt so it sees every active and completed task in the tree. duplicate tool calls from other agents get a quiet annotation at the runner level.
+
+---
+# memory
+
+consistent memory is a pretty obvious idea for personal ai stuff like that – letta does that pretty well, plus i was working on it at replika. but my guilty pleasure is graph memory.
+
+## so it's all about graphs
+
+i'm a graph memory fan (unfortunately), as you may have noticed. graph representation fits memory perfectly in my head – memory and understanding is about connecting the dots, and a graph makes that literal.
+
+in practice though, this shit doesn't work well out of the box: it's elegant on paper, but in practice – too many moving parts to tune carefully when you just want the thing to work. and even after that you'll have a lot of issues.
+many do that ([cognee](https://www.cognee.ai), zep's [graphiti](https://github.com/getzep/graphiti) or vectorize's [hindsight](https://hindsight.vectorize.io) for example), but i wanted to tackle it myself + be able to adjust some stuff. additionally, i don't need the full capacity of graph memory framework.
+
+## facts and observations
+
+<Gallery images={[
+  { src: "/ntrp/memory_1.png", alt: "Facts", caption: "raw stuff from chat"},
+  { src: "/ntrp/memory_2.png", alt: "Observations", caption: "consolidated observations"},
+]} />
+
+the hard problem is not in the storing, it's more about relevancy, e.g. **which** and **how**. i liked the idea of layered abstractions from **hindsight**, and decided to use it with minor changes:
+- i will have 2 main layers – raw facts from chat / other sources, whatever
+- consolidated observations above these facts
+- temporal and disambiguation relevancy
+
+in practice, raw stuff from chat is a dog water – too noisy, and consolidation fixes that.
+
+every new fact gets embedded and goes through a consolidation pass: find the nearest existing observations by vec similarity, then ask an llm – "does this fact update one of these, or is it new information?" three outcomes: `update` an existing observation, `create` a new one, or `skip` if it's trash. the observations are the layer you actually query first, facts are just the raw filler below them (yet still relevant).
+
+on top of that sits a **fact merge** pass that deduplicates the facts themselves. before consolidation runs, near-duplicate facts (cosine sim above threshold) get an llm check if it's the same thing or not. if same – merged into one, entity refs transferred, the weaker one deleted. this keeps the fact pool a bit cleaner.
+
+## retrieval
+
+retrieval is a four-step pipeline:
+- hybrid search first (vector + full-text via sqlite fts5, merged with rrf)
+- entity expansion (one-hop graph walk: if a fact mentions "unemployment", pull other facts that also mention "unemployment", weighted by idf so common entities don't pollute everything)
+- temporal expansion (facts near the query timestamp, scored by vector similarity)
+- cross-encoder reranking (zerank-2 via [zeroentropy](https://www.zeroentropy.dev)) rescores all candidates against the query. if the reranker fails, it falls back to multi-signal scoring from the previous steps
+
+all candidates get final scoring:
+
+<LinkedFormula>
+
+<Term id="base" color="blue">base_score</Term> from hybrid search (rrf-merged rank) × <Term id="decay" color="red">decay</Term> so old untouched facts fade × <Term id="recency" color="green">recency_boost</Term> – exp gives a sharp drop-off: something from yesterday is way more relevant than something from a week ago, but the difference between 30 and 31 days ago is basically nothing. $\sigma$ = 72h, so facts about events older than ~3 days lose most of their boost. that's how time-relevance works in your head most of the time (i guess?)
+
+$$
+\htmlClass{term-base}{s} \times \htmlClass{term-decay}{d(t,n)} \times \htmlClass{term-recency}{\exp(-t_e / \sigma)}
+$$
+
+</LinkedFormula>
+
+
+decay is exponential with a bounded access boost:
+
+<LinkedFormula>
+
+<Term id="rate" color="purple">time decay</Term> – rate (0.99) raised to hours since last access. the longer a fact sits untouched, the more it fades. <Term id="access" color="cyan">access boost</Term> – log gives diminishing returns: the first few accesses prove a fact is useful and should resist decay, but accessing it 100 times vs 101 shouldn't matter. without the log cap, frequently-used facts would become immortal, and you'd end up with a memory full of stale stuff that just happened to be popular once.
+
+$$
+\htmlClass{term-rate}{r^h} \times (1 + \htmlClass{term-access}{\log(1+n)} \times 0.1)
+$$
+
+</LinkedFormula>
+
+facts you actually use don't fade, but facts that sit untouched do. a fact like "interview tomorrow" gets a huge boost today, but fades naturally after it passes.
+
+---
+
+# dreams
+
+since most of the nodes create clusters, i was wondering if there's some connection between random nodes which are not from the same cluster; something like "not obvious connections" between observations and stuff. i called these nodes "dreams" because it sounds vague lol and also it's not a serious feature with a lot of intended hallucinations. yet still i sometimes got interesting insights like this
+
+> Timur is meticulously engineering an 'Agentic Research' suite to enhance AI autonomy while his own physical agency has collapsed into a near-total stasis of twenty-three daily steps.
+
+or
+
+> Timur is treating his own ADHD-induced information scatter as a production-scale ML alignment problem, applying the same context engineering and entity linking patterns he used to stabilize Replika’s massive conversational stack to his own personal memory.
+
+in other words, llms still bullying me on a daily basis
+
+---
+
+# what it looks like
+
+<Video src="/ntrp/ntrp.mp4" autoPlay loop playsInline caption="idk why i spent $26 to screen studio for this 44 sec video..."/>
+
+it's a TUI. terminals are cool again, you know?
+
+token budgets in real time, context info, memory consolidation you can watch happen. shamelessly stole a lot of design ideas from [opencode](https://opencode.ai).
+
+---
+
+# bruh this is just yet another agent, my claude code / clawd / etc setup can do the same...
+
+## yeah i know, and i don't actually care lol
+
+i was building it for myself, and this agent already helps me. also, i can add / remove any functionality or adjust the memory behavior. i might even RL it in headless mode for better tool calling or memory (and i'm gonna do it someday)
+
+i always thought apps for ADHD people were the answer, but the more i read those reddit threads, the more i was convinced it's just my burden to be a dumbass with no stable memory. turns out in the age of AI you can actually offload a chunk of your cognitive mess to a machine.
+
+## but is it safe tho?
+
+look, it's my code. i designed every module, reviewed every tool, and yes – claude wrote chunks of it, but i also spent the next morning going "what the hell did you do here" and fixing it. standard workflow at this point. it's 2094, what do you expect?
+
+## ui / ux
+
+usually i was thinking about web interface, but after opencode / claude code / etc – i was like "fuck this, i'm building a TUI". first iteration was built on top of Ink (the library used by claude code) and it was a mess AND A LOT OF <Flicker>FLICKER</Flicker> god damn it, so i decided to check other libs and found [opentui](https://opentui.com) from opencode devs. it's a gem honestly, you should try it in case you're building some tui for yourself.
+
+from the design side, i don't think i did anything special. i just wanted to be minimal and functional.
+and i spent 2 days on [loaders](https://codepen.io/esceptico/pen/LEZaJPa) lmao. they're sick btw.
+
+---
+
+# where to find it
+
+
+basically here: https://github.com/esceptico/ntrp
+
+and you may contact me via [twitter/x](https://x.com/postimortem) or [email](mailto:ganiev.tmr@gmail.com) if you have some questions, proposals or just want to say "hi"
+
+---
+
+# references
+
+- https://rlancemartin.github.io/ – Lance's Blog is cool
+- [Context Engineering: Sessions & Memory](https://www.kaggle.com/whitepaper-context-engineering-sessions-and-memory) by Kimberly Milam and Antonio Gulli
