@@ -7,7 +7,7 @@ export const socialLinks = {
   linkedin: 'https://linkedin.com/in/esceptico',
   twitter: 'https://x.com/postimortem',
   instagram: 'https://instagram.com/timurmurmur',
-  calendly: 'https://calendly.com/ganiev-tmr/30min',
+  cal: 'https://cal.com/timganiev/30min?overlayCalendar=true',
   email: 'mailto:ganiev.tmr@gmail.com'
 } as const;
 

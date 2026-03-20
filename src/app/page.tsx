@@ -16,7 +16,7 @@ const jsonLd = {
   ],
   contactPoint: {
     '@type': 'ContactPoint',
-    url: 'https://calendly.com/ganiev-tmr/30min',
+    url: 'https://cal.com/timganiev/30min?overlayCalendar=true',
     contactType: 'scheduling',
   },
 };

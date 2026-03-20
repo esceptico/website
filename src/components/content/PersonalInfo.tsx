@@ -2,7 +2,7 @@
 
 import HackerTextEffect from './HackerTextEffect';
 import { FaGithub, FaLinkedin, FaEnvelope, FaInstagram, FaTwitter } from 'react-icons/fa';
-import { SiCalendly } from 'react-icons/si';
+import { SiCaldotcom } from 'react-icons/si';
 import Link from 'next/link';
 import { socialLinks, hackerTextItems, aboutMarkdown, getTimeBasedGreeting } from '@/personal-content';
 import { useState, useEffect, useMemo } from 'react';
@@ -152,14 +152,14 @@ export const PersonalInfo = () => {
           <FaInstagram className="w-5 h-5" />
         </Link>
         <Link 
-          href={socialLinks.calendly}
+          href={socialLinks.cal}
           target="_blank"
           rel="noopener noreferrer"
           className="social-icon"
-          aria-label="Calendly"
-          title="Calendly"
+          aria-label="Cal.com"
+          title="Cal.com"
         >
-          <SiCalendly className="w-5 h-5" />
+          <SiCaldotcom className="w-5 h-5" />
         </Link>
         <a 
           href={socialLinks.email}
