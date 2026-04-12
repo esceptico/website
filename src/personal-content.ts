@@ -38,13 +38,13 @@ export const getTimeBasedGreeting = (): string => {
 
 
 // About Text
-export const aboutMarkdown = `Machine Learning Engineer interested in alignment and interpretability research. Previously at Replika, where I worked on post-training and safety alignment for production LLMs, introduced DPO to the training pipeline, and co-led the redesign of the conversation system. Here's my [CV](/Timur_Ganiev_CV.pdf).
+export const aboutMarkdown = `Research Engineer at [Dex](https://joindex.com) -- working on agentic memory, context engineering, and continuous learning. Previously ML Engineer at Adgentic and Senior ML Engineer at Replika, where I worked on post-training, safety alignment, and conversation systems for production LLMs. Here's my [CV](/Timur_Ganiev_CV.pdf).
 
-My main interest is the intersection of mechanistic interpretability and alignment - using interp to verify whether alignment techniques work internally, not just behaviorally. Especially relevant for cases like deception detection, where behavioral signals are unreliable by definition.
+Also into mechanistic interpretability and alignment -- using interp to check if alignment techniques actually work internally, not just behaviorally.
 
 I keep a [log](/log) of ML notes and annotated implementations.
 
-Outside of work, I play guitar (telecaster) and take photos of random stuff.` as const;
+Outside of work, I play guitar and take photos of random stuff.` as const;
 
 // 404 Error Messages
 export const errorMessages = [

@@ -6,8 +6,8 @@ const jsonLd = {
   '@type': 'Person',
   name: 'Timur Ganiev',
   url: 'https://timganiev.com',
-  jobTitle: 'Machine Learning Engineer',
-  description: 'Machine Learning Engineer specializing in post-training and safety alignment for production LLM systems.',
+  jobTitle: 'Research Engineer',
+  description: 'Research Engineer at Dex, working on agentic memory, context engineering, and continuous learning.',
   sameAs: [
     'https://github.com/esceptico',
     'https://linkedin.com/in/esceptico',
