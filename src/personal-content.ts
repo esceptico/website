@@ -11,6 +11,15 @@ export const socialLinks = {
   email: 'mailto:ganiev.tmr@gmail.com'
 } as const;
 
+export const channels = [
+  { label: 'github', href: socialLinks.github },
+  { label: 'linkedin', href: socialLinks.linkedin },
+  { label: 'x', href: socialLinks.twitter },
+  { label: 'ig', href: socialLinks.instagram },
+  { label: 'cal', href: socialLinks.cal },
+  { label: 'mail', href: socialLinks.email, external: false },
+] as const;
+
 // Hacker Text Items
 export const hackerTextItems = [
   'timur ganiev',

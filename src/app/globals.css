@@ -312,7 +312,7 @@ html:not(.dark) .color-secondary { color: #3b82f6 !important; }
   background-position: 0% 100%;
   background-repeat: no-repeat;
   background-size: 100% 1px;
-  transition: background-size 0.25s var(--ease-out), color 0.2s var(--ease-out);
+  transition: background-size 0.25s ease-out, color 0.2s ease-out;
 }
 
 .hover-link:hover {

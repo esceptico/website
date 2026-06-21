@@ -39,12 +39,12 @@ export function BlogViewer({ post, children }: BlogViewerProps) {
             <span className="mono-label">{post.wordCount.toLocaleString()} words</span>
           </motion.div>
 
-          {/* Title */}
+          {/* Title — rises from below while dissolving in via blur. */}
           <motion.h1
             className="text-3xl md:text-4xl font-medium text-[var(--theme-text-primary)] mb-16 leading-tight text-center"
-            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: reduceMotion ? 0 : 0.05, ease: [0.23, 1, 0.32, 1] }}
+            initial={reduceMotion ? false : { opacity: 0, y: 8, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 0.55, delay: reduceMotion ? 0 : 0.05, ease: [0.23, 1, 0.32, 1] }}
           >
             {post.title}
           </motion.h1>
