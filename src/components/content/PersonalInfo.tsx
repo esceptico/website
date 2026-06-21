@@ -1,8 +1,7 @@
 'use client';
 
 import HackerTextEffect from './HackerTextEffect';
-import { FaGithub, FaLinkedin, FaEnvelope, FaInstagram, FaTwitter } from 'react-icons/fa';
-import { SiCaldotcom } from 'react-icons/si';
+import { FaGithub, FaLinkedin, FaEnvelope, FaInstagram, FaTwitter, FaCalendarAlt } from 'react-icons/fa';
 import Link from 'next/link';
 import { socialLinks, hackerTextItems, aboutMarkdown, getTimeBasedGreeting } from '@/personal-content';
 import { useState, useEffect, useMemo } from 'react';
@@ -156,10 +155,10 @@ export const PersonalInfo = () => {
           target="_blank"
           rel="noopener noreferrer"
           className="social-icon"
-          aria-label="Cal.com"
-          title="Cal.com"
+          aria-label="Book a call"
+          title="Book a call"
         >
-          <SiCaldotcom className="w-5 h-5" />
+          <FaCalendarAlt className="w-5 h-5" />
         </Link>
         <a 
           href={socialLinks.email}

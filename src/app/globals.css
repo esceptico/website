@@ -14,8 +14,9 @@
 :root {
   --theme-bg-primary: #fafafa;
   --theme-text-primary: #1a1a1a;
-  --theme-text-secondary: #666666;
-  --theme-text-muted: #999999;
+  /* Grays tuned to WCAG AA on the bg: secondary ~6.7:1, muted ~4.5:1 (body-safe). */
+  --theme-text-secondary: #595959;
+  --theme-text-muted: #737373;
   --theme-border: #e0e0e0;
   
   /* Blueprint accent */
@@ -25,13 +26,19 @@
   /* Grid */
   --grid-color: rgba(0, 0, 0, 0.04);
   --grid-major: rgba(0, 0, 0, 0.08);
+
+  /* Motion — strong custom curves (defaults are too weak). */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 html.dark {
   --theme-bg-primary: #0a0a0a;
   --theme-text-primary: #e5e5e5;
-  --theme-text-secondary: #888888;
-  --theme-text-muted: #555555;
+  /* secondary ~7:1, muted ~4.8:1 on the dark bg. */
+  --theme-text-secondary: #9a9a9a;
+  --theme-text-muted: #7d7d7d;
   --theme-border: #222222;
   
   --accent: #3b82f6;
@@ -66,6 +73,19 @@ body {
 
 * {
   box-sizing: border-box;
+}
+
+/* Even line breaks on headings; fewer orphans in prose. */
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+
+p,
+li {
+  text-wrap: pretty;
 }
 
 a {
@@ -130,7 +150,7 @@ button:focus-visible {
   background-position: 0% 100%;
   background-repeat: no-repeat;
   background-size: 0% 1px;
-  transition: background-size 0.2s ease-out, color 0.2s ease-out;
+  transition: background-size 0.22s var(--ease-out), color 0.2s var(--ease-out);
 }
 
 .link-underline:hover {
@@ -140,14 +160,38 @@ button:focus-visible {
 
 /* Nav link */
 .nav-item {
+  position: relative;
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
   font-size: 0.75rem;
   color: var(--theme-text-secondary);
-  transition: color 0.15s ease-out;
+  transition: color 0.15s var(--ease-out), transform 0.16s var(--ease-out);
+}
+
+/* Accent underline that wipes in from the left on hover. */
+.nav-item::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.24s var(--ease-out);
 }
 
 .nav-item:hover {
   color: var(--theme-text-primary);
+}
+
+.nav-item:hover::after {
+  transform: scaleX(1);
+}
+
+/* Press feedback — the control acknowledges the tap. */
+.nav-item:active {
+  transform: scale(0.96);
 }
 
 .nav-item--active {
@@ -160,16 +204,37 @@ button:focus-visible {
 
 .social-icon {
   color: var(--theme-text-muted);
-  transition: color 0.15s ease-out;
+  transition: color 0.18s var(--ease-out), transform 0.22s var(--ease-out);
   display: inline-flex;
+  /* Extend the hit area to ~40px without shifting layout (icon is 20px). */
+  padding: 10px;
+  margin: -10px;
 }
 
 .social-icon svg {
   fill: currentColor;
 }
 
-.social-icon:hover {
+/* Lift on hover — gated to real pointers so it never sticks after a tap. */
+@media (hover: hover) and (pointer: fine) {
+  .social-icon:hover {
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
+}
+
+.social-icon:active {
   color: var(--accent);
+  transform: scale(0.96);
+}
+
+/* Subtle, surface-adaptive edge so images read as intentional, not pasted-in. */
+.image-outline {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+html.dark .image-outline {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 /* ============================================
@@ -247,7 +312,7 @@ html:not(.dark) .color-secondary { color: #3b82f6 !important; }
   background-position: 0% 100%;
   background-repeat: no-repeat;
   background-size: 100% 1px;
-  transition: background-size 0.25s ease-out, color 0.2s ease-out;
+  transition: background-size 0.25s var(--ease-out), color 0.2s var(--ease-out);
 }
 
 .hover-link:hover {

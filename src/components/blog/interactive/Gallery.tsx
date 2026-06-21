@@ -97,7 +97,7 @@ export function Gallery({ images }: GalleryProps) {
                   src={img.src}
                   alt={img.alt || ''}
                   loading={i === 0 ? 'eager' : 'lazy'}
-                  className="w-full h-auto block"
+                  className="image-outline w-full h-auto block"
                   draggable={false}
                 />
               </button>
@@ -124,7 +124,7 @@ export function Gallery({ images }: GalleryProps) {
                 <button
                   key={i}
                   onClick={() => scrollTo(i)}
-                  className={`rounded-full transition-all duration-200 cursor-pointer ${
+                  className={`rounded-full transition-[width,background-color] duration-200 ease-out cursor-pointer ${
                     i === active
                       ? 'w-5 h-1.5 bg-[var(--accent)]'
                       : 'w-1.5 h-1.5 bg-[var(--theme-text-muted)]/40 hover:bg-[var(--theme-text-muted)]'

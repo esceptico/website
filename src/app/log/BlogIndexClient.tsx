@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import type { BlogMeta } from '@/lib/blog/types';
 
@@ -17,6 +17,8 @@ function formatDate(date: string): string {
 }
 
 export function BlogIndexClient({ posts }: BlogIndexClientProps) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <div className="max-w-3xl mx-auto px-6 lg:px-8 pt-12 pb-16">
       {/* Header */}
@@ -29,16 +31,20 @@ export function BlogIndexClient({ posts }: BlogIndexClientProps) {
         {posts.map((post, index) => (
           <motion.div
             key={post.slug}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.2, delay: index * 0.03 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.3,
+              delay: reduceMotion ? 0 : index * 0.04,
+              ease: [0.23, 1, 0.32, 1],
+            }}
           >
             <Link 
               href={`/log/${post.slug}`} 
-              className="group block py-4 border-b border-[var(--theme-border)]"
+              className="group block py-4 border-b border-[var(--theme-border)] transition-transform duration-150 ease-out active:scale-[0.995]"
             >
               <div className="flex items-baseline justify-between gap-4 mb-1">
-                <h2 className="text-base text-[var(--theme-text-primary)] group-hover:text-[var(--accent)] transition-colors">
+                <h2 className="text-base text-[var(--theme-text-primary)] transition-colors duration-150 ease-out group-hover:text-[var(--accent)]">
                   {post.title}
                 </h2>
                 {post.date && (
@@ -46,7 +52,7 @@ export function BlogIndexClient({ posts }: BlogIndexClientProps) {
                 )}
               </div>
               {post.summary && (
-                <p className="text-sm text-[var(--theme-text-muted)] line-clamp-2">
+                <p className="text-sm text-[var(--theme-text-secondary)] line-clamp-2">
                   {post.summary}
                 </p>
               )}

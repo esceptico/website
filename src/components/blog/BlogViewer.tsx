@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import type { BlogPost } from '@/lib/blog/types';
 import { ReactNode } from 'react';
 import { BlogTOC } from './BlogTOC';
@@ -19,6 +19,8 @@ function formatDate(date: string): string {
 }
 
 export function BlogViewer({ post, children }: BlogViewerProps) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <div className="min-h-screen bg-[var(--theme-bg-primary)] relative z-10">
       {/* TOC - fixed on left side */}
@@ -29,9 +31,9 @@ export function BlogViewer({ post, children }: BlogViewerProps) {
           {/* Meta */}
           <motion.div
             className="flex items-center gap-4 mb-6 justify-center"
-            initial={{ opacity: 0 }}
+            initial={reduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
           >
             {post.date && <span className="mono-label">{formatDate(post.date)}</span>}
             <span className="mono-label">{post.wordCount.toLocaleString()} words</span>
@@ -40,9 +42,9 @@ export function BlogViewer({ post, children }: BlogViewerProps) {
           {/* Title */}
           <motion.h1
             className="text-3xl md:text-4xl font-medium text-[var(--theme-text-primary)] mb-16 leading-tight text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.05 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: reduceMotion ? 0 : 0.05, ease: [0.23, 1, 0.32, 1] }}
           >
             {post.title}
           </motion.h1>

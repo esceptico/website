@@ -4,7 +4,7 @@ import ColorSchemeToggle from "@/components/theme/ColorSchemeToggle";
 import HeaderGradientBg from "@/components/layout/HeaderGradientBg";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import katex from 'katex';
 
@@ -109,6 +109,7 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const reduceMotion = useReducedMotion();
   const [timestamps, setTimestamps] = useState({ utc: '', pst: '' });
   const [loss, setLoss] = useState(1.0);
   const [gradNorm, setGradNorm] = useState(2.0);
@@ -266,9 +267,9 @@ export default function ClientLayout({
         <motion.main
           id="main-content"
           className="pt-12 relative z-10"
-          initial={{ opacity: 0 }}
+          initial={reduceMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
         >
           {children}
         </motion.main>
