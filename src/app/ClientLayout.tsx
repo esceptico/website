@@ -1,6 +1,7 @@
 'use client';
 
 import ColorSchemeToggle from "@/components/theme/ColorSchemeToggle";
+import HeaderGradientBg from "@/components/layout/HeaderGradientBg";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -197,49 +198,46 @@ export default function ClientLayout({
       </a>
       
       <div className="min-h-screen relative blueprint-grid">
-        {/* Top gradient fade */}
-        <div 
-          className="fixed top-0 left-0 right-0 h-24 z-40 pointer-events-none"
-          style={{
-            background: 'linear-gradient(to bottom, var(--theme-bg-primary) 0%, var(--theme-bg-primary) 30%, transparent 100%)'
-          }}
-        />
-        
         {/* Top bar */}
-        <header className="fixed top-0 left-0 right-0 z-50 h-12 flex items-center justify-between px-5">
-          {/* Dynamic breadcrumb navigation */}
-          <nav className="flex items-center gap-2 min-w-0">
-            <Link 
-              href="/" 
-              className={`nav-item ${isHome ? 'nav-item--active' : ''}`}
-            >
-              index
-            </Link>
-            
-            {(isLog || isBlogPost) && (
-              <>
-                <span className="text-[var(--theme-text-muted)] text-xs">/</span>
+        <header className="fixed top-0 left-0 right-0 z-50">
+          <div className="relative h-12">
+            <div className="relative z-10 h-12 flex items-center justify-between px-5">
+              {/* Dynamic breadcrumb navigation */}
+              <nav className="flex items-center gap-2 min-w-0">
                 <Link 
-                  href="/log" 
-                  className={`nav-item ${isLog ? 'nav-item--active' : ''}`}
+                  href="/" 
+                  className={`nav-item ${isHome ? 'nav-item--active' : ''}`}
                 >
-                  log
+                  index
                 </Link>
-              </>
-            )}
-            
-            {isBlogPost && slug && (
-              <>
-                <span className="text-[var(--theme-text-muted)] text-xs">/</span>
-                <span className="nav-item nav-item--active truncate max-w-[150px] sm:max-w-[250px] lg:max-w-[400px]">
-                  {slug}
-                </span>
-              </>
-            )}
-          </nav>
+                
+                {(isLog || isBlogPost) && (
+                  <>
+                    <span className="text-[var(--theme-text-muted)] text-xs">/</span>
+                    <Link 
+                      href="/log" 
+                      className={`nav-item ${isLog ? 'nav-item--active' : ''}`}
+                    >
+                      log
+                    </Link>
+                  </>
+                )}
+                
+                {isBlogPost && slug && (
+                  <>
+                    <span className="text-[var(--theme-text-muted)] text-xs">/</span>
+                    <span className="nav-item nav-item--active truncate max-w-[150px] sm:max-w-[250px] lg:max-w-[400px]">
+                      {slug}
+                    </span>
+                  </>
+                )}
+              </nav>
 
-          {/* Theme toggle */}
-          <ColorSchemeToggle />
+              {/* Theme toggle */}
+              <ColorSchemeToggle />
+            </div>
+            <HeaderGradientBg />
+          </div>
         </header>
 
         {/* Corner info - hide on blog posts */}
