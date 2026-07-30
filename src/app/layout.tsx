@@ -22,10 +22,10 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL('https://timganiev.com'),
   title: "Timur Ganiev",
-  description: "Machine Learning Engineer specializing in post-training and safety alignment for production LLM systems.",
+  description: "Research Engineer working on agent memory, context engineering, and reliable long-running systems.",
   openGraph: {
     title: "Timur Ganiev",
-    description: "Machine Learning Engineer specializing in post-training and safety alignment for production LLM systems.",
+    description: "Research Engineer working on agent memory, context engineering, and reliable long-running systems.",
     url: "https://timganiev.com",
     type: "website",
     locale: "en_US",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Timur Ganiev",
-    description: "Machine Learning Engineer specializing in post-training and safety alignment for production LLM systems.",
+    description: "Research Engineer working on agent memory, context engineering, and reliable long-running systems.",
     creator: "@postimortem",
   },
   icons: {

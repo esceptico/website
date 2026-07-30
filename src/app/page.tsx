@@ -7,7 +7,7 @@ const jsonLd = {
   name: 'Timur Ganiev',
   url: 'https://timganiev.com',
   jobTitle: 'Research Engineer',
-  description: 'Research Engineer at Dex, working on agentic memory, context engineering, and continuous learning.',
+  description: 'Research Engineer working on agent memory, context engineering, and reliable long-running systems.',
   sameAs: [
     'https://github.com/esceptico',
     'https://linkedin.com/in/esceptico',
