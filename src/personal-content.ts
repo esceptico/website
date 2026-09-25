@@ -47,15 +47,11 @@ export const getTimeBasedGreeting = (): string => {
 
 
 // About Text
-export const aboutMarkdown = `I work on agent memory, context engineering, and reliable long-running systems. Most recently I worked on [Dex](https://joindex.com) at ThirdLayer. Earlier, I built agent systems at Adgentic and worked on post-training, safety, memory, and inference at Replika, a product used by millions. Here's my [CV](/Timur_Ganiev_CV.pdf).
+export const aboutMarkdown = `i work on agent memory and context engineering. before that: [dex](https://joindex.com) at thirdlayer, agents at adgentic, post-training and safety at replika. here's my [cv](/Timur_Ganiev_CV.pdf).
 
-Now I'm building [Arden](https://github.com/esceptico/arden). It's like a personal AI assistant, but made for people with ADHD.
+now i'm building [arden](https://fromarden.com), a personal assistant for your mac.
 
-Also interested in mechanistic interpretability and alignment.
-
-I keep a [log](/log) of ML notes and annotated implementations.
-
-Outside work, I play guitar and take photos of random stuff.` as const;
+i keep a [log](/log) of ml notes. outside work i play guitar and take photos.` as const;
 
 // 404 Error Messages
 export const errorMessages = [
