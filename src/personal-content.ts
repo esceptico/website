@@ -51,7 +51,9 @@ export const aboutMarkdown = `i work on agent memory and context engineering. be
 
 now i'm building [arden](https://fromarden.com), a personal assistant for your mac.
 
-i keep a [log](/log) of ml notes. outside work i play guitar and take photos.` as const;
+also into mech interp and alignment. i keep a [log](/log) of ml notes.
+
+outside work i play guitar and take photos.` as const;
 
 // 404 Error Messages
 export const errorMessages = [
