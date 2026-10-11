@@ -2,7 +2,8 @@ import React from 'react';
 import hljs from 'highlight.js';
 import { AnnotatedCode } from './AnnotatedCode';
 import { AlphaSlider } from './interactive/AlphaSlider';
-import { Plot } from './interactive/Plot';
+import { LineChart } from '@/components/charts/LineChart';
+import { Heatmaps } from '@/components/charts/Heatmaps';
 import { LinkedFormula, Term } from './interactive/LinkedFormula';
 import { CodeBlockWithCopy } from './interactive/CodeBlockWithCopy';
 import { Gallery } from './interactive/Gallery';
@@ -172,7 +173,8 @@ export const mdxComponents: MDXComponents = {
   // Custom components available in MDX
   AnnotatedCode,
   AlphaSlider,
-  Plot,
+  LineChart,
+  Heatmaps,
   LinkedFormula,
   Term,
   Gallery,
