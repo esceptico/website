@@ -110,6 +110,8 @@ SAPO replaces the hard clip with a **soft gate centered at $r = 1$**. Instead of
 - Near $r = 1$ (on-policy): weight stays high -> keep gradients
 - As $r$ moves away: weight decays gradually -> soften, not zero
 
+<SapoBench />
+
 ### The Soft Gate
 
 Instead of clipping $r_{i,t}$, SAPO applies a sigmoid-shaped weighting function:
@@ -126,8 +128,8 @@ where $\tau$ is a temperature and $\sigma$ is the sigmoid function.
 - $r < 1 \Rightarrow f$ decreases (policy favors this token less)
 
 **Temperature controls sharpness:**
-- Small $\tau$: sharp transition (approaches hard clipping)
-- Large $\tau$: smooth transition (tolerant of off-policy drift)
+- Large $\tau$: weights decay faster away from $r = 1$ (closer to a hard trust region)
+- Small $\tau$: gentle decay (tolerant of off-policy drift)
 
 ### Asymmetric Temperatures
 
@@ -137,7 +139,7 @@ $$
 \tau_{i,t} = \begin{cases} \tau_{\text{pos}} & \text{if } \hat{A}_i \geq 0 \\ \tau_{\text{neg}} & \text{if } \hat{A}_i < 0 \end{cases}
 $$
 
-with $\tau_{\text{neg}} < \tau_{\text{pos}}$ (e.g., 0.05 vs 0.1).
+with $\tau_{\text{neg}} > \tau_{\text{pos}}$ (the paper uses $\tau_{\text{pos}} = 1.0$, $\tau_{\text{neg}} = 1.05$).
 
 **Why?** Negative updates are more destabilizing – when you push down the probability of one token, you push up probabilities of many other (potentially wrong) tokens. This is fine (it's not). Tighter gating makes weights decay faster for off-policy tokens with negative advantage, limiting the damage.
 

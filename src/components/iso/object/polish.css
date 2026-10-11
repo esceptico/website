@@ -1,0 +1,10 @@
+/* Polish for hand-built iso objects (overrides on top of globals.css). */
+
+/* Callout text sits over leaders, guides and parts: knock out what's behind
+   it with a halo in the plate colour so it stays legible. */
+.iso-obj-svg .o-callout text {
+  paint-order: stroke;
+  stroke: var(--iso-plate);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}

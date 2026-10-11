@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import type { BlogMeta } from '@/lib/blog/types';
+import { PostCover } from '@/components/iso/covers';
 
 interface BlogIndexClientProps {
   posts: BlogMeta[];
@@ -41,8 +42,12 @@ export function BlogIndexClient({ posts }: BlogIndexClientProps) {
           >
             <Link 
               href={`/log/${post.slug}`} 
-              className="group block py-4 border-b border-[var(--theme-border)] transition-transform duration-150 ease-out active:scale-[0.995]"
+              className="group flex items-center gap-5 py-4 border-b border-[var(--theme-border)] transition-transform duration-150 ease-out active:scale-[0.995]"
             >
+              <div className="log-thumb w-[88px] shrink-0" aria-hidden="true">
+                <PostCover slug={post.slug} height={58} thumb />
+              </div>
+              <div className="min-w-0 flex-1">
               <div className="flex items-baseline justify-between gap-4 mb-1">
                 <h2 className="text-base text-[var(--theme-text-primary)] transition-colors duration-150 ease-out group-hover:text-[var(--accent)]">
                   {post.title}
@@ -56,6 +61,7 @@ export function BlogIndexClient({ posts }: BlogIndexClientProps) {
                   {post.summary}
                 </p>
               )}
+              </div>
             </Link>
           </motion.div>
         ))}

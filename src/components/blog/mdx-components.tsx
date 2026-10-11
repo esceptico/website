@@ -9,6 +9,8 @@ import { Gallery } from './interactive/Gallery';
 import { Video } from './interactive/Video';
 import { Flicker } from './interactive/Flicker';
 import { Decay } from './interactive/Decay';
+import { RopeDevice } from '@/components/iso/RopeDevice';
+import { SapoBench } from '@/components/iso/SapoBench';
 import { HeadingWithAnchor } from './interactive/HeadingWithAnchor';
 import { isAnnotatedPython } from '@/lib/blog/parse';
 import type { MDXComponents } from 'mdx/types';
@@ -72,7 +74,7 @@ export const mdxComponents: MDXComponents = {
   h1: (props) => {
     const id = slugify(getTextFromChildren(props.children));
     return (
-      <HeadingWithAnchor as="h1" id={id} className="text-2xl font-semibold text-[var(--theme-text-primary)] mb-4 mt-8 first:mt-0">
+      <HeadingWithAnchor as="h1" id={id} className="text-2xl font-medium tracking-tight text-[var(--theme-text-primary)] mb-4 mt-10 first:mt-0">
         {props.children}
       </HeadingWithAnchor>
     );
@@ -108,11 +110,11 @@ export const mdxComponents: MDXComponents = {
     return <a className="hover-link" {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})} {...props} />;
   },
   
-  ul: (props) => <ul className="my-3 list-disc list-inside text-[var(--theme-text-secondary)]" {...props} />,
+  ul: (props) => <ul className="my-3 list-disc pl-5 text-[var(--theme-text-secondary)] marker:text-[var(--theme-text-muted)]" {...props} />,
   
-  ol: (props) => <ol className="my-3 list-decimal list-inside text-[var(--theme-text-secondary)]" {...props} />,
+  ol: (props) => <ol className="my-3 list-decimal pl-5 text-[var(--theme-text-secondary)] marker:text-[var(--theme-text-muted)] marker:font-mono marker:text-[0.85em]" {...props} />,
   
-  li: (props) => <li className="ml-4" {...props} />,
+  li: (props) => <li className="pl-1 my-1" {...props} />,
   
   blockquote: (props) => (
     <blockquote className="my-3 pl-4 border-l-2 border-[var(--theme-text-secondary)]/30 text-[var(--theme-text-secondary)] italic" {...props} />
@@ -177,4 +179,6 @@ export const mdxComponents: MDXComponents = {
   Video,
   Flicker,
   Decay,
+  RopeDevice,
+  SapoBench,
 };
