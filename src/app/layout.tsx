@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
-import Script from "next/script";
 import "./globals.css";
 import "katex/dist/katex.min.css";
 import ClientLayout from "./ClientLayout";
@@ -59,37 +58,23 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      // Next 16 only resets smooth scroll during route changes when this is set;
+      // without it every navigation visibly scrolls the old page to the top.
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={`antialiased ${poppins.variable} ${jetbrainsMono.variable}`}
     >
       <head>
-        <Script id="theme-init" strategy="beforeInteractive">{`
-          (function () {
-            try {
-              var theme = localStorage.getItem('theme');
-              if (!theme) {
-                var legacy = localStorage.getItem('theme-storage');
-                if (legacy) {
-                  var parsed = JSON.parse(legacy);
-                  theme = parsed && parsed.state && parsed.state.colorScheme;
-                }
-              }
-
-              if (theme !== 'dark' && theme !== 'light') {
-                theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-              }
-
-              document.documentElement.classList.toggle('dark', theme === 'dark');
-              localStorage.setItem('theme', theme);
-
-              var meta = document.querySelector('meta[name="theme-color"]');
-              if (meta) {
-                meta.setAttribute('content', theme === 'dark' ? '#121212' : '#fafafa');
-              }
-            } catch (e) {}
-          })();
-        `}</Script>
-        <meta name="theme-color" content="#121212" />
+        {/* Plain inline script so it runs while <head> parses, before first paint.
+            (next/script beforeInteractive is deferred until the JS bootstrap in
+            the App Router, which flashed light mode for dark users.) The OS
+            preference is applied but not persisted, so it can still follow the OS. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(!t){var l=localStorage.getItem('theme-storage');if(l){var p=JSON.parse(l);t=p&&p.state&&p.state.colorScheme;}}if(t!=='dark'&&t!=='light'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.classList.toggle('dark',t==='dark');var m=document.querySelector('meta[name="theme-color"]');if(m){m.setAttribute('content',t==='dark'?'#0a0a0a':'#fafafa');}}catch(e){}})();`,
+          }}
+        />
+        <meta name="theme-color" content="#fafafa" />
       </head>
       <body className={poppins.className}>
         <ClientLayout>{children}</ClientLayout>

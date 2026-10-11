@@ -1,9 +1,9 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
 import type { BlogPost } from '@/lib/blog/types';
 import { ReactNode } from 'react';
 import { BlogTOC } from './BlogTOC';
+import { PostCover, hasCover } from '@/components/iso/covers';
 
 interface BlogViewerProps {
   post: BlogPost;
@@ -19,7 +19,6 @@ function formatDate(date: string): string {
 }
 
 export function BlogViewer({ post, children }: BlogViewerProps) {
-  const reduceMotion = useReducedMotion();
 
   return (
     <div className="min-h-screen bg-[var(--theme-bg-primary)] relative z-10">
@@ -27,30 +26,26 @@ export function BlogViewer({ post, children }: BlogViewerProps) {
       <BlogTOC content={post.content} />
 
       <main className="overflow-x-hidden">
-        <div className="max-w-4xl px-6 lg:px-8 pt-40 pb-92 mx-auto lg:ml-64 xl:mx-auto">
+        <div className="max-w-4xl px-6 lg:px-8 pt-28 md:pt-40 pb-92 mx-auto lg:ml-64 xl:mx-auto">
           {/* Meta */}
-          <motion.div
-            className="flex items-center gap-4 mb-6 justify-center"
-            initial={reduceMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-          >
+          <div className="post-in-meta flex items-center gap-4 mb-6 justify-center">
             {post.date && <span className="mono-label">{formatDate(post.date)}</span>}
             <span className="mono-label">{post.wordCount.toLocaleString()} words</span>
-          </motion.div>
+          </div>
 
           {/* Title — rises from below while dissolving in via blur. */}
-          <motion.h1
-            className="text-3xl md:text-4xl font-medium text-[var(--theme-text-primary)] mb-16 leading-tight text-center"
-            initial={reduceMotion ? false : { opacity: 0, y: 8, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ duration: 0.55, delay: reduceMotion ? 0 : 0.05, ease: [0.23, 1, 0.32, 1] }}
-          >
+          <h1 className="post-in-title text-3xl md:text-4xl font-medium text-[var(--theme-text-primary)] mb-16 leading-tight text-center">
             {post.title}
-          </motion.h1>
+          </h1>
 
-          {/* Content */}
-          <div>
+          {/* Cover and body follow the title in, slightly behind it. */}
+          <div className="post-in-body">
+            {hasCover(post.slug) && (
+              <div className="-mt-8 mb-14" aria-hidden="true">
+                <PostCover slug={post.slug} />
+              </div>
+            )}
+
             {children}
           </div>
         </div>

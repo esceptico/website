@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import TyperTextEffect from '@/components/content/TyperTextEffect';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { errorMessages } from '@/personal-content';
@@ -43,6 +43,7 @@ export default function NotFoundClient() {
   const [glitchIntensity, setGlitchIntensity] = useState(1);
   const [glitchSeed, setGlitchSeed] = useState(0);
   const [glitchVisual, setGlitchVisual] = useState<GlitchVisual | null>(null);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     setMounted(true);
@@ -53,6 +54,8 @@ export default function NotFoundClient() {
   
   // Trigger glitch effect with random intervals and durations
   useEffect(() => {
+    // Flashing distortion: never for reduced-motion users.
+    if (reduceMotion) return;
     let cancelled = false;
     let delayTimeout: ReturnType<typeof setTimeout> | null = null;
     let durationTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -132,7 +135,7 @@ export default function NotFoundClient() {
       if (delayTimeout) clearTimeout(delayTimeout);
       if (durationTimeout) clearTimeout(durationTimeout);
     };
-  }, []);
+  }, [reduceMotion]);
   
   return (
     <div className="min-h-screen flex items-center justify-center px-4 overflow-hidden relative">

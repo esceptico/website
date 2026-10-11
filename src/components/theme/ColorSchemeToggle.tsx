@@ -26,7 +26,21 @@ export default function ColorSchemeToggle() {
     const next: ColorScheme = scheme === 'dark' ? 'light' : 'dark';
     setScheme(next);
 
-    document.documentElement.classList.toggle('dark', next === 'dark');
+    // Switch every colour at once: per-element colour transitions (links,
+    // nav) would otherwise trail the instant background change. Where the
+    // browser supports it, the whole page crossfades between the two themes.
+    const root = document.documentElement;
+    const apply = () => {
+      root.classList.add('theme-switching');
+      root.classList.toggle('dark', next === 'dark');
+    };
+    const done = () => requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('theme-switching')));
+    if (!reduceMotion && typeof document.startViewTransition === 'function') {
+      document.startViewTransition(apply).finished.finally(done);
+    } else {
+      apply();
+      done();
+    }
 
     try {
       localStorage.setItem(THEME_KEY, next);
@@ -39,7 +53,7 @@ export default function ColorSchemeToggle() {
     if (metaThemeColor) {
       metaThemeColor.setAttribute('content', next === 'dark' ? '#0a0a0a' : '#fafafa');
     }
-  }, [scheme]);
+  }, [scheme, reduceMotion]);
 
   if (!mounted) {
     return <div className="h-5 w-12" aria-hidden="true" />;

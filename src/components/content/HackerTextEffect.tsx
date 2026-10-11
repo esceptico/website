@@ -1,173 +1,108 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styles from './HackerTextEffect.module.css';
 
 interface HackerTextEffectProps {
   texts: readonly string[];
   className?: string;
-  cycleDelay?: number; // ms
+  cycleDelay?: number; // ms the settled text stays before morphing to the next
 }
 
-const chars = "0123456789!@#$%^&*()_+-=[]{}|;:,.<>?/~`";
+// Lowercase + a few thin symbols: reads as "text resolving", not line noise.
+const GLYPHS = 'abcdefghijklmnopqrstuvwxyz_-/\\<>+=*';
+const FRAME_MS = 42; // one glyph change
+const STAGGER_MS = 28; // left-to-right wave
+const MIN_FRAMES = 2;
+const MAX_FRAMES = 5;
 
-const HackerTextEffect: React.FC<HackerTextEffectProps> = ({ 
-  texts, 
-  className = '', 
-  cycleDelay = 4000,
-}) => {
-  const [displayText, setDisplayText] = useState('');
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cycleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const startDelayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+type Cell = { ch: string; settled: boolean };
 
-  const shuffleArray = (array: number[]): number[] => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const temp = shuffled[i]!;
-      shuffled[i] = shuffled[j]!;
-      shuffled[j] = temp;
-    }
-    return shuffled;
-  };
+const randomGlyph = () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)] ?? '_';
+const settledCells = (text: string): Cell[] => text.split('').map((ch) => ({ ch, settled: true }));
+
+/**
+ * Morphs between texts: a wave runs left to right, each position flickers
+ * through a few glyphs and resolves into the next text. Positions that
+ * already match stay put; the line grows or shrinks one cell at a time.
+ * Unresolved glyphs render muted so the settled text always reads first.
+ */
+const HackerTextEffect: React.FC<HackerTextEffectProps> = ({ texts, className = '', cycleDelay = 4000 }) => {
+  const [cells, setCells] = useState<Cell[]>(() => settledCells(texts[0] ?? ''));
+  const [index, setIndex] = useState(0);
+  const shownRef = useRef(texts[0] ?? '');
 
   useEffect(() => {
-    if (texts.length === 0) return;
+    const target = texts[index] ?? texts[0] ?? '';
+    const from = shownRef.current;
+    let raf = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
-    const firstText = texts[0];
-    if (!firstText) return;
+    const scheduleNext = () => {
+      if (texts.length < 2) return;
+      timer = setTimeout(() => setIndex((i) => (i + 1) % texts.length), cycleDelay + (Math.random() - 0.5) * 800);
+    };
 
-    // Check for reduced motion preference
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (mediaQuery.matches) {
-      setDisplayText(firstText);
-      return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (from === target || reduce) {
+      shownRef.current = target;
+      setCells(settledCells(target));
+      scheduleNext();
+      return () => clearTimeout(timer);
     }
 
-    // Defaults
-    const iterMin = 1;
-    const iterMax = 3;
+    const len = Math.max(from.length, target.length);
+    const plan = Array.from({ length: len }, (_, i) => {
+      const a = from[i] ?? '';
+      const b = target[i] ?? '';
+      const frames = a === b ? 0 : MIN_FRAMES + Math.floor(Math.random() * (MAX_FRAMES - MIN_FRAMES + 1));
+      const start = i * STAGGER_MS;
+      return { a, b, start, end: start + frames * FRAME_MS };
+    });
+    const total = Math.max(...plan.map((p) => p.end));
+    const t0 = performance.now();
+    let lastFrame = -1;
 
-    const initialSpeedMin = 40;
-    const initialSpeedMax = 80;
-    const runningSpeedMin = 30;
-    const runningSpeedMax = 90;
-
-    const startDelayMin = 0;
-    const startDelayMax = 100;
-
-    const cycleDelayVariation = 500;
-
-    const currentText = texts[currentTextIndex] ?? firstText;
-
-    const getRandomChar = () => chars[Math.floor(Math.random() * chars.length)] ?? '?';
-
-    setDisplayText(currentText.split('').map(() => getRandomChar()).join(''));
-
-    const startDecoding = () => {
-      const letters = currentText.split('');
-      const revealOrder = shuffleArray(Array.from({ length: letters.length }, (_, i) => i));
-      let revealedCount = 0;
-      let iterationCount = 0;
-      const revealed = new Array<boolean>(letters.length).fill(false);
-      
-      const iterationsPerRevealMap = letters.map(() => 
-        Math.floor(iterMin + Math.random() * (iterMax - iterMin + 1))
-      );
-      let currentCharIterations = 0;
-
-      if (intervalRef.current) {
-        clearTimeout(intervalRef.current);
-      }
-
-      let currentSpeed = initialSpeedMin + Math.random() * (initialSpeedMax - initialSpeedMin);
-      
-      const runIteration = () => {
-        if (revealedCount < letters.length) {
-          const currentRevealIndex = revealOrder[revealedCount] ?? 0;
-          const threshold = iterationsPerRevealMap[currentRevealIndex] ?? 1;
-          
-          if (currentCharIterations >= threshold) {
-            revealed[currentRevealIndex] = true;
-            revealedCount++;
-            currentCharIterations = 0;
-            
-            const speedChange = (Math.random() - 0.5) * 20;
-            currentSpeed = Math.max(runningSpeedMin, Math.min(runningSpeedMax, currentSpeed + speedChange));
+    const tick = (now: number) => {
+      const t = now - t0;
+      const frame = Math.floor(t / FRAME_MS);
+      if (frame !== lastFrame) {
+        lastFrame = frame;
+        const next: Cell[] = [];
+        for (const p of plan) {
+          if (t >= p.end) {
+            if (p.b) next.push({ ch: p.b, settled: true });
+          } else if (t < p.start) {
+            if (p.a) next.push({ ch: p.a, settled: true });
           } else {
-            currentCharIterations++;
+            next.push({ ch: p.b === ' ' && p.a === ' ' ? ' ' : randomGlyph(), settled: false });
           }
         }
-
-        setDisplayText(prevDisplayText =>
-          letters
-            .map((letter, index) => {
-              if (revealed[index]) {
-                return letter;
-              }
-              if (Math.random() > 0.7 && iterationCount % 3 !== 0) {
-                return prevDisplayText[index] ?? getRandomChar();
-              }
-              return getRandomChar();
-            })
-            .join('')
-        );
-
-        iterationCount++;
-
-        if (revealedCount >= letters.length) {
-          if (intervalRef.current) clearTimeout(intervalRef.current);
-          
-          if (texts.length > 1) {
-            const actualCycleDelay = cycleDelay + (Math.random() - 0.5) * 2 * cycleDelayVariation;
-            cycleTimeoutRef.current = setTimeout(() => {
-              setCurrentTextIndex((prev) => (prev + 1) % texts.length);
-            }, actualCycleDelay);
-          }
-        } else {
-          intervalRef.current = setTimeout(runIteration, currentSpeed);
-        }
-      };
-      
-      intervalRef.current = setTimeout(runIteration, currentSpeed);
+        setCells(next);
+      }
+      if (t < total) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        shownRef.current = target;
+        setCells(settledCells(target));
+        scheduleNext();
+      }
     };
-
-    const startDelayMs = startDelayMin + Math.random() * (startDelayMax - startDelayMin);
-    startDelayTimeoutRef.current = setTimeout(startDecoding, startDelayMs);
+    raf = requestAnimationFrame(tick);
 
     return () => {
-      if (intervalRef.current) {
-        clearTimeout(intervalRef.current);
-        intervalRef.current = null;
-      }
-      if (cycleTimeoutRef.current) {
-        clearTimeout(cycleTimeoutRef.current);
-        cycleTimeoutRef.current = null;
-      }
-      if (startDelayTimeoutRef.current) {
-        clearTimeout(startDelayTimeoutRef.current);
-        startDelayTimeoutRef.current = null;
-      }
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
     };
-  }, [currentTextIndex, texts, cycleDelay]);
+  }, [index, texts, cycleDelay]);
 
   return (
-    <span className={`inline-block relative ${className}`}>
-      <span 
-        className={`font-jetbrains-mono ${className} select-none transition-all duration-100 relative ${styles.hackerText}`}
-        style={{ 
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-          MozUserSelect: 'none',
-          msUserSelect: 'none',
-          display: 'inline-block',
-        }}
-      >
-        {/* Main text */}
-        <span className="relative z-10">{displayText}</span>
-      </span>
+    <span className={`inline-block font-jetbrains-mono whitespace-pre select-none ${styles.hackerText} ${className}`}>
+      {cells.map((c, i) => (
+        <span key={i} className={c.settled ? undefined : styles.glyph}>
+          {c.ch}
+        </span>
+      ))}
     </span>
   );
 };

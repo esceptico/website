@@ -1,165 +1,197 @@
 'use client';
 
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-interface HeadingData {
-  id: string;
-  title: string;
-  level: number;
-  percent: number;
-  children: HeadingData[];
-}
+// Table of contents: a numbered rail on the left.
+//
+// Sections sit at an even pitch (not at their position in the document, which
+// left big gaps and crammed the last sections together). The rail between two
+// ticks is that section; it fills in accent as you read through it, so the
+// highlighted section and the progress always agree. Idle, only the ticks and
+// the current section's title show; hover or keyboard focus reveals every
+// title, plus the subsections of the current one.
+
+type Heading = { id: string; title: string; children: { id: string; title: string }[] };
+
+const OFFSET = 100; // same offset headings scroll to (scroll-margin-top)
 
 export function BlogTOC({ content }: { content: string }) {
-  const [headings, setHeadings] = useState<HeadingData[]>([]);
-  const [isHovered, setIsHovered] = useState(false);
-  const [hoveredH1, setHoveredH1] = useState<string | null>(null);
-  const [scrollPercent, setScrollPercent] = useState(0);
-  const docHeightRef = useRef(1);
+  const [headings, setHeadings] = useState<Heading[]>([]);
+  const [open, setOpen] = useState(false);
+  // hover intent: don't open for a pointer just passing over, don't close
+  // while it crosses the gap between two items
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const openSoon = (next: boolean, ms: number) => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => setOpen(next), ms);
+  };
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const [pos, setPos] = useState({ index: -1, frac: 0, child: null as string | null });
+  const tops = useRef<{ h1: number[]; h2: { id: string; top: number }[] }>({ h1: [], h2: [] });
+  // While a click is smooth-scrolling to its target, hold the highlight on the
+  // target instead of running it through every section on the way.
+  const lock = useRef(false);
 
-  // Determine which H1 is currently active based on scroll position
-  const activeH1Id = useMemo(() => {
-    if (headings.length === 0) return null;
-    
-    // Find the last heading that we've scrolled past
-    let active: string | null = null;
-    for (const h of headings) {
-      if (scrollPercent >= h.percent) {
-        active = h.id;
-      } else {
-        break;
-      }
-    }
-    return active;
-  }, [headings, scrollPercent]);
+  // Sit beside the text: centred on the viewport by the closed height, so
+  // opening the subsections only extends it downwards.
+  const nav = useRef<HTMLElement>(null);
+  const [top, setTop] = useState(96);
+  useEffect(() => {
+    const place = () => {
+      const list = nav.current?.querySelector<HTMLElement>('.toc-list');
+      if (!list || nav.current?.classList.contains('is-open')) return;
+      setTop(Math.max(96, Math.round((window.innerHeight - list.offsetHeight) / 2)));
+    };
+    place();
+    window.addEventListener('resize', place);
+    return () => window.removeEventListener('resize', place);
+  }, [headings, pos.index]);
 
-  // Gather headings
+  // gather headings, and re-measure as figures, math and images settle
   useEffect(() => {
     const gather = () => {
       const main = document.querySelector('main');
       if (!main) return;
-
-      docHeightRef.current = document.documentElement.scrollHeight;
-      const docHeight = docHeightRef.current;
-
-      const allHeadings = main.querySelectorAll('h1[id], h2[id]');
-      const h1s: HeadingData[] = [];
-      let currentH1: HeadingData | null = null;
-
-      allHeadings.forEach((el) => {
-        const rect = el.getBoundingClientRect();
-        const absoluteTop = rect.top + window.scrollY;
-        const scrollWhenAtHeading = absoluteTop - 100;
-        const level = el.tagName === 'H1' ? 1 : 2;
-
-        const heading: HeadingData = {
-          id: el.id,
-          title: el.textContent?.trim() || '',
-          level,
-          percent: (Math.max(0, scrollWhenAtHeading) / docHeight) * 100,
-          children: []
-        };
-
-        if (level === 1) {
-          h1s.push(heading);
-          currentH1 = heading;
-        } else if (level === 2 && currentH1) {
-          currentH1.children.push(heading);
+      const list: Heading[] = [];
+      const h1: number[] = [];
+      const h2: { id: string; top: number }[] = [];
+      main.querySelectorAll<HTMLElement>('h1[id], h2[id]').forEach((el) => {
+        const top = el.getBoundingClientRect().top + window.scrollY;
+        const title = el.textContent?.trim() ?? '';
+        if (el.tagName === 'H1') {
+          list.push({ id: el.id, title, children: [] });
+          h1.push(top);
+        } else if (list.length) {
+          list[list.length - 1]!.children.push({ id: el.id, title });
+          h2.push({ id: el.id, top });
         }
       });
-
-      setHeadings(h1s);
+      tops.current = { h1, h2 };
+      setHeadings(list);
     };
-
+    let raf = 0;
+    const schedule = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(gather);
+    };
     gather();
-    window.addEventListener('resize', gather);
-    return () => window.removeEventListener('resize', gather);
+    const ro = new ResizeObserver(schedule);
+    ro.observe(document.body);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
   }, [content]);
 
-  // Track scroll
+  // where the reader is: current section, how far through it, current subsection
   useEffect(() => {
-    const onScroll = () => {
-      const pct = (window.scrollY / docHeightRef.current) * 100;
-      setScrollPercent(pct);
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      if (lock.current) return;
+      const y = window.scrollY + OFFSET + 1;
+      const { h1, h2 } = tops.current;
+      let index = -1;
+      for (let i = 0; i < h1.length; i++) if (y >= h1[i]!) index = i;
+      const end = index + 1 < h1.length ? h1[index + 1]! : document.documentElement.scrollHeight - window.innerHeight + OFFSET;
+      const frac = index < 0 ? 0 : Math.min(1, Math.max(0, (y - h1[index]!) / Math.max(1, end - h1[index]!)));
+      let child: string | null = null;
+      for (const c of h2) if (y >= c.top && index >= 0 && c.top >= h1[index]!) child = c.id;
+      setPos((p) => (p.index === index && p.child === child && Math.abs(p.frac - frac) < 0.002 ? p : { index, frac, child }));
     };
-
-    onScroll();
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    // the click-scroll has landed: release the hold and read the real position
+    const onScrollEnd = () => {
+      if (!lock.current) return;
+      lock.current = false;
+      update();
+    };
+    update();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+    window.addEventListener('scrollend', onScrollEnd);
+    window.addEventListener('resize', onScroll);
+    // the reader takes over mid-scroll (wheel, touch, keys): release at once
+    const takeOver = () => (lock.current = false);
+    window.addEventListener('wheel', takeOver, { passive: true });
+    window.addEventListener('touchstart', takeOver, { passive: true });
+    window.addEventListener('keydown', takeOver);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('scrollend', onScrollEnd);
+      window.removeEventListener('resize', onScroll);
+      window.removeEventListener('wheel', takeOver);
+      window.removeEventListener('touchstart', takeOver);
+      window.removeEventListener('keydown', takeOver);
+    };
+  }, [headings]);
 
-  const scrollTo = (id: string) => {
+  const go = (id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
-    const y = el.getBoundingClientRect().top + window.scrollY - 100;
-    window.scrollTo({ top: y, behavior: 'smooth' });
+    const index = headings.findIndex((h) => h.id === id || h.children.some((c) => c.id === id));
+    const child = headings[index]?.id === id ? null : id;
+    lock.current = true;
+    setPos({ index, frac: 0, child });
+    // fallback for browsers without scrollend
+    setTimeout(() => {
+      if (lock.current) {
+        lock.current = false;
+        window.dispatchEvent(new Event('scroll'));
+      }
+    }, 1200);
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - OFFSET, behavior: 'smooth' });
+    window.history.pushState(null, '', `#${id}`);
   };
 
   if (headings.length === 0) return null;
 
   return (
     <nav
-      className="hidden lg:block fixed left-6 top-24 bottom-24 w-64 z-30"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => { setIsHovered(false); setHoveredH1(null); }}
+      ref={nav}
+      style={{ top }}
+      aria-label="Table of contents"
+      className={`toc hidden lg:block${open ? ' is-open' : ''}`}
+      onMouseEnter={() => openSoon(true, 90)}
+      onMouseLeave={() => openSoon(false, 180)}
+      onFocus={() => openSoon(true, 0)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) openSoon(false, 0);
+      }}
     >
-      <div className="relative h-full">
-        <div className="absolute left-0 top-0 bottom-0 w-px bg-[var(--theme-border)]" />
-
-        <div
-          className="absolute left-0 w-3 h-0.5 bg-[var(--accent)]"
-          style={{ top: `${scrollPercent}%`, transform: 'translateY(-50%)' }}
-        />
-
-        {/* H1 headings */}
-        {headings.map((h, idx) => (
-          <div
-            key={`${h.id}-${idx}`}
-            className={`absolute left-0 ${hoveredH1 === h.id ? 'z-50' : 'z-0'}`}
-            style={{ top: `${h.percent}%`, transform: 'translateY(-50%)' }}
-            onMouseEnter={() => setHoveredH1(h.id)}
-            onMouseLeave={() => setHoveredH1(null)}
-          >
-            <button
-              onClick={() => scrollTo(h.id)}
-              className="flex items-center cursor-pointer"
-            >
-              <span className="block w-2 h-px bg-[var(--theme-text-muted)]" />
-              <span
-                className={`
-                  ml-2 max-w-48 font-mono text-[10px] tracking-widest uppercase text-left leading-tight
-                  transition-opacity duration-150
-                  ${isHovered || activeH1Id === h.id ? 'opacity-100' : 'opacity-0'}
-                  ${activeH1Id === h.id ? 'text-[var(--theme-text-primary)]' : 'text-[var(--theme-text-muted)] hover:text-[var(--theme-text-primary)]'}
-                `}
-              >
-                {h.title}
+      <ol className="toc-list">
+        {headings.map((h, i) => {
+          const state = i < pos.index ? 'is-done' : i === pos.index ? 'is-current' : '';
+          const fill = i < pos.index ? 1 : i === pos.index ? pos.frac : 0;
+          return (
+            <li key={h.id} className={`toc-item ${state}`}>
+              <span className="toc-seg" aria-hidden="true">
+                <span style={{ transform: `scaleY(${fill})` }} />
               </span>
-            </button>
-
-            {/* H2 popover - with invisible bridge for hover */}
-            {h.children.length > 0 && hoveredH1 === h.id && (
-              <>
-                {/* Invisible bridge to keep hover when moving to popover */}
-                <div className="absolute left-0 top-full w-48 h-2" />
-                <div className="absolute left-4 top-full mt-2 px-3 py-2 border border-[var(--theme-border)] rounded-sm shadow-lg min-w-max z-50 backdrop-blur-xl bg-[var(--theme-bg-primary)]/95">
-                  <div className="flex flex-col gap-1.5">
-                    {h.children.map((child, childIdx) => (
-                      <button
-                        key={`${child.id}-${childIdx}`}
-                        onClick={() => scrollTo(child.id)}
-                        className="font-mono text-[9px] tracking-wide text-left text-[var(--theme-text-muted)] hover:text-[var(--theme-text-primary)] transition-colors"
-                      >
-                        {child.title}
-                      </button>
+              <button type="button" className="toc-link" onClick={() => go(h.id)} aria-current={i === pos.index ? 'location' : undefined} title={h.title}>
+                <span className="toc-tick" aria-hidden="true" />
+                <span className="toc-num">{String(i + 1).padStart(2, '0')}</span>
+                <span className="toc-title">{h.title}</span>
+              </button>
+              {h.children.length > 0 && i === pos.index && (
+                <div className="toc-sub">
+                  <ol className="toc-sub-inner">
+                    {h.children.map((c) => (
+                      <li key={c.id}>
+                        <button type="button" className={`toc-sublink${pos.child === c.id ? ' is-current' : ''}`} onClick={() => go(c.id)} title={c.title} tabIndex={open ? 0 : -1}>
+                          {c.title}
+                        </button>
+                      </li>
                     ))}
-                  </div>
+                  </ol>
                 </div>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
+              )}
+            </li>
+          );
+        })}
+      </ol>
     </nav>
   );
 }

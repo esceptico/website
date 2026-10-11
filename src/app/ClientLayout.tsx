@@ -4,20 +4,21 @@ import ColorSchemeToggle from "@/components/theme/ColorSchemeToggle";
 import HeaderGradientBg from "@/components/layout/HeaderGradientBg";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import katex from 'katex';
 
 function getTimestamps() {
   const now = new Date();
   const utc = now.toISOString().slice(11, 19) + ' UTC';
+  // Let Intl pick PST/PDT instead of hardcoding the zone abbreviation.
   const pst = new Intl.DateTimeFormat('en-US', {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
     hour12: false,
-    timeZone: 'America/Los_Angeles'
-  }).format(now) + ' PST';
+    timeZone: 'America/Los_Angeles',
+    timeZoneName: 'short',
+  }).format(now);
   return { utc, pst };
 }
 
@@ -28,12 +29,16 @@ function getSlugFromPath(pathname: string): string | null {
   return null;
 }
 
-// Pre-render static KaTeX symbols (only runs once)
-const katexSymbols = {
-  loss: katex.renderToString('\\mathcal{L}(\\theta)', { throwOnError: false }),
-  gradNorm: katex.renderToString('\\|\\nabla\\mathcal{L}\\|', { throwOnError: false }),
-  gradDir: katex.renderToString('-\\nabla\\mathcal{L}', { throwOnError: false }),
-  converged: katex.renderToString('\\checkmark', { throwOnError: false }),
+// Math glyphs for the HUD. Plain text instead of KaTeX so the root bundle
+// doesn't carry the whole KaTeX runtime for four static symbols.
+function M({ children }: { children: React.ReactNode }) {
+  return <span className="hud-math">{children}</span>;
+}
+const symbols = {
+  loss: <M>𝓛(θ)</M>,
+  gradNorm: <M>‖∇𝓛‖</M>,
+  gradDir: <M>−∇𝓛</M>,
+  converged: <span>✓</span>,
 };
 
 function OptimizationStats({ 
@@ -66,8 +71,9 @@ function OptimizationStats({
             color: isClose ? 'var(--accent)' : undefined,
             textShadow: isClose ? `0 0 ${glowIntensity}px var(--accent)` : undefined
           }}
-          dangerouslySetInnerHTML={{ __html: katexSymbols.loss }} 
-        />
+        >
+          {symbols.loss}
+        </span>
         <span 
           className="font-mono text-right transition-all duration-500"
           style={{ 
@@ -79,11 +85,11 @@ function OptimizationStats({
         </span>
         
         {/* ‖∇L‖ row */}
-        <span className="flex justify-end" dangerouslySetInnerHTML={{ __html: katexSymbols.gradNorm }} />
+        <span className="flex justify-end">{symbols.gradNorm}</span>
         <span className="font-mono text-right">{gradNorm.toFixed(2)}</span>
         
         {/* −∇L row */}
-        <span className="flex justify-end" dangerouslySetInnerHTML={{ __html: katexSymbols.gradDir }} />
+        <span className="flex justify-end">{symbols.gradDir}</span>
         <span className="font-mono text-right">{gradientDir}</span>
       </div>
       
@@ -95,7 +101,7 @@ function OptimizationStats({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <span dangerouslySetInnerHTML={{ __html: katexSymbols.converged }} />
+          {symbols.converged}
           <span>converged</span>
         </motion.div>
       )}
@@ -103,14 +109,28 @@ function OptimizationStats({
   );
 }
 
-export default function ClientLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const pathname = usePathname();
-  const reduceMotion = useReducedMotion();
+// Corner widgets own their state so mouse moves and the 1s clock re-render
+// only these, not the whole layout (header, nav, main).
+function CornerClock() {
   const [timestamps, setTimestamps] = useState({ utc: '', pst: '' });
+  useEffect(() => {
+    setTimestamps(getTimestamps());
+    const interval = setInterval(() => setTimestamps(getTimestamps()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div
+      className="fixed bottom-4 left-5 hidden md:flex flex-col items-start gap-0.5 select-none z-40 font-mono text-[10px] tracking-wider text-[var(--theme-text-muted)]"
+      aria-hidden="true"
+    >
+      <span>{timestamps.utc}</span>
+      <span>{timestamps.pst}</span>
+    </div>
+  );
+}
+
+function OptimizationHud() {
   const [loss, setLoss] = useState(1.0);
   const [gradNorm, setGradNorm] = useState(2.0);
   const [gradientDir, setGradientDir] = useState('·');
@@ -137,11 +157,6 @@ export default function ClientLayout({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   
-  useEffect(() => {
-    setTimestamps(getTimestamps());
-    const interval = setInterval(() => setTimestamps(getTimestamps()), 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     // Get arrow direction pointing toward minimum (negative gradient = direction to move)
@@ -183,6 +198,16 @@ export default function ClientLayout({
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, [globalMin, converged]);
+
+  return <OptimizationStats loss={loss} gradNorm={gradNorm} gradientDir={gradientDir} converged={converged} />;
+}
+
+export default function ClientLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
 
   const isHome = pathname === '/';
   const isLog = pathname === '/log';
@@ -244,35 +269,15 @@ export default function ClientLayout({
         {/* Corner info - hide on blog posts */}
         {!isBlogPost && (
           <>
-            {/* Bottom left: timestamps */}
-            <div 
-              className="fixed bottom-4 left-5 hidden md:flex flex-col items-start gap-0.5 select-none z-40 font-mono text-[10px] tracking-wider text-[var(--theme-text-muted)]" 
-              aria-hidden="true"
-            >
-              <span>{timestamps.utc}</span>
-              <span>{timestamps.pst}</span>
-            </div>
-
-            {/* Bottom right: optimization stats */}
-            <OptimizationStats 
-              loss={loss} 
-              gradNorm={gradNorm}
-              gradientDir={gradientDir} 
-              converged={converged} 
-            />
+            <CornerClock />
+            <OptimizationHud />
           </>
         )}
 
         {/* Main */}
-        <motion.main
-          id="main-content"
-          className="pt-12 relative z-10"
-          initial={reduceMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-        >
+        <main id="main-content" className="pt-12 relative z-10">
           {children}
-        </motion.main>
+        </main>
       </div>
     </>
   );

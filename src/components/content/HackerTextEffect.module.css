@@ -16,3 +16,10 @@
     0 0 1px rgba(0, 0, 0, 0.1),
     0 0 2px rgba(0, 0, 0, 0.05);
 }
+
+/* Unresolved glyph: muted, with a faint accent split so the wave reads as a glitch
+   without competing with the settled text. */
+.glyph {
+  color: var(--theme-text-muted);
+  text-shadow: 1px 0 color-mix(in oklab, var(--accent) 45%, transparent);
+}

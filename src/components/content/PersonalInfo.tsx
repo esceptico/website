@@ -17,7 +17,7 @@ export const PersonalInfo = () => {
   }, []);
 
   const textItems = useMemo(() => {
-    return [greeting, ...hackerTextItems];
+    return [...hackerTextItems, greeting];
   }, [greeting]);
 
   useEffect(() => {
@@ -43,31 +43,25 @@ export const PersonalInfo = () => {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleHackerTextInteraction();
-    }
-  };
   
   return (
     <div className="relative text-left">
       {/* Greeting */}
       <div className="mb-8">
-        <h1 
+        {/* Mouse-only easter egg; the heading stays a plain heading for AT. */}
+        <h1
           className="text-xl md:text-2xl font-normal text-[var(--theme-text-primary)] tracking-tight cursor-pointer select-none flex items-center min-w-[300px] min-h-[3rem]"
           onClick={handleHackerTextInteraction}
-          onKeyDown={handleKeyDown}
-          tabIndex={0}
-          role="button"
-          aria-label="Greeting text - click for surprise"
         >
+          <span className="sr-only">Timur Ganiev</span>
           {showEasterEgg ? (
-            <span className="font-jetbrains-mono text-xl md:text-2xl select-none">
+            <span aria-hidden="true" className="font-jetbrains-mono text-xl md:text-2xl select-none">
               there are no easter eggs here
             </span>
           ) : (
-            <HackerTextEffect texts={textItems} className="text-xl md:text-2xl font-normal" />
+            <span aria-hidden="true">
+              <HackerTextEffect texts={textItems} className="text-xl md:text-2xl font-normal" />
+            </span>
           )}
         </h1>
       </div>
