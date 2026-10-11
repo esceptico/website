@@ -149,6 +149,8 @@ export function BlogTOC({ content }: { content: string }) {
   if (headings.length === 0) return null;
 
   return (
+    <>
+    <MobileTOC headings={headings} index={pos.index} frac={pos.frac} go={go} />
     <nav
       ref={nav}
       style={{ top }}
@@ -193,5 +195,76 @@ export function BlogTOC({ content }: { content: string }) {
         })}
       </ol>
     </nav>
+    </>
+  );
+}
+
+// Below lg there's no room for the rail: a pill at the bottom shows the
+// current section and reading progress; tapping it opens the numbered list
+// as a sheet. Hidden until the first section starts.
+function MobileTOC({ headings, index, frac, go }: { headings: Heading[]; index: number; frac: number; go: (id: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const sheet = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('keydown', onKey);
+    sheet.current?.querySelector<HTMLElement>('[aria-current]')?.focus();
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  const current = headings[index];
+  const progress = index < 0 ? 0 : (index + frac) / headings.length;
+
+  return (
+    <div className="lg:hidden">
+      <button
+        type="button"
+        className={`toc-pill${current ? ' is-on' : ''}`}
+        onClick={() => setOpen(true)}
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        aria-label={current ? `Contents. Current section: ${current.title}` : 'Contents'}
+        tabIndex={current ? 0 : -1}
+      >
+        <span className="toc-pill-num">{String(index + 1).padStart(2, '0')}</span>
+        <span className="toc-pill-title">{current?.title}</span>
+        <span className="toc-pill-count">/{String(headings.length).padStart(2, '0')}</span>
+        <span className="toc-pill-bar" aria-hidden="true">
+          <span style={{ transform: `scaleX(${progress})` }} />
+        </span>
+      </button>
+
+      <div className={`toc-sheet-wrap${open ? ' is-open' : ''}`} onClick={(e) => e.target === e.currentTarget && setOpen(false)} aria-hidden={!open}>
+        <div ref={sheet} className="toc-sheet" role="dialog" aria-modal="true" aria-label="Contents">
+          <div className="toc-sheet-head">
+            <span>contents</span>
+            <button type="button" onClick={() => setOpen(false)} tabIndex={open ? 0 : -1}>
+              close
+            </button>
+          </div>
+          <ol>
+            {headings.map((h, i) => (
+              <li key={h.id}>
+                <button
+                  type="button"
+                  className={i === index ? 'is-current' : i < index ? 'is-done' : undefined}
+                  aria-current={i === index ? 'location' : undefined}
+                  tabIndex={open ? 0 : -1}
+                  onClick={() => {
+                    setOpen(false);
+                    go(h.id);
+                  }}
+                >
+                  <span className="toc-num">{String(i + 1).padStart(2, '0')}</span>
+                  <span>{h.title}</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </div>
   );
 }
