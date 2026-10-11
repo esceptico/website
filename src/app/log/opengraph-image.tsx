@@ -1,7 +1,5 @@
 import { ImageResponse } from 'next/og';
 
-export const runtime = 'edge';
-
 export const alt = 'Timur Ganiev | Log';
 export const size = {
   width: 1200,
