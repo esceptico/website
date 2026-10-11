@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 
 interface GalleryImage {
   src: string;
@@ -16,6 +17,7 @@ export function Gallery({ images }: GalleryProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const [zoom, setZoom] = useState<number | null>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   const scrollTo = useCallback((i: number) => {
     const container = scrollRef.current;
@@ -50,19 +52,29 @@ export function Gallery({ images }: GalleryProps) {
     if (!container) return;
 
     const onKey = (e: KeyboardEvent) => {
+      if (zoom !== null) return; // the lightbox owns the arrow keys while open
       if (e.key === 'ArrowRight') { e.preventDefault(); scrollTo(active + 1); }
       if (e.key === 'ArrowLeft') { e.preventDefault(); scrollTo(active - 1); }
     };
 
     container.addEventListener('keydown', onKey);
     return () => container.removeEventListener('keydown', onKey);
-  }, [active, scrollTo]);
+  }, [active, scrollTo, zoom]);
 
-  // Zoom: lock body scroll, keyboard nav
+  // Zoom: lock body scroll, keyboard nav, focus in and back out
+  const isOpen = zoom !== null;
+  useEffect(() => {
+    if (!isOpen) return;
+    const returnTo = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    return () => returnTo?.focus();
+  }, [isOpen]);
+
   useEffect(() => {
     if (zoom === null) return;
     document.body.style.overflow = 'hidden';
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Tab') { e.preventDefault(); closeRef.current?.focus(); }
       if (e.key === 'Escape') setZoom(null);
       if (e.key === 'ArrowRight') setZoom(z => z !== null ? Math.min(z + 1, images.length - 1) : null);
       if (e.key === 'ArrowLeft') setZoom(z => z !== null ? Math.max(z - 1, 0) : null);
@@ -97,7 +109,7 @@ export function Gallery({ images }: GalleryProps) {
                   src={img.src}
                   alt={img.alt || ''}
                   loading={i === 0 ? 'eager' : 'lazy'}
-                  className="image-outline w-full h-auto block"
+                  className="image-outline w-full h-auto block rounded-[12px]"
                   draggable={false}
                 />
               </button>
@@ -137,20 +149,25 @@ export function Gallery({ images }: GalleryProps) {
         )}
       </div>
 
-      {/* Zoom overlay — blurred background */}
-      {zoom !== null && (
+      {/* Zoom overlay — portalled to <body> so it sits above the fixed header
+          (inside <main> it was trapped in main's stacking context). */}
+      {zoom !== null && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center cursor-zoom-out backdrop-blur-xl bg-[var(--theme-bg-primary)]/60"
+          role="dialog"
+          aria-modal="true"
+          aria-label={images[zoom]!.alt || 'Image'}
+          className="fixed inset-0 z-[60] flex items-center justify-center cursor-zoom-out backdrop-blur-xl bg-[var(--theme-bg-primary)]/60"
           onClick={() => setZoom(null)}
         >
           {/* Counter + close */}
           <div className="absolute top-0 inset-x-0 flex items-center justify-between px-5 py-4 z-10">
             {images.length > 1 && (
               <span className="font-mono text-[10px] text-[var(--theme-text-primary)]/50 tracking-widest tabular-nums">
-                {active + 1}&thinsp;/&thinsp;{images.length}
+                {zoom + 1}&thinsp;/&thinsp;{images.length}
               </span>
             )}
             <button
+              ref={closeRef}
               onClick={(e) => { e.stopPropagation(); setZoom(null); }}
               className="ml-auto w-8 h-8 flex items-center justify-center text-[var(--theme-text-primary)]/50 hover:text-[var(--theme-text-primary)] transition-colors cursor-pointer"
               aria-label="Close"
@@ -203,7 +220,8 @@ export function Gallery({ images }: GalleryProps) {
               </span>
             </div>
           )}
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

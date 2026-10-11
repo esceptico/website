@@ -28,7 +28,7 @@
 }
 
 .dark .hljs-comment {
-  color: #6a6a6a;
+  color: #8f8f8f;
   font-style: italic;
 }
 
@@ -87,7 +87,7 @@ html:not(.dark) .hljs-title.function_ {
 }
 
 html:not(.dark) .hljs-comment {
-  color: #999999;
+  color: #6f6f6f;
   font-style: italic;
 }
 

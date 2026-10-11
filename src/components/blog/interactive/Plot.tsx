@@ -1,10 +1,18 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import type { PlotParams } from 'react-plotly.js';
 
-const Plotly = dynamic(() => import('react-plotly.js'), { 
+// Build the component from the minified dist bundle. The default
+// `react-plotly.js` entry requires the full, unminified plotly.js.
+const Plotly = dynamic(async () => {
+  const [{ default: createPlotlyComponent }, plotly] = await Promise.all([
+    import('react-plotly.js/factory'),
+    import('plotly.js-dist-min'),
+  ]);
+  return createPlotlyComponent(plotly.default ?? plotly);
+}, {
   ssr: false,
   loading: () => (
     <div className="h-[300px] flex items-center justify-center">
@@ -44,14 +52,27 @@ interface PlotProps extends Omit<PlotParams, 'layout' | 'config'> {
 }
 
 export function Plot({ data, layout, config, className, ...rest }: PlotProps) {
-  const [isDark, setIsDark] = useState(false);
+  // Plotly itself only renders client-side, so reading the theme on first
+  // render is safe and avoids drawing light first for dark-mode readers.
+  const [isDark, setIsDark] = useState(
+    () => typeof document !== 'undefined' && document.documentElement.classList.contains('dark'),
+  );
+
+  // The first draw happens before the container has settled and gets wrong
+  // axes; bump `revision` on size changes so Plotly re-lays out in place
+  // (previously this remounted the whole plot via `key`).
   const [revision, setRevision] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Theme observer
   useEffect(() => {
-    setIsDark(document.documentElement.classList.contains('dark'));
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setRevision((r) => r + 1));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
+  // Theme observer: new layout props restyle the plot in place (Plotly.react).
+  useEffect(() => {
     const observer = new MutationObserver(() => {
       setIsDark(document.documentElement.classList.contains('dark'));
     });
@@ -62,18 +83,6 @@ export function Plot({ data, layout, config, className, ...rest }: PlotProps) {
     });
 
     return () => observer.disconnect();
-  }, []);
-
-  // Resize observer - trigger re-render when container size changes
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const resizeObserver = new ResizeObserver(() => {
-      setRevision(r => r + 1);
-    });
-
-    resizeObserver.observe(containerRef.current);
-    return () => resizeObserver.disconnect();
   }, []);
 
   const theme = isDark ? themes.dark : themes.light;
@@ -121,6 +130,8 @@ export function Plot({ data, layout, config, className, ...rest }: PlotProps) {
       bordercolor: 'transparent',
       font: { family: 'JetBrains Mono, monospace', size: 11, color: theme.text },
     },
+    // Changes on resize and theme so Plotly recalculates (autorange) in place.
+    datarevision: `${revision}-${isDark ? 'dark' : 'light'}`,
     showlegend: layout?.showlegend,
     height: layout?.height,
     width: layout?.width,
@@ -172,7 +183,7 @@ export function Plot({ data, layout, config, className, ...rest }: PlotProps) {
   return (
     <div ref={containerRef} className={`my-8 ${className ?? ''}`}>
       <Plotly
-        key={`${isDark ? 'dark' : 'light'}-${revision}`}
+        revision={revision}
         data={themedData as Plotly.Data[]}
         layout={themedLayout}
         config={{ ...defaultConfig, ...config }}

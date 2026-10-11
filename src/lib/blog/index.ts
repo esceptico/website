@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import matter from 'gray-matter';
 import type { BlogPost, BlogMeta } from './types';
-import { isAnnotatedPython } from './parse';
+import { isAnnotatedPython, parseAnnotatedCode } from './parse';
 
 const BLOG_DIR = path.join(process.cwd(), 'src/content/blog');
 
@@ -14,12 +14,18 @@ const WORDS_PER_MINUTE = 200;
  * Count words in content, excluding code blocks and frontmatter
  */
 function countWords(content: string): number {
-  // Remove code blocks
-  const withoutCode = content.replace(/```[\s\S]*?```/g, '');
+  // Drop code blocks, but keep the prose of annotated-Python blocks: their
+  // comment chunks are where most of those posts' explanation lives.
+  const withoutCode = content.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang: string, code: string) =>
+    (lang === 'python' || lang === 'py') && isAnnotatedPython(code)
+      ? ' ' + parseAnnotatedCode(code).map((c) => c.doc).join(' ') + ' '
+      : ' ',
+  );
   // Remove inline code
   const withoutInlineCode = withoutCode.replace(/`[^`]+`/g, '');
-  // Remove MDX components
-  const withoutComponents = withoutInlineCode.replace(/<[^>]+>/g, '');
+  // Remove math and MDX components
+  const withoutMath = withoutInlineCode.replace(/\$\$[\s\S]*?\$\$/g, ' ').replace(/\$[^$\n]+\$/g, ' ');
+  const withoutComponents = withoutMath.replace(/<[^>]+>/g, '');
   // Remove markdown syntax
   const plainText = withoutComponents
     .replace(/[#*_\[\]()]/g, '')

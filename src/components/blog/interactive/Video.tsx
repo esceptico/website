@@ -16,7 +16,7 @@ export function Video({ src, caption, autoPlay = true, loop = true, muted = true
         muted={muted}
         controls
         playsInline
-        className="w-full h-auto block"
+        className="image-outline w-full h-auto block rounded-[12px]"
       />
       {caption && (
         <figcaption className="mt-2 px-1">

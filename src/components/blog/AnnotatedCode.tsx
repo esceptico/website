@@ -7,7 +7,6 @@ import remarkMath from 'remark-math';
 import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
 import { parseAnnotatedCode } from '@/lib/blog/parse';
-import type { Chunk } from '@/lib/blog/types';
 import './syntax-highlighting.css';
 
 // ============================================
@@ -63,9 +62,9 @@ const markdownComponents: Components = {
   em: ({ children }) => <em>{children}</em>,
   code: ({ children }) => <code className="font-jetbrains-mono text-[0.9em] text-[var(--theme-text-primary)]/80 bg-[var(--theme-text-primary)]/5 px-1 py-0.5 rounded">{children}</code>,
   a: ({ href, children }) => <a href={href} className="hover-link" target="_blank" rel="noopener noreferrer">{children}</a>,
-  ul: ({ children }) => <ul className="my-2 list-disc list-inside">{children}</ul>,
-  ol: ({ children }) => <ol className="my-2 list-decimal list-inside">{children}</ol>,
-  li: ({ children }) => <li className="ml-2">{children}</li>,
+  ul: ({ children }) => <ul className="my-2 list-disc pl-5">{children}</ul>,
+  ol: ({ children }) => <ol className="my-2 list-decimal pl-5">{children}</ol>,
+  li: ({ children }) => <li className="pl-1">{children}</li>,
 };
 
 // ============================================
@@ -148,13 +147,13 @@ export function AnnotatedCode({ code, language }: AnnotatedCodeProps) {
               )}
               
               {/* Code block */}
-              <div className="relative group/codeblock bg-[var(--theme-text-primary)]/[0.03] rounded-lg overflow-x-auto">
+              <div className="code-plate relative group/codeblock overflow-x-auto">
                 {/* Copy button only on first code block */}
                 {currentMarker === 1 && (
                   <button
                     onClick={handleCopy}
                     title="Copy all annotated code"
-                    className="absolute top-2 right-2 px-2 py-1 text-xs font-mono rounded bg-[var(--theme-bg-primary)]/80 backdrop-blur-sm border border-[var(--theme-border)] text-[var(--theme-text-muted)] opacity-0 group-hover/codeblock:opacity-100 hover:text-[var(--theme-text-primary)] hover:border-[var(--theme-text-muted)] transition-opacity duration-150"
+                    className="code-copy absolute top-2 right-2 opacity-0 group-hover/codeblock:opacity-100 focus-visible:opacity-100"
                   >
                     {copied ? 'copied!' : 'copy all'}
                   </button>

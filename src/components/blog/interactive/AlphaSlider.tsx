@@ -25,19 +25,13 @@ export function AlphaSlider({ question, results }: AlphaSliderProps) {
   };
 
   return (
-    <div className="my-8 relative group">
-      {/* Corner brackets */}
-      <div className="absolute -top-px -left-px w-4 h-4 border-t-2 border-l-2 border-[var(--accent)]/50" />
-      <div className="absolute -top-px -right-px w-4 h-4 border-t-2 border-r-2 border-[var(--accent)]/50" />
-      <div className="absolute -bottom-px -left-px w-4 h-4 border-b-2 border-l-2 border-[var(--accent)]/50" />
-      <div className="absolute -bottom-px -right-px w-4 h-4 border-b-2 border-r-2 border-[var(--accent)]/50" />
-
-      {/* Label */}
-      <div className="absolute -top-2.5 left-5 px-1.5 bg-[var(--theme-bg-primary)] text-[8px] font-mono tracking-[0.2em] text-[var(--theme-text-muted)]/70 uppercase">
-        FIG.INTERACTIVE
+    <div className="figure-plate my-10 relative group">
+      <div className="plate-head">
+        <span>fig · steering sweep</span>
+        <span>gemma-3-1b-it</span>
       </div>
 
-      <div className="px-6 py-8">
+      <div className="px-6 pt-5 pb-7">
         {question && (
           <div className="mb-8 text-sm text-[var(--theme-text-secondary)] leading-relaxed">
             <span className="font-mono text-xs text-[var(--accent)] mr-2">[INPUT]</span>
@@ -49,7 +43,7 @@ export function AlphaSlider({ question, results }: AlphaSliderProps) {
         <div className="mb-8 relative">
           {/* Current value display */}
           <div className="flex items-center justify-center mb-5">
-            <span className={`font-mono text-[9px] tracking-widest transition-colors w-16 text-right ${
+            <span className={`font-mono text-[10px] tracking-widest transition-colors w-16 text-right ${
               currentAlpha < 0 ? 'text-[var(--accent)]' : 'text-[var(--theme-text-muted)]/50'
             }`}>
               NOVICE
@@ -57,7 +51,7 @@ export function AlphaSlider({ question, results }: AlphaSliderProps) {
             <span className="font-mono text-sm text-[var(--theme-text-primary)] tabular-nums w-20 text-center">
               α={formatAlpha(currentAlpha)}
             </span>
-            <span className={`font-mono text-[9px] tracking-widest transition-colors w-16 text-left ${
+            <span className={`font-mono text-[10px] tracking-widest transition-colors w-16 text-left ${
               currentAlpha > 0 ? 'text-[var(--accent)]' : 'text-[var(--theme-text-muted)]/50'
             }`}>
               EXPERT
@@ -106,6 +100,8 @@ export function AlphaSlider({ question, results }: AlphaSliderProps) {
 
             {/* Slider input (invisible, for interaction) */}
             <input
+              aria-label="Steering strength α"
+              aria-valuetext={`α = ${formatAlpha(currentAlpha)}`}
               type="range"
               min={0}
               max={alphas.length - 1}
@@ -134,19 +130,13 @@ export function AlphaSlider({ question, results }: AlphaSliderProps) {
         
         {/* Result */}
         <div className="relative mt-4 pt-4 pb-4">
-          {/* Crop marks - all corners */}
-          <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-[var(--theme-text-muted)]/40" />
-          <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-[var(--theme-text-muted)]/40" />
-          <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-[var(--theme-text-muted)]/40" />
-          <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-[var(--theme-text-muted)]/40" />
-          
           {/* Mode label */}
-          <span className="font-mono text-[9px] text-[var(--accent)] tracking-widest block mb-2 ml-5">
+          <span className="font-mono text-[11px] text-[var(--accent)] tracking-widest block mb-2">
             {getMode(currentAlpha)}
           </span>
           
           {/* Output display - all results stacked, only current visible */}
-          <div className="grid ml-5">
+          <div className="grid">
             {alphas.map((alpha) => {
               const result = results[String(alpha)] ?? '';
               const isActive = alpha === currentAlpha;
