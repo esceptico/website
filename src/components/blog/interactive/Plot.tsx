@@ -14,11 +14,8 @@ const Plotly = dynamic(async () => {
   return createPlotlyComponent(plotly.default ?? plotly);
 }, {
   ssr: false,
-  loading: () => (
-    <div className="h-[300px] flex items-center justify-center">
-      <span className="text-[var(--theme-text-secondary)] text-sm font-jetbrains-mono">...</span>
-    </div>
-  ),
+  // the wrapper already reserves the plot's height, so nothing shifts
+  loading: () => null,
 });
 
 // Minimal theme matching the site's aesthetic
@@ -63,6 +60,30 @@ export function Plot({ data, layout, config, className, ...rest }: PlotProps) {
   // (previously this remounted the whole plot via `key`).
   const [revision, setRevision] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Plotly is ~3.5 MB of script and blocks the page for ~0.4 s while it
+  // loads. Load it only when a plot is about to scroll into view, and in an
+  // idle moment, so the post itself opens without the freeze.
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || near) return;
+    let idle = 0;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e?.isIntersecting) return;
+        io.disconnect();
+        const ric = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1));
+        idle = ric(() => setNear(true), { timeout: 600 });
+      },
+      { rootMargin: '1000px 0px' },
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      window.cancelIdleCallback?.(idle);
+    };
+  }, [near]);
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -181,16 +202,18 @@ export function Plot({ data, layout, config, className, ...rest }: PlotProps) {
   });
 
   return (
-    <div ref={containerRef} className={`my-8 ${className ?? ''}`}>
-      <Plotly
-        revision={revision}
-        data={themedData as Plotly.Data[]}
-        layout={themedLayout}
-        config={{ ...defaultConfig, ...config }}
-        useResizeHandler
-        style={{ width: '100%', height: layout?.height ?? 280 }}
-        {...rest}
-      />
+    <div ref={containerRef} className={`my-8 ${className ?? ''}`} style={{ minHeight: layout?.height ?? 280, minWidth: layout?.width }}>
+      {near && (
+        <Plotly
+          revision={revision}
+          data={themedData as Plotly.Data[]}
+          layout={themedLayout}
+          config={{ ...defaultConfig, ...config }}
+          useResizeHandler
+          style={{ width: '100%', height: layout?.height ?? 280 }}
+          {...rest}
+        />
+      )}
     </div>
   );
 }
