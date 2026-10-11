@@ -155,7 +155,7 @@ export function BlogTOC({ content }: { content: string }) {
       ref={nav}
       style={{ top }}
       aria-label="Table of contents"
-      className={`toc hidden lg:block${open ? ' is-open' : ''}`}
+      className={`toc hidden lg:block ${open ? 'is-open' : ''}`}
       onMouseEnter={() => openSoon(true, 90)}
       onMouseLeave={() => openSoon(false, 180)}
       onFocus={() => openSoon(true, 0)}
