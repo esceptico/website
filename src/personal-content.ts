@@ -47,7 +47,7 @@ export const getTimeBasedGreeting = (): string => {
 
 
 // About Text
-export const aboutMarkdown = `i work on long-horizon agents, reliable agent harnesses and continual learning. here's my [cv](/Timur_Ganiev_CV.pdf).
+export const aboutMarkdown = `i make agents reliable on long tasks. here's my [cv](/Timur_Ganiev_CV.pdf).
 
 now i'm building:
 
@@ -60,9 +60,7 @@ before that:
 * multi-agent systems at adgentic
 * post-training and safety at replika
 
-also into mech interp and alignment. i keep a [log](/log) of ml notes.
-
-outside work i play guitar and take photos.` as const;
+also into continual learning, mech interp and alignment. i keep a [log](/log) of ml notes.` as const;
 
 // 404 Error Messages
 export const errorMessages = [
