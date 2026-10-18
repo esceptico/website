@@ -71,6 +71,9 @@ export const PersonalInfo = () => {
         <ReactMarkdown
           components={{
             p: ({ children }) => <p className="mb-5 last:mb-0">{children}</p>,
+            // a list hangs off the line above it ("now i'm building:")
+            ul: ({ children }) => <ul className="-mt-3 mb-5 list-disc pl-5 space-y-0.5 marker:text-[var(--theme-text-muted)]">{children}</ul>,
+            li: ({ children }) => <li className="pl-1">{children}</li>,
             a: ({ href, children, ...props }) => {
               const isInternal = href?.startsWith('/');
               const isPdf = href?.endsWith('.pdf');
