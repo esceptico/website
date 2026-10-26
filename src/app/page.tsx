@@ -1,4 +1,14 @@
+import type { Metadata } from 'next';
 import { AboutPage } from '@/components/content/AboutPage';
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/',
+    types: {
+      'application/rss+xml': 'https://timganiev.com/feed.xml',
+    },
+  },
+};
 
 // JSON-LD structured data for the main page
 const jsonLd = {

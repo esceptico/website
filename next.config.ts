@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
   
   async redirects() {
     return [
+      // Serve a single host: www.timganiev.com -> timganiev.com, so Google
+      // doesn't see duplicate copies of every page.
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.timganiev.com' }],
+        destination: 'https://timganiev.com/:path*',
+        permanent: true,
+      },
       // Legacy /docs -> /log redirects
       {
         source: '/docs',

@@ -42,8 +42,9 @@ export const metadata: Metadata = {
     ],
     apple: '/favicon.png',
   },
+  // No canonical here: it would be inherited by every page that doesn't set
+  // its own (404s, tools), pointing them all at the homepage.
   alternates: {
-    canonical: "https://timganiev.com",
     types: {
       'application/rss+xml': 'https://timganiev.com/feed.xml',
     },
