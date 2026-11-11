@@ -212,6 +212,7 @@ export default function ClientLayout({
   const isHome = pathname === '/';
   const isLog = pathname === '/log';
   const isBlogPost = pathname.startsWith('/log/') && pathname !== '/log';
+  const isTape = pathname === '/tape';
   const slug = getSlugFromPath(pathname);
 
   return (
@@ -249,6 +250,13 @@ export default function ClientLayout({
                   </>
                 )}
                 
+                {isTape && (
+                  <>
+                    <span className="text-[var(--theme-text-muted)] text-xs">/</span>
+                    <span className="nav-item nav-item--active">tape</span>
+                  </>
+                )}
+
                 {isBlogPost && slug && (
                   <>
                     <span className="text-[var(--theme-text-muted)] text-xs">/</span>
@@ -266,8 +274,8 @@ export default function ClientLayout({
           </div>
         </header>
 
-        {/* Corner info - hide on blog posts */}
-        {!isBlogPost && (
+        {/* Corner info - hide on blog posts and the tape page */}
+        {!isBlogPost && !isTape && (
           <>
             <CornerClock />
             <OptimizationHud />
