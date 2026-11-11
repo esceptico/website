@@ -274,8 +274,8 @@ export default function ClientLayout({
           </div>
         </header>
 
-        {/* Corner info - hide on blog posts */}
-        {!isBlogPost && (
+        {/* Corner info - hide on blog posts and the tape page */}
+        {!isBlogPost && !isTape && (
           <>
             <CornerClock />
             <OptimizationHud />
