@@ -51,8 +51,8 @@ export const aboutMarkdown = `i make agents reliable on long tasks. here's my [c
 
 now i'm building:
 
-* [arden](https://fromarden.com), a personal assistant for your mac
-* [margin](https://margin.timganiev.com), a sketchpad your agent leaves notes on
+* [arden](https://fromarden.com), a personal assistant for your mac, with an [open engine](https://github.com/arden-hq/arden-engine)
+* [overnight](https://github.com/arden-hq/overnight), a simulated environment for agents
 
 before that:
 
