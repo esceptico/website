@@ -2,9 +2,9 @@
 
 import ColorSchemeToggle from "@/components/theme/ColorSchemeToggle";
 import HeaderGradientBg from "@/components/layout/HeaderGradientBg";
+import CornerBuddy from "@/components/layout/CornerBuddy";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
 function getTimestamps() {
@@ -29,88 +29,8 @@ function getSlugFromPath(pathname: string): string | null {
   return null;
 }
 
-// Math glyphs for the HUD. Plain text instead of KaTeX so the root bundle
-// doesn't carry the whole KaTeX runtime for four static symbols.
-function M({ children }: { children: React.ReactNode }) {
-  return <span className="hud-math">{children}</span>;
-}
-const symbols = {
-  loss: <M>𝓛(θ)</M>,
-  gradNorm: <M>‖∇𝓛‖</M>,
-  gradDir: <M>−∇𝓛</M>,
-  converged: <span>✓</span>,
-};
-
-function OptimizationStats({ 
-  loss, 
-  gradNorm,
-  gradientDir, 
-  converged 
-}: { 
-  loss: number; 
-  gradNorm: number;
-  gradientDir: string; 
-  converged: boolean;
-}) {
-  // With L2 loss, loss < 0.02 means within ~14% of diagonal (sqrt(0.02) ≈ 0.14)
-  const isClose = loss < 0.02;
-  const glowIntensity = isClose ? Math.round((0.02 - loss) * 600) : 0;
-  
-  return (
-    <div 
-      className="fixed bottom-4 right-5 hidden md:flex flex-col items-end gap-1 select-none z-40 text-[var(--theme-text-muted)]" 
-      aria-hidden="true"
-      style={{ fontSize: '11px' }}
-    >
-      {/* Grid for aligned rows */}
-      <div className="grid gap-y-1" style={{ gridTemplateColumns: 'auto auto', columnGap: '0.5rem' }}>
-        {/* L(θ) row */}
-        <span 
-          className="flex justify-end transition-all duration-500"
-          style={{ 
-            color: isClose ? 'var(--accent)' : undefined,
-            textShadow: isClose ? `0 0 ${glowIntensity}px var(--accent)` : undefined
-          }}
-        >
-          {symbols.loss}
-        </span>
-        <span 
-          className="font-mono text-right transition-all duration-500"
-          style={{ 
-            color: isClose ? 'var(--accent)' : undefined,
-            textShadow: isClose ? `0 0 ${glowIntensity}px var(--accent)` : undefined
-          }}
-        >
-          {loss.toFixed(4)}
-        </span>
-        
-        {/* ‖∇L‖ row */}
-        <span className="flex justify-end">{symbols.gradNorm}</span>
-        <span className="font-mono text-right">{gradNorm.toFixed(2)}</span>
-        
-        {/* −∇L row */}
-        <span className="flex justify-end">{symbols.gradDir}</span>
-        <span className="font-mono text-right">{gradientDir}</span>
-      </div>
-      
-      {converged && (
-        <motion.div 
-          className="flex items-center gap-1.5 mt-1"
-          style={{ color: 'var(--accent)', textShadow: '0 0 8px var(--accent)' }}
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {symbols.converged}
-          <span>converged</span>
-        </motion.div>
-      )}
-    </div>
-  );
-}
-
-// Corner widgets own their state so mouse moves and the 1s clock re-render
-// only these, not the whole layout (header, nav, main).
+// The clock owns its state so the 1s tick re-renders only itself,
+// not the whole layout (header, nav, main).
 function CornerClock() {
   const [timestamps, setTimestamps] = useState({ utc: '', pst: '' });
   useEffect(() => {
@@ -128,78 +48,6 @@ function CornerClock() {
       <span>{timestamps.pst}</span>
     </div>
   );
-}
-
-function OptimizationHud() {
-  const [loss, setLoss] = useState(1.0);
-  const [gradNorm, setGradNorm] = useState(2.0);
-  const [gradientDir, setGradientDir] = useState('·');
-  const [converged, setConverged] = useState(false);
-  const [globalMin, setGlobalMin] = useState({ x: 0, y: 0 });
-  
-  // Set random global minimum on mount (somewhere in the viewport)
-  useEffect(() => {
-    const setRandomMinimum = () => {
-      const padding = 100;
-      setGlobalMin({
-        x: padding + Math.random() * (window.innerWidth - padding * 2),
-        y: padding + Math.random() * (window.innerHeight - padding * 2)
-      });
-    };
-    setRandomMinimum();
-    
-    // Reset on window resize
-    const handleResize = () => {
-      setConverged(false);
-      setRandomMinimum();
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-  
-
-  useEffect(() => {
-    // Get arrow direction pointing toward minimum (negative gradient = direction to move)
-    const getGradientArrow = (dx: number, dy: number): string => {
-      if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return '·';
-      
-      // dx, dy = cursor - minimum (so positive dx means cursor is RIGHT of minimum)
-      // We want arrow pointing TO minimum, and screen Y is inverted (down = positive)
-      const angle = Math.atan2(dy, -dx);
-      const octant = Math.round(8 * angle / (2 * Math.PI) + 8) % 8;
-      const arrows = ['→', '↗', '↑', '↖', '←', '↙', '↓', '↘'] as const;
-      return arrows[octant] ?? '·';
-    };
-    
-    const handleMouseMove = (e: MouseEvent) => {
-      // Calculate L2 loss in normalized space: θ' = θ/maxDist, L(θ') = d'²
-      const distX = e.clientX - globalMin.x;
-      const distY = e.clientY - globalMin.y;
-      const distance = Math.sqrt(distX * distX + distY * distY);
-      const maxDist = Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2);
-      const normalizedDist = distance / maxDist; // d' ∈ [0, 1]
-      const normalizedLoss = normalizedDist * normalizedDist; // L = d'²
-      
-      // Gradient norm in normalized space: ‖∇L‖ = 2d' = 2√L ∈ [0, 2]
-      const gradientNorm = 2 * normalizedDist; // ~0-15 range typically
-      
-      // Check for convergence (within 30px radius)
-      if (distance < 30 && !converged) {
-        setConverged(true);
-      }
-      
-      setLoss(normalizedLoss);
-      setGradNorm(gradientNorm);
-      setGradientDir(getGradientArrow(distX, distY));
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, [globalMin, converged]);
-
-  return <OptimizationStats loss={loss} gradNorm={gradNorm} gradientDir={gradientDir} converged={converged} />;
 }
 
 export default function ClientLayout({
@@ -278,7 +126,7 @@ export default function ClientLayout({
         {!isBlogPost && !isTape && (
           <>
             <CornerClock />
-            <OptimizationHud />
+            <CornerBuddy />
           </>
         )}
 

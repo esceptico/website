@@ -1267,3 +1267,40 @@ html.theme-switching *::after { transition: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .toc-pill, .toc-sheet, .toc-sheet-wrap { transition: none; }
 }
+
+/* ============================================
+   Level meter beside the corner face while he listens (links to /tape)
+   ============================================ */
+
+.live-bars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 0.8em;
+}
+
+.live-bars i {
+  width: 2px;
+  height: 100%;
+  border-radius: 1px;
+  background: var(--accent);
+  transform: scaleY(0.3);
+  animation: live-bars 1.1s ease-in-out infinite alternate;
+}
+
+.live-bars i:nth-child(1) { animation-delay: -0.9s; animation-duration: 0.9s; }
+.live-bars i:nth-child(2) { animation-delay: -0.2s; animation-duration: 1.3s; }
+.live-bars i:nth-child(3) { animation-delay: -0.6s; animation-duration: 0.8s; }
+.live-bars i:nth-child(4) { animation-delay: -0.4s; animation-duration: 1.2s; }
+.live-bars i:nth-child(5) { animation-delay: -1s; animation-duration: 1s; }
+
+@keyframes live-bars {
+  from { transform: scaleY(0.25); }
+  to { transform: scaleY(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-bars i { animation: none; }
+  .live-bars i:nth-child(odd) { transform: scaleY(0.5); }
+  .live-bars i:nth-child(even) { transform: scaleY(0.9); }
+}
