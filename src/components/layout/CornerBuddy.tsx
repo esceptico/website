@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 // Bottom-right corner of the index and log pages.
 // A text face that watches the pointer and follows Tim's local day:
-// it sleeps while it is night in Los Angeles.
+// it sleeps while it is night in Los Angeles, until someone clicks it awake.
 //
 // The face is one of a fixed set of moods. A "resting" mood comes from the
 // world (night, idle pointer, pointer close by). A "reaction" is a short
@@ -24,8 +24,7 @@ type Mood =
   | 'annoyed' // clicked too much
   | 'fleeing' // clicked far too much: moving away
   | 'wary' // just fled, keeping an eye on you
-  | 'startled' // woken from a doze
-  | 'grumpy'; // clicked while asleep
+  | 'startled'; // woken from a doze, or clicked awake at night
 
 type Face = { eye: string; mouth: string; tracks?: boolean; tail?: string; note?: string };
 
@@ -33,13 +32,12 @@ const FACES: Record<Mood, Face> = {
   idle: { eye: '•', mouth: '_', tracks: true },
   near: { eye: '°', mouth: 'o', tracks: true },
   dozing: { eye: '–', mouth: '_', tail: ' z' },
-  asleep: { eye: '–', mouth: '_', tail: ' zzz', note: 'tim is asleep' },
+  asleep: { eye: '–', mouth: '_', tail: ' zzz' },
   happy: { eye: '^', mouth: '▽', note: 'hi' },
   annoyed: { eye: '¬', mouth: '_', note: 'hey' },
   fleeing: { eye: '>', mouth: '_' },
   wary: { eye: '•', mouth: '_', tracks: true, tail: ';' },
   startled: { eye: '°', mouth: '□' },
-  grumpy: { eye: '¬', mouth: '_', tail: ' …' },
 };
 
 const NEAR_PX = 90;
@@ -48,6 +46,7 @@ const CLICK_WINDOW_MS = 2500; // clicks closer together than this add up
 const ANNOYED_AT = 3;
 const FLEE_AT = 5;
 const GO_HOME_AFTER_MS = 12_000;
+const BACK_TO_SLEEP_MS = 60_000; // at night, after the last click
 const LISTEN_FIRST_MS = 5000;
 const LISTEN_FOR_MS = 20_000;
 const LISTEN_EVERY_MS = 50_000;
@@ -67,6 +66,8 @@ export default function CornerBuddy() {
 
   // Resting inputs
   const [night, setNight] = useState(false);
+  const [woken, setWoken] = useState(false); // clicked awake during the night
+  const asleep = night && !woken;
   const [dozing, setDozing] = useState(false);
   const [near, setNear] = useState(false);
   // Reaction on a timer
@@ -87,13 +88,13 @@ export default function CornerBuddy() {
   }, []);
   useEffect(() => () => clearTimeout(reactionTimer.current), []);
 
-  const mood: Mood = reaction ?? (night ? 'asleep' : dozing ? 'dozing' : near ? 'near' : 'idle');
+  const mood: Mood = reaction ?? (asleep ? 'asleep' : dozing ? 'dozing' : near ? 'near' : 'idle');
   const face = FACES[mood];
 
   // Headphones go on a few seconds after load, then come back now and then.
   const [listening, setListening] = useState(false);
   useEffect(() => {
-    if (night) return;
+    if (asleep) return;
     let off: ReturnType<typeof setTimeout>;
     const on = () => {
       setListening(true);
@@ -107,7 +108,7 @@ export default function CornerBuddy() {
       clearInterval(again);
       setListening(false);
     };
-  }, [night]);
+  }, [asleep]);
 
   // Night in Los Angeles
   useEffect(() => {
@@ -120,7 +121,7 @@ export default function CornerBuddy() {
   // Pointer: where to look, how close, and when it last moved
   const pointer = useRef({ movedAt: 0 });
   useEffect(() => {
-    if (night) return;
+    if (asleep) return;
     pointer.current.movedAt = performance.now();
 
     const onMove = (e: PointerEvent) => {
@@ -150,7 +151,7 @@ export default function CornerBuddy() {
       window.removeEventListener('pointermove', onMove);
       clearInterval(idle);
     };
-  }, [night, react]);
+  }, [asleep, react]);
 
   // Blink while the eyes are open and following
   useEffect(() => {
@@ -177,10 +178,19 @@ export default function CornerBuddy() {
   const homeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(homeTimer.current), []);
 
+  // At night a click wakes him; he goes back to sleep a minute after the last click.
+  const sleepTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(sleepTimer.current), []);
+
   const poke = () => {
     if (night) {
-      react('grumpy', 1600);
-      return;
+      clearTimeout(sleepTimer.current);
+      sleepTimer.current = setTimeout(() => setWoken(false), BACK_TO_SLEEP_MS);
+      if (!woken) {
+        setWoken(true);
+        react('startled', 700);
+        return;
+      }
     }
     const now = performance.now();
     clicks.current = [...clicks.current.filter((t) => now - t < CLICK_WINDOW_MS), now];
