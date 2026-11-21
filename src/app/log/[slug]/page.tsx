@@ -1,5 +1,6 @@
 import { getPostBySlug, getAllPosts } from '@/lib/blog';
 import { BlogViewer } from '@/components/blog/BlogViewer';
+import { Citation } from '@/components/blog/Citation';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { MDXRemote } from 'next-mdx-remote/rsc';
@@ -101,6 +102,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             blockJS: false,
           }}
         />
+        <Citation post={post} />
       </BlogViewer>
     </>
   );
